@@ -1,0 +1,13 @@
+# Default: 30
+# Range: 5 ~ 120
+intervalSeconds = 10
+friendlyFire = false
+# Default: 600
+# Range: 15 ~ 1800
+roundSeconds = 60
+hideEnemyNametags = true
+# Default: 5
+# Range: 0 ~ 30
+respawnDelay = 5
+infiniteBlocks = true
+giveSaturation = true

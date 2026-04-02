@@ -1,0 +1,58 @@
+package com.entropy.arena.core.map;
+
+import com.entropy.arena.api.gamemode.ArenaGamemode;
+import com.entropy.arena.api.gamemode.GamemodeRegistry;
+import com.entropy.arena.core.network.toServer.VotePacket;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.PacketDistributor;
+
+import java.awt.*;
+
+public record ArenaMapInfo(String name, MapScreenshot screenshot, ResourceLocation gamemode, int teams) {
+    public static final StreamCodec<ByteBuf, ArenaMapInfo> STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.STRING_UTF8, ArenaMapInfo::name, MapScreenshot.STREAM_CODEC, ArenaMapInfo::screenshot, ResourceLocation.STREAM_CODEC, ArenaMapInfo::gamemode, ByteBufCodecs.INT, ArenaMapInfo::teams, ArenaMapInfo::new);
+    public static final int TEXT_PADDING = 2;
+    public static final int FRAME_PADDING = 2;
+    public static final Color NAME_COLOR = Color.CYAN;
+    public static final Color GAMEMODE_COLOR = Color.GREEN;
+    public static final Color TEAM_COUNT_COLOR = Color.YELLOW;
+    public static final Color FRAME_COLOR = Color.LIGHT_GRAY;
+    public static final Color FRAME_SELECTED_COLOR = Color.WHITE;
+
+    public ScreenLocation render(GuiGraphics graphics, int x, int y, int width, int mouseX, int mouseY) {
+        Minecraft client = Minecraft.getInstance();
+        ArenaGamemode mode = GamemodeRegistry.getGamemode(gamemode);
+        Font font = client.font;
+        int lineHeight = client.font.lineHeight + TEXT_PADDING;
+        int imageHeight = (int) (width * screenshot.aspectRatio);
+        int totalHeight = imageHeight + lineHeight * 3;
+        int centerX = x + width / 2;
+        int textStartY = y + imageHeight + TEXT_PADDING;
+        ScreenLocation location = new ScreenLocation(name, x, y, width, totalHeight);
+        screenshot.render(graphics, x + FRAME_PADDING, y + FRAME_PADDING, width - FRAME_PADDING * 2);
+        graphics.drawCenteredString(font, name, centerX, textStartY, NAME_COLOR.getRGB());
+        if (mode != null) graphics.drawCenteredString(font, mode.getName(), centerX, textStartY + lineHeight, GAMEMODE_COLOR.getRGB());
+        graphics.drawCenteredString(font, teams > 1 ? "Teams: " + teams : "No Teams", centerX, textStartY + lineHeight * 2, TEAM_COUNT_COLOR.getRGB());
+        graphics.renderOutline(x, y, width, totalHeight, location.isWithinBounds(mouseX, mouseY) ? FRAME_SELECTED_COLOR.getRGB() : FRAME_COLOR.getRGB());
+        return location;
+    }
+
+    public record ScreenLocation(String name, double x, double y, double width, double height) {
+        public boolean tryClick(double mouseX, double mouseY) {
+            if (isWithinBounds(mouseX, mouseY)) {
+                PacketDistributor.sendToServer(new VotePacket(name));
+                return true;
+            }
+            return false;
+        }
+
+        private boolean isWithinBounds(double mouseX, double mouseY) {
+            return mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height;
+        }
+    }
+}

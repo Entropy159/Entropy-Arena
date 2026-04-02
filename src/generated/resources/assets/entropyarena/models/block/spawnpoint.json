@@ -1,0 +1,6 @@
+{
+  "parent": "entropyarena:block/base_tint_translucent",
+  "textures": {
+    "all": "entropyarena:block/spawnpoint"
+  }
+}

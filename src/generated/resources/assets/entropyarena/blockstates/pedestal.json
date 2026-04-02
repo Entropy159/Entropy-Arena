@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "has_gem=false": {
+      "model": "entropyarena:block/pedestal_off"
+    },
+    "has_gem=true": {
+      "model": "entropyarena:block/pedestal"
+    }
+  }
+}

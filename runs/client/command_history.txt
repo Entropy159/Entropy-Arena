@@ -1,0 +1,50 @@
+/arena stop
+/arena start
+/arena sotp
+/arena stop
+/arena start
+/arena stop
+/arena start
+/arena stop
+/arena start
+/arena stop
+/arena start
+/arena stop
+/arena start
+/arena stop
+/arena map load "Terrain Tower"
+/arena start
+/arena stop
+/arena start
+/arena stop
+/arena start
+/arena stop
+/arena start
+/arena stop
+/arena start
+/arena stop
+/arena start
+/arena sotp
+/arena stop
+/arena start
+/arena stop
+/arena start
+/arena stop
+/arena start
+/arena stop
+/arena start
+/arena stop
+/arena start
+/arena stop
+/arena start
+/arena map load "Terrain Tower"
+/tp @e Dev
+/kill @e[type=!minecraft:player]
+/clear
+/arena start
+/arena stop
+/arena start
+/arena stop
+/arena start
+/arena stop
+/arena map load "Terrain Tower"

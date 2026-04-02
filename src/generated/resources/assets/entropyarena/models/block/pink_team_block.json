@@ -1,0 +1,6 @@
+{
+  "parent": "entropyarena:block/base_tint",
+  "textures": {
+    "all": "entropyarena:block/team_block"
+  }
+}

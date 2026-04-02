@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "waterlogged=false": {
+      "model": "entropyarena:block/kill_barrier"
+    },
+    "waterlogged=true": {
+      "model": "entropyarena:block/kill_barrier"
+    }
+  }
+}

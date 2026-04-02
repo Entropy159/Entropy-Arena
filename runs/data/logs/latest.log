@@ -1,0 +1,36 @@
+[01Apr2026 15:18:54.449] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher running: args [--mod, entropyarena, --all, --output, D:\\Coding Projects\\Entropy Arena\\src\\generated\\resources, --existing, D:\\Coding Projects\\Entropy Arena\\src\\main\\resources, --launchTarget, forgedatadev, --assetIndex, asset-index, --assetsDir, C:\\Users\\entro\\.gradle\\caches\\minecraft\\assets, --gameDir, ., --fml.fmlVersion, 4.0.42, --fml.mcVersion, 1.21.1, --fml.neoForgeVersion, 21.1.218, --fml.neoFormVersion, 20240808.144430]
+[01Apr2026 15:18:54.452] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: JVM identified as JetBrains s.r.o. OpenJDK 64-Bit Server VM 21.0.6+-13391695-b895.109
+[01Apr2026 15:18:54.453] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher 11.0.5+main.901c6ea8 starting: java version 21.0.6 by JetBrains s.r.o.; OS Windows 11 arch amd64 version 10.0
+[01Apr2026 15:18:54.535] [main/INFO] [net.neoforged.fml.loading.ImmediateWindowHandler/]: ImmediateWindowProvider not loading because launch target is forgedatadev
+[01Apr2026 15:18:54.581] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=union:/C:/Users/entro/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.15.2+mixin.0.8.7/2af2f021d8e02a0220dc27a7a72b4666d66d44ca/sponge-mixin-0.15.2+mixin.0.8.7.jar%23142!/ Service=ModLauncher Env=CLIENT
+[01Apr2026 15:18:54.665] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/SCAN]: Found mod file "neoforge-21.1.218.jar" [locator: neoforge devenv provider ([D:\Coding Projects\Entropy Arena\.gradle\repositories\ng_dummy_ng\net\neoforged\neoforge\21.1.218\neoforge-21.1.218.jar])]
+[01Apr2026 15:18:54.681] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/SCAN]: Found mod file "neoforge-21.1.218.jar" [locator: neoforge devenv provider ([D:\Coding Projects\Entropy Arena\.gradle\repositories\ng_dummy_ng\net\neoforged\neoforge\21.1.218\neoforge-21.1.218.jar])]
+[01Apr2026 15:18:54.690] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/SCAN]: Found mod file "main" [locator: userdev mods and services, reader: mod manifest]
+[01Apr2026 15:18:54.697] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/SCAN]: Found mod file "neoforge-21.1.218.jar" [locator: userdev mods and services, reader: mod manifest]
+[01Apr2026 15:18:54.732] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/SCAN]: Found gamelibrary file "Registrate-MC1.21-1.3.0+67.jar" [locator: userdev mods and services, reader: mod manifest]
+[01Apr2026 15:18:54.841] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/SCAN]: Found gamelibrary file "mixinextras-neoforge-0.5.0.jar" [locator: userdev mods and services, reader: mod manifest]
+[01Apr2026 15:18:54.940] [main/WARN] [net.neoforged.jarjar.selection.JarSelector/]: Attempted to select a dependency jar for JarJar which was passed in as source: library:mixinextras.neoforge. Using Mod File: C:\Users\entro\.gradle\caches\modules-2\files-2.1\io.github.llamalad7\mixinextras-neoforge\0.5.0\d734b83ce6542bb70ea31755c1595b88992dbe65\mixinextras-neoforge-0.5.0.jar
+[01Apr2026 15:18:54.940] [main/INFO] [net.neoforged.fml.loading.moddiscovery.locators.JarInJarDependencyLocator/]: Found 1 dependencies adding them to mods collection
+[01Apr2026 15:18:54.940] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/SCAN]: Found library file "net.neoforged.neoforge-coremods-21.1.218.jar" [parent: neoforge-21.1.218.jar, locator: jarinjar, reader: mod manifest]
+[01Apr2026 15:18:54.942] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/]: 
+     Mod List:
+		Name Version (Mod Id)
+
+		Entropy Arena 1.0.0 (entropyarena)
+		Minecraft 1.21.1 (minecraft)
+		NeoForge 21.1.218 (neoforge)
+[01Apr2026 15:18:55.290] [main/INFO] [mixin/]: Compatibility level set to JAVA_21
+[01Apr2026 15:18:55.297] [main/INFO] [cpw.mods.modlauncher.LaunchServiceHandler/MODLAUNCHER]: Launching target 'forgedatadev' with arguments [--gameDir, ., --assetsDir, C:\Users\entro\.gradle\caches\minecraft\assets, --mod, entropyarena, --all, --output, D:\\Coding Projects\\Entropy Arena\\src\\generated\\resources, --existing, D:\\Coding Projects\\Entropy Arena\\src\\main\\resources, --assetIndex, asset-index]
+[01Apr2026 15:18:55.854] [main/INFO] [net.neoforged.neoforge.data.loading.DatagenModLoader/]: Initializing Data Gatherer for mods [entropyarena]
+[01Apr2026 15:18:55.866] [main/INFO] [MixinExtras|Service/]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.0).
+[01Apr2026 15:18:59.744] [modloading-worker-0/INFO] [net.neoforged.neoforge.common.NeoForgeMod/NEOFORGE-MOD]: NeoForge mod loading, version 21.1.218, for MC 1.21.1
+[01Apr2026 15:19:00.060] [main/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/D:/Coding%20Projects/Entropy%20Arena/.gradle/repositories/ng_dummy_ng/net/neoforged/neoforge/21.1.218/neoforge-21.1.218.jar%23195!/assets/.mcassetsroot' uses unexpected schema
+[01Apr2026 15:19:00.060] [main/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/D:/Coding%20Projects/Entropy%20Arena/.gradle/repositories/ng_dummy_ng/net/neoforged/neoforge/21.1.218/neoforge-21.1.218.jar%23195!/data/.mcassetsroot' uses unexpected schema
+[01Apr2026 15:19:00.254] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Registrate Provider for entropyarena [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
+[01Apr2026 15:19:00.449] [main/INFO] [net.minecraft.data.DataGenerator/]: Registrate Provider for entropyarena [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider] finished after 194 ms
+[01Apr2026 15:19:00.449] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Sound Definitions
+[01Apr2026 15:19:00.454] [main/INFO] [net.minecraft.data.DataGenerator/]: Sound Definitions finished after 4 ms
+[01Apr2026 15:19:00.454] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Tags for minecraft:block mod id entropyarena
+[01Apr2026 15:19:00.458] [main/INFO] [net.minecraft.data.DataGenerator/]: Tags for minecraft:block mod id entropyarena finished after 3 ms
+[01Apr2026 15:19:00.458] [main/INFO] [net.minecraft.data.DataGenerator/]: All providers took: 204 ms
+[01Apr2026 15:19:00.464] [main/INFO] [net.minecraft.data.HashCache/]: Caching: total files: 57, old count: 57, new count: 58, removed stale: 0, written: 2

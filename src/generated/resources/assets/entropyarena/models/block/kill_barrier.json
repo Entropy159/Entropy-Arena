@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/barrier",
+  "textures": {
+    "particle": "entropyarena:item/kill_barrier"
+  }
+}

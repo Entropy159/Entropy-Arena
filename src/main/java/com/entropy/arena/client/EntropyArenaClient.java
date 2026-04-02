@@ -1,0 +1,162 @@
+package com.entropy.arena.client;
+
+import com.entropy.arena.api.Notification;
+import com.entropy.arena.api.client.ArenaRenderingUtils;
+import com.entropy.arena.api.client.ScreenAnchorPoint;
+import com.entropy.arena.api.events.ModifyGlowColorEvent;
+import com.entropy.arena.core.EntropyArena;
+import com.entropy.arena.core.map.MapScreenshot;
+import com.entropy.arena.core.network.toServer.ScreenshotPacket;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.resources.Resource;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.network.PacketDistributor;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWImage;
+import org.lwjgl.stb.STBImage;
+import org.lwjgl.system.MemoryStack;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.util.HashSet;
+import java.util.Set;
+
+import static com.entropy.arena.api.client.ClientData.*;
+
+@Mod(value = EntropyArena.MODID, dist = Dist.CLIENT)
+@EventBusSubscriber(modid = EntropyArena.MODID, value = Dist.CLIENT)
+public class EntropyArenaClient {
+    private static final Minecraft client = Minecraft.getInstance();
+
+    public static String pendingScreenshot;
+    private static boolean nextFrameTakeScreenshot = false;
+
+    public EntropyArenaClient(ModContainer container) {
+        container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+    }
+
+    @SubscribeEvent
+    public static void hud(RegisterGuiLayersEvent event) {
+        event.registerBelow(VanillaGuiLayers.CROSSHAIR, EntropyArena.id("hud"), (graphics, tracker) -> {
+            if (client.player == null || client.level == null) return;
+
+            ArenaRenderingUtils.onRenderStart();
+
+            if (running) {
+                ArenaRenderingUtils.renderText(graphics, getTimerText(), ScreenAnchorPoint.TOP_LEFT);
+                renderScores(graphics);
+                if (currentMap != null && currentGamemode != null) {
+                    ArenaRenderingUtils.renderText(graphics, Component.literal(currentMap).withStyle(ChatFormatting.AQUA), ScreenAnchorPoint.BOTTOM_LEFT);
+                    ArenaRenderingUtils.renderText(graphics, currentGamemode.getName().copy().withStyle(ChatFormatting.YELLOW), ScreenAnchorPoint.BOTTOM_LEFT);
+                    currentGamemode.onClientRender(graphics, tracker);
+                }
+            }
+
+            renderNotifications(graphics);
+        });
+    }
+
+    private static Component getTimerText() {
+        return Component.translatable((inLobby ? "arena.hud.interval" : "arena.hud.timer"), String.format("%02d:%02d", timer / 60, timer % 60));
+    }
+
+    private static void renderScores(GuiGraphics graphics) {
+        for (Component score : scoreList) {
+            ArenaRenderingUtils.renderText(graphics, score, ScreenAnchorPoint.TOP_LEFT);
+        }
+    }
+
+    private static void renderNotifications(GuiGraphics graphics) {
+        Set<Notification> expired = new HashSet<>();
+        for (Notification notification : notifications) {
+            if (!notification.tryRender(graphics, ScreenAnchorPoint.TOP_RIGHT)) {
+                expired.add(notification);
+            }
+        }
+        notifications.removeAll(expired);
+    }
+
+    @SubscribeEvent
+    public static void modifyEntityColor(ModifyGlowColorEvent event) {
+        if (currentGamemode != null) {
+            event.setColor(currentGamemode.modifyEntityColor(event.getEntity(), event.getColor()));
+        }
+    }
+
+    @SubscribeEvent
+    public static void screenshot(ClientTickEvent.Post event) {
+        if (nextFrameTakeScreenshot) {
+            PacketDistributor.sendToServer(new ScreenshotPacket(MapScreenshot.takeScreenshot(pendingScreenshot)));
+            client.options.hideGui = false;
+            pendingScreenshot = null;
+            nextFrameTakeScreenshot = false;
+        }
+        if (pendingScreenshot != null) {
+            nextFrameTakeScreenshot = true;
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLoadComplete(FMLLoadCompleteEvent event) {
+        loadIcon();
+    }
+
+    private static void loadIcon() {
+        ByteBuffer icon = null;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer w = stack.mallocInt(1);
+            IntBuffer h = stack.mallocInt(1);
+            IntBuffer channels = stack.mallocInt(1);
+
+            icon = loadIconImage(w, h, channels);
+            if (icon == null) {
+                return;
+            }
+
+            try (GLFWImage.Buffer icons = GLFWImage.malloc(1)) {
+                GLFWImage iconImage = icons.get(0);
+                iconImage.set(w.get(0), h.get(0), icon);
+
+                GLFW.glfwSetWindowIcon(client.getWindow().getWindow(), icons);
+            }
+        } catch (Exception e) {
+            EntropyArena.LOGGER.error("Failed to set window icon", e);
+        } finally {
+            if (icon != null) {
+                STBImage.stbi_image_free(icon);
+            }
+        }
+    }
+
+    private static ByteBuffer loadIconImage(IntBuffer w, IntBuffer h, IntBuffer channels) throws IOException {
+        Resource iconResource = client.getResourceManager().getResourceOrThrow(EntropyArena.id("icon.png"));
+
+        try (InputStream stream = iconResource.open()) {
+            byte[] iconBytes = stream.readAllBytes();
+
+            ByteBuffer buffer = ByteBuffer.allocateDirect(iconBytes.length).put(iconBytes).flip();
+            ByteBuffer icon = STBImage.stbi_load_from_memory(buffer, w, h, channels, 4);
+
+            if (icon == null) {
+                EntropyArena.LOGGER.error("Failed to load icon: {}", STBImage.stbi_failure_reason());
+            }
+
+            return icon;
+        }
+    }
+}

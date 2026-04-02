@@ -1,0 +1,60 @@
+modLoader = "javafml" #mandatory
+
+loaderVersion = "${loader_version_range}" #mandatory
+
+license = "${mod_license}"
+
+issueTrackerURL = "https://github.com/Entropy159/Entropy-Arena/issues" #optional
+
+[[mods]] #mandatory
+
+modId = "${mod_id}" #mandatory
+
+version = "${mod_version}" #mandatory
+
+displayName = "${mod_name}" #mandatory
+
+#updateJSONURL="https://change.me.example.invalid/updates.json" #optional
+
+displayURL="https://github.com/Entropy159/Entropy-Arena/" #optional
+
+logoFile="icon.png"
+
+#credits="" #optional
+
+authors = "Entropy159"
+
+description = '''
+Base mod for arena functionality. Use addons to integrate with other mods!
+
+Credits can be found on the GitHub page.
+
+Custom music logic adapted from the Music Control mod.
+
+Music found on Pixabay under Creative Commons license:
+Broken Computer Effect Music
+Heart In Lights
+Always On The Way
+Edge of the World
+The Path Untrodden
+Alone, Not Lost
+Street Lights
+Safe Way
+'''
+
+[[mixins]]
+config = "${mod_id}.mixins.json"
+
+[[dependencies.${ mod_id }]] #optional
+modId = "neoforge" #mandatory
+type = "required" #mandatory
+versionRange = "[${neo_version},)" #mandatory
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${ mod_id }]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"

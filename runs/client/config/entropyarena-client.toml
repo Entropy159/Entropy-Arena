@@ -4,4 +4,4 @@ notificationFadeoutDelay = 5.0
 # Default: 1.0
 # Range: 0.0 ~ 5.0
 notificationFadeoutDuration = 1.0
-useChatForNotifications = true
+useChatForNotifications = false

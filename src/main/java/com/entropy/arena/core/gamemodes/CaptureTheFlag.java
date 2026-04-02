@@ -4,7 +4,7 @@ import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.ArenaUtils;
 import com.entropy.arena.api.Notification;
 import com.entropy.arena.api.client.ArenaRenderingUtils;
-import com.entropy.arena.api.data.ArenaLogic;
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.TeamGamemode;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.PedestalBlock;
@@ -38,13 +38,12 @@ public class CaptureTheFlag extends TeamGamemode {
     private HashMap<BlockPos, Boolean> pedestalValueMap = new HashMap<>();
 
     public CaptureTheFlag() {
-        super(EntropyArena.id("capture_the_flag"));
+        super(EntropyArena.id("capture_the_flag"), "Capture the Flag");
     }
 
     @Override
     public void generateLang() {
-        EntropyArena.REGISTRATE.addRawLang("arena.gamemode.entropyarena.capture_the_flag", "Capture the Flag");
-
+        super.generateLang();
         EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.flag_taken", "Team %s's flag has been taken by team %s");
         EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.flag_returned", "Team %s's flag has been returned");
         EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.flag_scored", "Team %s has scored");
@@ -52,15 +51,15 @@ public class CaptureTheFlag extends TeamGamemode {
     }
 
     @Override
-    public void onGameStart(ArenaLogic data) {
-        super.onGameStart(data);
+    public void onMatchStart(ArenaData data) {
+        super.onMatchStart(data);
         pedestalPositions = data.getCurrentMap().getBlockPropertyMap(data.getLevel(), PedestalBlock.GEM_COLOR);
         pedestalPositions.values().forEach(list -> list.forEach(pos -> pedestalValueMap.put(pos, true)));
         sendToAll();
     }
 
     @Override
-    public void onEntityTick(ArenaLogic data, Entity entity) {
+    public void onEntityTick(ArenaData data, Entity entity) {
         super.onEntityTick(data, entity);
         if (isTeamGem(entity)) {
             entity.setGlowingTag(true);

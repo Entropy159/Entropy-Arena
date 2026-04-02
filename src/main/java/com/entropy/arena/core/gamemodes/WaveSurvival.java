@@ -4,7 +4,7 @@ import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.Notification;
 import com.entropy.arena.api.client.ArenaRenderingUtils;
 import com.entropy.arena.api.client.ScreenAnchorPoint;
-import com.entropy.arena.api.data.ArenaLogic;
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.CoOpGamemode;
 import com.entropy.arena.core.EntropyArena;
 import io.netty.buffer.ByteBuf;
@@ -39,17 +39,17 @@ public class WaveSurvival extends CoOpGamemode {
     private boolean isInterval = true;
 
     public WaveSurvival() {
-        super(EntropyArena.id("wave_survival"));
+        super(EntropyArena.id("wave_survival"), "Wave Survival");
     }
 
     @Override
-    public void onGameStart(ArenaLogic data) {
-        super.onGameStart(data);
+    public void onMatchStart(ArenaData data) {
+        super.onMatchStart(data);
         mobSpawns = data.getCurrentMap().getSpawns(data.getLevel()).get(ArenaTeam.RED);
     }
 
     @Override
-    public void onLevelTick(ArenaLogic data) {
+    public void onLevelTick(ArenaData data) {
         super.onLevelTick(data);
         if (isInterval) {
             tickCooldown();
@@ -98,8 +98,7 @@ public class WaveSurvival extends CoOpGamemode {
 
     @Override
     public void generateLang() {
-        EntropyArena.REGISTRATE.addRawLang("arena.gamemode.entropyarena.wave_survival", "Wave Survival");
-
+        super.generateLang();
         EntropyArena.REGISTRATE.addRawLang("arena.message.waves.interval", "Interval: %s");
         EntropyArena.REGISTRATE.addRawLang("arena.message.waves.mob_count", "Mobs: %s/%s");
         EntropyArena.REGISTRATE.addRawLang("arena.message.waves.survived_wave", "Survived wave %s");

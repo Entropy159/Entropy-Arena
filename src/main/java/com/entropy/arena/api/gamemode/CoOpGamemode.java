@@ -2,7 +2,7 @@ package com.entropy.arena.api.gamemode;
 
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.Notification;
-import com.entropy.arena.api.data.ArenaLogic;
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.core.network.toClient.ScoresPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
@@ -22,8 +22,8 @@ import java.util.List;
 public abstract class CoOpGamemode extends ArenaGamemode {
     private int collectiveScore = 0;
 
-    public CoOpGamemode(ResourceLocation id) {
-        super(id);
+    public CoOpGamemode(ResourceLocation id, String name) {
+        super(id, name);
     }
 
     @Override
@@ -32,13 +32,13 @@ public abstract class CoOpGamemode extends ArenaGamemode {
     }
 
     @Override
-    public void onGameEnd(ArenaLogic data) {
-        super.onGameEnd(data);
+    public void onMatchEnd(ArenaData data) {
+        super.onMatchEnd(data);
         Notification.toAll(Component.translatable("arena.message.collective_winner", collectiveScore).withStyle(ChatFormatting.GREEN));
     }
 
     @Override
-    public ArrayList<BlockPos> getValidSpawns(ArenaLogic data, ServerPlayer player) {
+    public ArrayList<BlockPos> getValidSpawns(ArenaData data, ServerPlayer player) {
         return data.getCurrentMap().getSpawns(data.getLevel()).get(ArenaTeam.NONE);
     }
 

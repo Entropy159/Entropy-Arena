@@ -1,7 +1,7 @@
 package com.entropy.arena.core.network.toClient;
 
 import com.entropy.arena.api.client.ClientData;
-import com.entropy.arena.api.data.ArenaLogic;
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
 import com.entropy.arena.core.EntropyArena;
 import io.netty.buffer.ByteBuf;
@@ -21,7 +21,7 @@ public record GameInfoPacket(String mapName, ResourceLocation gamemode) implemen
         return TYPE;
     }
 
-    public static GameInfoPacket fromData(ArenaLogic data) {
+    public static GameInfoPacket fromData(ArenaData data) {
         return new GameInfoPacket(data.getCurrentMap() == null ? "" : data.getCurrentMap().getName(), data.getCurrentGamemode() == null ? GamemodeRegistry.NONE_ID : data.getCurrentGamemode().getRegistryID());
     }
 

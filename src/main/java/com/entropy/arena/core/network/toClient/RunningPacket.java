@@ -1,7 +1,7 @@
 package com.entropy.arena.core.network.toClient;
 
 import com.entropy.arena.api.client.ClientData;
-import com.entropy.arena.api.data.ArenaLogic;
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.client.MusicData;
 import com.entropy.arena.core.EntropyArena;
 import io.netty.buffer.ByteBuf;
@@ -33,11 +33,11 @@ public record RunningPacket(boolean running, boolean lobby) implements CustomPac
         }
     }
 
-    public static void sendToEveryone(ArenaLogic data) {
+    public static void sendToEveryone(ArenaData data) {
         PacketDistributor.sendToAllPlayers(new RunningPacket(data.isRunning(), data.isLobby()));
     }
 
-    public static void sendToPlayer(ArenaLogic data, ServerPlayer player) {
+    public static void sendToPlayer(ArenaData data, ServerPlayer player) {
         PacketDistributor.sendToPlayer(player, new RunningPacket(data.isRunning(), data.isLobby()));
     }
 }

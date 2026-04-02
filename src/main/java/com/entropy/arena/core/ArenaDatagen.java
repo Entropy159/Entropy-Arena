@@ -116,15 +116,18 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("key.categories." + MODID, "Entropy Arena");
         REGISTRATE.addRawLang("key.next_music", "Next Music");
 
-        REGISTRATE.addRawLang(MODID + "configuration.notificationFadeoutDelay", "Notification Fade Out Delay");
-        REGISTRATE.addRawLang(MODID + "configuration.notificationFadeoutDuration", "Notification Fade Out Duration");
-        REGISTRATE.addRawLang(MODID + "configuration.intervalSeconds", "Interval Seconds");
-        REGISTRATE.addRawLang(MODID + "configuration.roundsSeconds", "Round Seconds");
-        REGISTRATE.addRawLang(MODID + "configuration.friendlyFire", "Friendly Fire");
-        REGISTRATE.addRawLang(MODID + "configuration.hideEnemyNametags", "Hide Enemy Nametags");
-        REGISTRATE.addRawLang(MODID + "configuration.respawnDelay", "Respawn Delay");
-        REGISTRATE.addRawLang(MODID + "configuration.infiniteBlocks", "Infinite Blocks");
-        REGISTRATE.addRawLang(MODID + "configuration.giveSaturation", "Give Saturation");
+        REGISTRATE.addRawLang(MODID + ".configuration.infiniteBlocks", "Infinite Blocks");
+
+        REGISTRATE.addRawLang(MODID + ".configuration.useChatForNotifications", "Use Chat For Notifications");
+        REGISTRATE.addRawLang(MODID + ".configuration.notificationFadeoutDelay", "Notification Fade Out Delay");
+        REGISTRATE.addRawLang(MODID + ".configuration.notificationFadeoutDuration", "Notification Fade Out Duration");
+
+        REGISTRATE.addRawLang(MODID + ".configuration.intervalSeconds", "Interval Seconds");
+        REGISTRATE.addRawLang(MODID + ".configuration.roundsSeconds", "Round Seconds");
+        REGISTRATE.addRawLang(MODID + ".configuration.friendlyFire", "Friendly Fire");
+        REGISTRATE.addRawLang(MODID + ".configuration.hideEnemyNametags", "Hide Enemy Nametags");
+        REGISTRATE.addRawLang(MODID + ".configuration.respawnDelay", "Respawn Delay");
+        REGISTRATE.addRawLang(MODID + ".configuration.giveSaturation", "Give Saturation");
 
         REGISTRATE.addRawLang("arena.hud.interval", "Interval: %s");
         REGISTRATE.addRawLang("arena.hud.timer", "Timer: %s");
@@ -141,6 +144,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.loaded_map", "Loaded map %s");
         REGISTRATE.addRawLang("arena.message.game_over", "Game over!");
         REGISTRATE.addRawLang("arena.message.game_start", "Game starting!");
+        REGISTRATE.addRawLang("arena.message.voted_for_map", "Voted for map %s");
         REGISTRATE.addRawLang("arena.message.enable", "Starting Entropy Arena");
         REGISTRATE.addRawLang("arena.message.map_info", "Map: %s - gamemode: ");
         REGISTRATE.addRawLang("arena.message.switch_team", "You are on team %s");

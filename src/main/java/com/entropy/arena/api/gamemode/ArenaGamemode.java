@@ -2,8 +2,9 @@ package com.entropy.arena.api.gamemode;
 
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.client.ClientData;
-import com.entropy.arena.api.data.ArenaLogic;
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gear.StarterGear;
+import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.DeltaTracker;
@@ -33,26 +34,30 @@ import java.util.function.Predicate;
 
 public abstract class ArenaGamemode implements CustomPacketPayload {
     private final ResourceLocation id;
+    private final String name;
 
-    public ArenaGamemode(ResourceLocation id) {
+    public ArenaGamemode(ResourceLocation id, String name) {
         this.id = id;
+        this.name = name;
     }
 
     public Component getName() {
-        return Component.translatable("arena.gamemode." + id.toLanguageKey());
+        return Component.translatable("arena.gamemode." + getRegistryID().toLanguageKey());
     }
 
     public ResourceLocation getRegistryID() {
         return id;
     }
 
-    public abstract void generateLang();
+    public void generateLang() {
+        EntropyArena.REGISTRATE.addRawLang("arena.gamemode." + getRegistryID().toLanguageKey(), name);
+    }
 
-    public void onLevelTick(ArenaLogic data) {
+    public void onLevelTick(ArenaData data) {
 
     }
 
-    public void onEntityTick(ArenaLogic data, Entity entity) {
+    public void onEntityTick(ArenaData data, Entity entity) {
 
     }
 
@@ -65,7 +70,7 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
      * @param source The damage source that caused the player to die
      * @return Whether to prevent the player from dying or not
      */
-    public boolean onDeath(ArenaLogic data, ServerPlayer player, DamageSource source) {
+    public boolean onDeath(ArenaData data, ServerPlayer player, DamageSource source) {
         Inventory inventory = player.getInventory();
         for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
             ItemStack stack = inventory.getItem(slot);
@@ -87,19 +92,19 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
     public void modifyStarterGear(StarterGear gear) {
     }
 
-    public void onJoin(ArenaLogic data, ServerPlayer player) {
+    public void onJoin(ArenaData data, ServerPlayer player) {
         sendToPlayer(player);
     }
 
-    public void onLeave(ArenaLogic data, ServerPlayer player) {
+    public void onLeave(ArenaData data, ServerPlayer player) {
 
     }
 
-    public void onGameEnd(ArenaLogic data) {
+    public void onMatchEnd(ArenaData data) {
 
     }
 
-    public void onGameStart(ArenaLogic data) {
+    public void onMatchStart(ArenaData data) {
 
     }
 
@@ -111,7 +116,7 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
 
     public abstract List<Component> getScoreText(ServerLevel level);
 
-    public abstract ArrayList<BlockPos> getValidSpawns(ArenaLogic data, ServerPlayer player);
+    public abstract ArrayList<BlockPos> getValidSpawns(ArenaData data, ServerPlayer player);
 
     @OnlyIn(Dist.CLIENT)
     public int modifyEntityColor(Entity entity, int color) {

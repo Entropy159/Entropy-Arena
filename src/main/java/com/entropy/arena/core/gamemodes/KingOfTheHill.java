@@ -1,6 +1,6 @@
 package com.entropy.arena.core.gamemodes;
 
-import com.entropy.arena.api.data.ArenaLogic;
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.FFAGamemode;
 import com.entropy.arena.api.gamemode.HasCapturePoints;
 import com.entropy.arena.core.EntropyArena;
@@ -27,19 +27,18 @@ public class KingOfTheHill extends FFAGamemode implements HasCapturePoints<KOTHC
     private KOTHCapturePoint capturePoint;
 
     public KingOfTheHill() {
-        super(EntropyArena.id("king_of_the_hill"));
+        super(EntropyArena.id("king_of_the_hill"), "King of the Hill");
     }
 
     @Override
     public void generateLang() {
-        EntropyArena.REGISTRATE.addRawLang("arena.gamemode.entropyarena.king_of_the_hill", "King of the Hill");
-
+        super.generateLang();
         EntropyArena.REGISTRATE.addRawLang("arena.message.koth.new_king", "%s has taken the hill");
         EntropyArena.REGISTRATE.addRawLang("arena.message.koth.hill_lost", "%s has lost the hill");
     }
 
     @Override
-    public void onLevelTick(ArenaLogic data) {
+    public void onLevelTick(ArenaData data) {
         super.onLevelTick(data);
         if (capturePoint == null) return;
         capturePoint.onLevelTick(data.getLevel());
@@ -60,8 +59,8 @@ public class KingOfTheHill extends FFAGamemode implements HasCapturePoints<KOTHC
     }
 
     @Override
-    public void onGameStart(ArenaLogic data) {
-        super.onGameStart(data);
+    public void onMatchStart(ArenaData data) {
+        super.onMatchStart(data);
         capturePoint = calculateCapturePoints(data.getCurrentMap(), data.getLevel(), KOTHCapturePoint::new).getFirst();
 //        removeCapturePointBlocks(data.getLevel());
         sendToAll();

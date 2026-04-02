@@ -2,7 +2,7 @@ package com.entropy.arena.api.gamemode;
 
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.Notification;
-import com.entropy.arena.api.data.ArenaLogic;
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.core.network.toClient.ScoresPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
@@ -27,8 +27,8 @@ public abstract class TeamGamemode extends ArenaGamemode {
     private HashMap<ArenaTeam, Integer> scoreMap = new HashMap<>();
     private HashMap<UUID, ArenaTeam> teamMap = new HashMap<>();
 
-    public TeamGamemode(ResourceLocation id) {
-        super(id);
+    public TeamGamemode(ResourceLocation id, String name) {
+        super(id, name);
     }
 
     @Override
@@ -37,8 +37,8 @@ public abstract class TeamGamemode extends ArenaGamemode {
     }
 
     @Override
-    public void onGameStart(ArenaLogic data) {
-        super.onGameStart(data);
+    public void onMatchStart(ArenaData data) {
+        super.onMatchStart(data);
         if (data.getCurrentMap() == null) return;
         ArrayList<ArenaTeam> validTeams = data.getCurrentMap().getTeams(data.getLevel());
         validTeams.forEach(team -> setScore(team, 0));
@@ -55,8 +55,8 @@ public abstract class TeamGamemode extends ArenaGamemode {
     }
 
     @Override
-    public void onGameEnd(ArenaLogic data) {
-        super.onGameEnd(data);
+    public void onMatchEnd(ArenaData data) {
+        super.onMatchEnd(data);
         int winningScore = 0;
         boolean tied = true;
         ArenaTeam winningTeam = null;
@@ -81,12 +81,12 @@ public abstract class TeamGamemode extends ArenaGamemode {
     }
 
     @Override
-    public ArrayList<BlockPos> getValidSpawns(ArenaLogic data, ServerPlayer player) {
+    public ArrayList<BlockPos> getValidSpawns(ArenaData data, ServerPlayer player) {
         return data.getCurrentMap().getSpawns(player.serverLevel()).getOrDefault(teamMap.getOrDefault(player.getUUID(), ArenaTeam.NONE), new ArrayList<>());
     }
 
     @Override
-    public void onJoin(ArenaLogic data, ServerPlayer player) {
+    public void onJoin(ArenaData data, ServerPlayer player) {
         super.onJoin(data, player);
         if (data.getCurrentMap() == null) return;
         List<ArenaTeam> validTeams = data.getCurrentMap().getTeams(data.getLevel()).stream().sorted(Comparator.comparingInt(t -> Math.toIntExact(teamMap.values().stream().filter(t2 -> t == t2).count()))).toList();
@@ -98,7 +98,7 @@ public abstract class TeamGamemode extends ArenaGamemode {
     }
 
     @Override
-    public void onLeave(ArenaLogic data, ServerPlayer player) {
+    public void onLeave(ArenaData data, ServerPlayer player) {
         super.onLeave(data, player);
         setPlayerTeam(player, ArenaTeam.NONE);
     }

@@ -1,6 +1,6 @@
 package com.entropy.arena.core.commands;
 
-import com.entropy.arena.api.data.ArenaLogic;
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
 import com.entropy.arena.core.map.ArenaMap;
@@ -67,7 +67,7 @@ public class ArenaCommand {
     }
 
     private static int start(CommandContext<CommandSourceStack> ctx) {
-        ArenaLogic data = ArenaLogic.get(ctx.getSource().getLevel());
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         Component error = data.enable();
         if (error == null) {
             ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.match_start").withStyle(ChatFormatting.GREEN), true);
@@ -79,14 +79,14 @@ public class ArenaCommand {
     }
 
     private static int stop(CommandContext<CommandSourceStack> ctx) {
-        ArenaLogic data = ArenaLogic.get(ctx.getSource().getLevel());
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         data.disable();
         ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.match_stop").withStyle(ChatFormatting.RED), true);
         return 1;
     }
 
     private static int setLobbyPos(CommandContext<CommandSourceStack> ctx) {
-        ArenaLogic data = ArenaLogic.get(ctx.getSource().getLevel());
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         BlockPos pos = BlockPosArgument.getBlockPos(ctx, "position");
         data.setLobbyPos(pos);
         ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.set_lobby_pos", pos.toShortString()).withStyle(ChatFormatting.GREEN), true);

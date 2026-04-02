@@ -25,21 +25,11 @@ logoFile="icon.png"
 authors = "Entropy159"
 
 description = '''
+Make sure to read the wiki for a usage guide!
+
 Base mod for arena functionality. Use addons to integrate with other mods!
 
 Credits can be found on the GitHub page.
-
-Custom music logic adapted from the Music Control mod.
-
-Music found on Pixabay under Creative Commons license:
-Broken Computer Effect Music
-Heart In Lights
-Always On The Way
-Edge of the World
-The Path Untrodden
-Alone, Not Lost
-Street Lights
-Safe Way
 '''
 
 [[mixins]]

@@ -2,7 +2,7 @@ package com.entropy.arena.core.gamemodes;
 
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.capturePoint.TeamCapturePoint;
-import com.entropy.arena.api.data.ArenaLogic;
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.HasCapturePoints;
 import com.entropy.arena.api.gamemode.TeamGamemode;
 import com.entropy.arena.core.EntropyArena;
@@ -22,23 +22,18 @@ public class Domination extends TeamGamemode implements HasCapturePoints<TeamCap
     private List<TeamCapturePoint> capturePoints = new ArrayList<>();
 
     public Domination() {
-        super(EntropyArena.id("domination"));
+        super(EntropyArena.id("domination"), "Domination");
     }
 
     @Override
-    public void generateLang() {
-        EntropyArena.REGISTRATE.addRawLang("arena.gamemode.entropyarena.domination", "Domination");
-    }
-
-    @Override
-    public void onGameStart(ArenaLogic data) {
-        super.onGameStart(data);
+    public void onMatchStart(ArenaData data) {
+        super.onMatchStart(data);
         capturePoints = calculateCapturePoints(data.getCurrentMap(), data.getLevel(), TeamCapturePoint::new);
         sendToAll();
     }
 
     @Override
-    public void onLevelTick(ArenaLogic data) {
+    public void onLevelTick(ArenaData data) {
         super.onLevelTick(data);
         capturePoints.forEach(point -> point.onLevelTick(data.getLevel()));
         if (data.getLevel().getGameTime() % SCORING_DELAY_TICKS == 0) {

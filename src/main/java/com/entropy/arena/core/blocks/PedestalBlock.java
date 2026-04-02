@@ -1,6 +1,6 @@
 package com.entropy.arena.core.blocks;
 
-import com.entropy.arena.api.data.ArenaLogic;
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.core.gamemodes.CaptureTheFlag;
 import com.entropy.arena.core.items.TeamGemItem;
@@ -45,7 +45,7 @@ public class PedestalBlock extends Block {
         if (l instanceof ServerLevel level && p instanceof ServerPlayer player) {
             ArenaTeam stackColor = ArenaTeam.getFromStack(stack);
             if (stackColor != null) {
-                ArenaLogic data = ArenaLogic.get(level);
+                ArenaData data = ArenaData.get(level);
                 if (data.inGame() && data.getCurrentGamemode() instanceof CaptureTheFlag ctf) {
                     if (stack.getItem() instanceof TeamGemItem) {
                         if (stackColor == state.getValue(GEM_COLOR)) {
@@ -65,7 +65,7 @@ public class PedestalBlock extends Block {
     @Override
     protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level l, @NotNull BlockPos pos, @NotNull Player p, @NotNull BlockHitResult hitResult) {
         if (l instanceof ServerLevel level && p instanceof ServerPlayer player) {
-            ArenaLogic data = ArenaLogic.get(level);
+            ArenaData data = ArenaData.get(level);
             if (data.inGame() && data.getCurrentGamemode() instanceof CaptureTheFlag ctf) {
                 if (state.getValue(HAS_GEM)) {
                     ctf.takeGem(player, pos);

@@ -14,7 +14,6 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -26,20 +25,16 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 public class ArenaMap {
@@ -120,33 +115,20 @@ public class ArenaMap {
 
     public void backup(ServerLevel level) {
         loadChunks(level);
-        EntropyArena.LOGGER.info("Chunk loading finished at tick {}", level.getServer().getTickCount());
         EventScheduler.schedule(2, () -> {
-            AtomicBoolean isLoaded = new AtomicBoolean();
-            forEachChunk(level, (pos, chunk) -> isLoaded.set(isLoaded.get() || level.areEntitiesLoaded(pos.toLong())));
-            EntropyArena.LOGGER.info("Is loaded at tick {}: {}", level.getServer().getTickCount(), isLoaded.get());
             StructureTemplate template = new StructureTemplate();
             template.fillFromWorld(level, corner1, corner2.subtract(corner1), true, null);
             backup = template.save(new CompoundTag());
-            try {
-                NbtIo.writeCompressed(backup, FMLPaths.GAMEDIR.get().resolve("backup.nbt"));
-                EntropyArena.LOGGER.info("Wrote backup to backup.nbt");
-            } catch (IOException e) {
-                EntropyArena.LOGGER.error("Error writing backup file", e);
-            }
             unloadChunks(level);
         });
     }
 
     private void loadChunks(ServerLevel level) {
-        forEachChunk(level, (pos, chunk) -> {
-            level.getChunkSource().addRegionTicket(TicketType.PLAYER, pos, 0, pos, true);
-            level.getChunkSource().getChunkFuture(pos.x, pos.z, ChunkStatus.FULL, true).join();
-        });
+        forEachChunk(level, (pos, chunk) -> level.getChunkSource().addRegionTicket(TicketType.FORCED, pos, 0, pos, true));
     }
 
     private void unloadChunks(ServerLevel level) {
-        forEachChunk(level, (pos, chunk) -> level.getChunkSource().removeRegionTicket(TicketType.PLAYER, pos, 0, pos, true));
+        forEachChunk(level, (pos, chunk) -> level.getChunkSource().removeRegionTicket(TicketType.FORCED, pos, 0, pos, true));
     }
 
     public void forEachChunk(ServerLevel level, BiConsumer<ChunkPos, LevelChunk> consumer) {
@@ -160,11 +142,13 @@ public class ArenaMap {
     public void reset(ServerLevel level) {
         if (backup == null) return;
         loadChunks(level);
-        level.getEntities((Entity) null, new AABB(corner1.getCenter(), corner2.getCenter()).inflate(1), e -> !(e instanceof Player)).forEach(e -> e.remove(Entity.RemovalReason.DISCARDED));
-        StructureTemplate template = new StructureTemplate();
-        template.load(level.holderLookup(Registries.BLOCK), backup);
-        template.placeInWorld(level, corner1, corner1, new StructurePlaceSettings(), level.getRandom(), Block.UPDATE_CLIENTS);
-        unloadChunks(level);
+        EventScheduler.schedule(2, () -> {
+            level.getEntities((Entity) null, new AABB(corner1.getCenter(), corner2.getCenter()).inflate(1), e -> !(e instanceof Player)).forEach(e -> e.remove(Entity.RemovalReason.DISCARDED));
+            StructureTemplate template = new StructureTemplate();
+            template.load(level.holderLookup(Registries.BLOCK), backup);
+            template.placeInWorld(level, corner1, corner1, new StructurePlaceSettings(), level.getRandom(), Block.UPDATE_CLIENTS);
+            unloadChunks(level);
+        });
     }
 
     public CompoundTag toTag() {

@@ -1,20 +1,3 @@
-/arena stop
-/arena start
-/arena sotp
-/arena stop
-/arena start
-/arena stop
-/arena start
-/arena stop
-/arena start
-/arena stop
-/arena start
-/arena stop
-/arena start
-/arena stop
-/arena map load "Terrain Tower"
-/arena start
-/arena stop
 /arena start
 /arena stop
 /arena start
@@ -48,3 +31,20 @@
 /arena start
 /arena stop
 /arena map load "Terrain Tower"
+/arena start
+/arena stop
+/arena start
+/arena stop
+/arena start
+/arena map load "Terrain Tower"
+/arena start
+/arena stop
+/arena start
+/arena stop
+/arena start
+/arena stop
+/execute as @e[type=item] run say Hi!
+/tp Dev @e[type=item,limit=1,sort=nearest]
+/arena start
+/gamerule mobGriefing false
+/arena stop

@@ -14,4 +14,4 @@ This mod is the fourth iteration of an idea I've had for a while. It adds a PVP 
 It is designed to be able to work on its own, but make sure to try out some of the [addons](https://github.com/Entropy159/Entropy-Arena/wiki/Addons)! They integrate this base mod with many other mods for a cohesive experience.
 
 ### Having issues?
-[Report an issue](https://github.com/Entropy159/Entropy-Arena/issues), but make sure to use one of the provided templates! They are there for a reason, and if you don't give the information specified in them, you probably won't receive much help.
+[Report an issue](https://github.com/Entropy159/Entropy-Arena/issues), but make sure to use one of the provided templates! They are there for a reason; if you don't give enough information to start off with it will be requested of you later, creating a waste of time.

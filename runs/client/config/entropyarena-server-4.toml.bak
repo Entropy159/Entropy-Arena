@@ -1,4 +1,0 @@
-# Default: 30
-# Range: 5 ~ 120
-intervalSeconds = 30
-friendlyFire = false

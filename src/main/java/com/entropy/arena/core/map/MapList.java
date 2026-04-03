@@ -3,6 +3,7 @@ package com.entropy.arena.core.map;
 import com.entropy.arena.api.ArenaUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 
@@ -26,12 +27,14 @@ public class MapList {
         return maps.isEmpty();
     }
 
-    public static boolean addMap(ServerLevel level, String name, ResourceLocation gamemode, BlockPos one, BlockPos two) {
+    public static @Nullable Component addMap(ServerLevel level, String name, ResourceLocation gamemode, BlockPos one, BlockPos two) {
         if (maps.containsKey(name)) {
-            return false;
+            return Component.translatable("arena.error.map_already_exists", name);
         }
-        maps.put(name, new ArenaMap(level, name, gamemode, one, two));
-        return true;
+        ArenaMap map = new ArenaMap(level, name, gamemode, one, two);
+        Component failureMessage = map.validate(level);
+        if (failureMessage == null) maps.put(name, map);
+        return failureMessage;
     }
 
     public static boolean removeMap(String name) {

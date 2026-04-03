@@ -6,6 +6,7 @@ import com.entropy.arena.api.gamemode.HasCapturePoints;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.CapturePointBlock;
 import com.entropy.arena.core.capturePoint.KOTHCapturePoint;
+import com.entropy.arena.core.map.ArenaMap;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
@@ -16,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Block;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -48,6 +50,16 @@ public class KingOfTheHill extends FFAGamemode implements HasCapturePoints<KOTHC
             }
         }
         sendToAll();
+    }
+
+    @Override
+    public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
+        Component failureMessage = super.validateMap(level, arenaMap);
+        if (failureMessage != null) return failureMessage;
+        int capturePoints = calculateCapturePoints(arenaMap, level, KOTHCapturePoint::new).size();
+        if (capturePoints == 0) return Component.translatable("arena.error.no_capture_points");
+        if (capturePoints > 1) return Component.translatable("arena.error.too_many_capture_points", 1);
+        return null;
     }
 
     @Override

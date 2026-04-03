@@ -5,6 +5,7 @@ import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gear.StarterGear;
 import com.entropy.arena.core.EntropyArena;
+import com.entropy.arena.core.map.ArenaMap;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.DeltaTracker;
@@ -26,6 +27,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,6 +119,10 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
     public abstract List<Component> getScoreText(ServerLevel level);
 
     public abstract ArrayList<BlockPos> getValidSpawns(ArenaData data, ServerPlayer player);
+
+    public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
+        return arenaMap.getSpawns(level).isEmpty() ? Component.translatable("arena.error.no_spawns") : null;
+    }
 
     @OnlyIn(Dist.CLIENT)
     public int modifyEntityColor(Entity entity, int color) {

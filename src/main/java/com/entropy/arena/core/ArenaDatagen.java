@@ -142,8 +142,8 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.removed_map", "Removed map %s");
         REGISTRATE.addRawLang("arena.message.updated_map", "Updated map %s");
         REGISTRATE.addRawLang("arena.message.loaded_map", "Loaded map %s");
-        REGISTRATE.addRawLang("arena.message.game_over", "Game over!");
-        REGISTRATE.addRawLang("arena.message.game_start", "Game starting!");
+        REGISTRATE.addRawLang("arena.message.game_over", "Game over");
+        REGISTRATE.addRawLang("arena.message.game_start", "Game starting");
         REGISTRATE.addRawLang("arena.message.voted_for_map", "Voted for map %s");
         REGISTRATE.addRawLang("arena.message.enable", "Starting Entropy Arena");
         REGISTRATE.addRawLang("arena.message.map_info", "Map: %s - gamemode: ");
@@ -163,10 +163,14 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.error.already_running", "Game is already running");
         REGISTRATE.addRawLang("arena.error.no_lobby", "No lobby position found! Set it to get started");
         REGISTRATE.addRawLang("arena.error.no_maps", "No maps found! Create one to get started");
-        REGISTRATE.addRawLang("arena.error.no_gamemode", "No gamemode found for map %s");
+        REGISTRATE.addRawLang("arena.error.no_gamemode", "Gamemode %s not found");
         REGISTRATE.addRawLang("arena.error.map_already_exists", "Map %s already exists");
         REGISTRATE.addRawLang("arena.error.map_not_found", "No map found with name %s");
-        REGISTRATE.addRawLang("arena.error.no_spawns", "No valid spawns found!");
-        REGISTRATE.addRawLang("arena.error.team_not_found", "Team %s not found!");
+        REGISTRATE.addRawLang("arena.error.no_spawns", "No valid spawns found");
+        REGISTRATE.addRawLang("arena.error.team_not_found", "Team %s not found");
+        REGISTRATE.addRawLang("arena.error.not_enough_teams", "Not enough team spawns found");
+        REGISTRATE.addRawLang("arena.error.no_enemy_spawns", "No enemy spawns found");
+        REGISTRATE.addRawLang("arena.error.no_capture_points", "No capture points found");
+        REGISTRATE.addRawLang("arena.error.too_many_capture_points", "Too many capturep points found, limit is %s");
     }
 }

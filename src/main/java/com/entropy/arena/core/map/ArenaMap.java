@@ -197,4 +197,10 @@ public class ArenaMap {
     public AABB getBoundingBox() {
         return AABB.encapsulatingFullBlocks(corner1, corner2);
     }
+
+    public @Nullable Component validate(ServerLevel level) {
+        ArenaGamemode gamemode = getNewGamemode();
+        if (gamemode == null) return Component.translatable("arena.error.no_gamemode", gamemodeID.toString());
+        return gamemode.validateMap(level, this);
+    }
 }

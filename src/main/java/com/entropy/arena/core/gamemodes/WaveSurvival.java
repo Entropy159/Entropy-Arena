@@ -7,6 +7,7 @@ import com.entropy.arena.api.client.ScreenAnchorPoint;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.CoOpGamemode;
 import com.entropy.arena.core.EntropyArena;
+import com.entropy.arena.core.map.ArenaMap;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
@@ -22,6 +23,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +33,7 @@ public class WaveSurvival extends CoOpGamemode {
     private static final StreamCodec<ByteBuf, List<BlockPos>> MOB_SPAWNS_CODEC = BlockPos.STREAM_CODEC.apply(ByteBufCodecs.list());
     private static final int WAVE_INTERVAL_TICKS = 400;
     private static final List<EntityType<? extends Entity>> MOBS = List.of(EntityType.ZOMBIE, EntityType.SKELETON, EntityType.CREEPER, EntityType.SPIDER, EntityType.BREEZE, EntityType.BLAZE, EntityType.PIGLIN_BRUTE, EntityType.WITCH, EntityType.WITHER_SKELETON, EntityType.EVOKER, EntityType.VINDICATOR, EntityType.HUSK);
+    private static final ArenaTeam ENEMY_TEAM = ArenaTeam.RED;
 
     private List<BlockPos> mobSpawns = new ArrayList<>();
     private int currentWave = 1;
@@ -45,7 +48,7 @@ public class WaveSurvival extends CoOpGamemode {
     @Override
     public void onMatchStart(ArenaData data) {
         super.onMatchStart(data);
-        mobSpawns = data.getCurrentMap().getSpawns(data.getLevel()).get(ArenaTeam.RED);
+        mobSpawns = data.getCurrentMap().getSpawns(data.getLevel()).get(ENEMY_TEAM);
     }
 
     @Override
@@ -68,6 +71,14 @@ public class WaveSurvival extends CoOpGamemode {
             }
         }
         sendToAll();
+    }
+
+    @Override
+    public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
+        Component failureMessage = super.validateMap(level, arenaMap);
+        if (failureMessage != null) return failureMessage;
+        if (!arenaMap.getSpawns(level).containsKey(ENEMY_TEAM)) return Component.translatable("arena.error.no_enemy_spawns");
+        return null;
     }
 
     public void tickCooldown() {

@@ -9,6 +9,7 @@ import com.entropy.arena.api.gamemode.TeamGamemode;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.PedestalBlock;
 import com.entropy.arena.core.items.TeamGemItem;
+import com.entropy.arena.core.map.ArenaMap;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.entropy.arena.core.registry.ArenaItems;
 import io.netty.buffer.ByteBuf;
@@ -48,6 +49,9 @@ public class CaptureTheFlag extends TeamGamemode {
         EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.flag_returned", "Team %s's flag has been returned");
         EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.flag_scored", "Team %s has scored");
         EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.flag_dropped", "Team %s's flag has dropped out of the map");
+        EntropyArena.REGISTRATE.addRawLang("arena.message.pedestal_invalid", "You cannot score on a pedestal that's been taken from");
+
+        EntropyArena.REGISTRATE.addRawLang("arena.error.not_enough_pedestals", "Not enough pedestals");
     }
 
     @Override
@@ -96,6 +100,14 @@ public class CaptureTheFlag extends TeamGamemode {
             return null;
         }
         return pedestals.get(index);
+    }
+
+    @Override
+    public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
+        Component failureMessage = super.validateMap(level, arenaMap);
+        if (failureMessage != null) return failureMessage;
+        if (pedestalPositions.size() > arenaMap.getSpawns(level).size()) return Component.translatable("arena.error.not_enough_pedestals");
+        return null;
     }
 
     private int getPedestalIndex(ArenaTeam team, BlockPos pos) {
@@ -165,6 +177,10 @@ public class CaptureTheFlag extends TeamGamemode {
         ArenaTeam gemTeam = ArenaTeam.getFromStack(gem);
         ArenaTeam playerTeam = getPlayerTeam(player);
         if (pedestalTeam == playerTeam && playerTeam != gemTeam) {
+            if (!level.getBlockState(pos).getValue(PedestalBlock.HAS_GEM)) {
+                player.displayClientMessage(Component.translatable("arena.message.pedestal_invalid").withStyle(ChatFormatting.DARK_RED), true);
+                return;
+            }
             int pedestalIndex = gem.getOrDefault(ArenaDataComponents.PEDESTAL_INDEX, -1);
             if (pedestalIndex >= 0) {
                 try {

@@ -3,6 +3,7 @@ package com.entropy.arena.api.gamemode;
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.Notification;
 import com.entropy.arena.api.data.ArenaData;
+import com.entropy.arena.core.map.ArenaMap;
 import com.entropy.arena.core.network.toClient.ScoresPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
@@ -15,6 +16,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +42,14 @@ public abstract class CoOpGamemode extends ArenaGamemode {
     @Override
     public ArrayList<BlockPos> getValidSpawns(ArenaData data, ServerPlayer player) {
         return data.getCurrentMap().getSpawns(data.getLevel()).get(ArenaTeam.NONE);
+    }
+
+    @Override
+    public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
+        Component failureMessage = super.validateMap(level, arenaMap);
+        if (failureMessage != null) return failureMessage;
+        if (!arenaMap.getSpawns(level).containsKey(ArenaTeam.NONE)) return Component.translatable("arena.error.no_spawns");
+        return null;
     }
 
     public void setScore(int value) {

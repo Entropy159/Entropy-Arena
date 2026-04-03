@@ -98,14 +98,15 @@ public class ArenaCommand {
         ResourceLocation gamemode = ResourceLocationArgument.getId(ctx, "gamemode");
         BlockPos pos1 = BlockPosArgument.getBlockPos(ctx, "corner1");
         BlockPos pos2 = BlockPosArgument.getBlockPos(ctx, "corner2");
-        if (MapList.addMap(ctx.getSource().getLevel(), name, gamemode, pos1, pos2)) {
+        Component failureMessage = MapList.addMap(ctx.getSource().getLevel(), name, gamemode, pos1, pos2);
+        if (failureMessage == null) {
             if (ctx.getSource().getPlayer() != null) {
                 PacketDistributor.sendToPlayer(ctx.getSource().getPlayer(), new TakeScreenshotPacket(name));
             }
             ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.added_map", name).withStyle(ChatFormatting.GREEN), true);
             return 1;
         }
-        ctx.getSource().sendFailure(Component.translatable("arena.error.map_already_exists", name).withStyle(ChatFormatting.DARK_RED));
+        ctx.getSource().sendFailure(failureMessage);
         return 0;
     }
 

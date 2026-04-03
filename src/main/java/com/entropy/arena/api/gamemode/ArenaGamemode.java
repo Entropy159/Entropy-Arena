@@ -3,8 +3,10 @@ package com.entropy.arena.api.gamemode;
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.data.ArenaData;
-import com.entropy.arena.api.gear.StarterGear;
+import com.entropy.arena.api.loadout.Loadout;
+import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.core.EntropyArena;
+import com.entropy.arena.core.blocks.TeamBlock;
 import com.entropy.arena.core.map.ArenaMap;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import io.netty.buffer.ByteBuf;
@@ -20,6 +22,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -91,7 +94,12 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
     public void onRespawn(ServerPlayer player) {
     }
 
-    public void modifyStarterGear(StarterGear gear) {
+    public void onGiveLoadout(ServerPlayer player, Loadout loadout) {
+        LoadoutSerializerRegistry.forEachStack(player, (serializer, slot, stack) -> {
+            if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof TeamBlock) {
+                serializer.setStack(player, slot, TeamBlock.getStack(getTeamForBlock(player)));
+            }
+        });
     }
 
     public void onJoin(ArenaData data, ServerPlayer player) {

@@ -1,4 +1,4 @@
-// 1.21.1	2026-04-02T15:16:44.0517058	Registrate Provider for entropyarena [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
+// 1.21.1	2026-04-03T16:44:59.71396	Registrate Provider for entropyarena [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
 1b1cbef319a0e8fac3c20982620a7e4d6ba60f3d assets/entropyarena/blockstates/blue_team_block.json
 7cf7a15e8c355f50f60c708614077684ef40ca4b assets/entropyarena/blockstates/capture_point.json
 450f7b43d8ac226e965a2d823969aee1f81a7b36 assets/entropyarena/blockstates/cyan_team_block.json
@@ -12,8 +12,8 @@ b76fd4953bf97beac3dc7e418dedb9acaabd5502 assets/entropyarena/blockstates/pink_te
 4570d4a8df30d6ae37286d42afafce90f0ce5bf3 assets/entropyarena/blockstates/red_team_block.json
 0e8f4310478aeaf257863359bc52bfb79bb54c2b assets/entropyarena/blockstates/spawnpoint.json
 530ffd26e436d6b2792fd678447932b315f4dba3 assets/entropyarena/blockstates/yellow_team_block.json
-a04f427d25634ca80eb0eca2e34b9936b6d0f5e4 assets/entropyarena/lang/en_ud.json
-99dcee2ce21baf9bd898bf1372a7db75039fa054 assets/entropyarena/lang/en_us.json
+d1eb6f3fcb14c36909a76de820feb4ce418599e3 assets/entropyarena/lang/en_ud.json
+f30fb7751c12c91e9b27b97f947f59c958590e8f assets/entropyarena/lang/en_us.json
 4c5ada60ff5f7747f7a63d46f9cb4a1eeb0844b7 assets/entropyarena/models/block/blue_team_block.json
 d117ecd82abe1d3e039c618baf6bf85124c2b151 assets/entropyarena/models/block/capture_point.json
 4c5ada60ff5f7747f7a63d46f9cb4a1eeb0844b7 assets/entropyarena/models/block/cyan_team_block.json

@@ -1,7 +1,7 @@
 package com.entropy.arena.core.commands;
 
-import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.ArenaTeam;
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
 import com.entropy.arena.core.map.ArenaMap;
 import com.entropy.arena.core.map.MapList;
@@ -28,7 +28,8 @@ import static net.minecraft.commands.Commands.literal;
 
 public class ArenaCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(literal("arena").requires(ctx -> ctx.hasPermission(3))
+        dispatcher.register(literal("arena")
+                .requires(ctx -> ctx.hasPermission(3))
                 .then(literal("start")
                         .executes(ArenaCommand::start))
                 .then(literal("stop")
@@ -50,10 +51,10 @@ public class ArenaCommand {
                                                 .then(argument("corner1", BlockPosArgument.blockPos())
                                                         .then(argument("corner2", BlockPosArgument.blockPos())
                                                                 .executes(ArenaCommand::createMap))))))
-                        .then(literal("delete")
+                        .then(literal("remove")
                                 .then(argument("name", StringArgumentType.string())
                                         .suggests(MAP_SUGGESTIONS)
-                                        .executes(ArenaCommand::deleteMap)))
+                                        .executes(ArenaCommand::removeMap)))
                         .then(literal("update")
                                 .then(argument("name", StringArgumentType.string())
                                         .suggests(MAP_SUGGESTIONS)
@@ -63,7 +64,26 @@ public class ArenaCommand {
                                         .suggests(MAP_SUGGESTIONS)
                                         .executes(ArenaCommand::loadMap)))
                         .then(literal("list")
-                                .executes(ArenaCommand::listMaps))));
+                                .executes(ArenaCommand::listMaps)))
+                .then(literal("loadout")
+                        .then(literal("add")
+                                .requires(CommandSourceStack::isPlayer)
+                                .then(argument("name", StringArgumentType.string())
+                                        .executes(ArenaCommand::addLoadout)))
+                        .then(literal("remove")
+                                .then(argument("name", StringArgumentType.string())
+                                        .executes(ArenaCommand::removeLoadout)))
+                        .then(literal("update")
+                                .requires(CommandSourceStack::isPlayer)
+                                .then(argument("name", StringArgumentType.string())
+                                        .executes(ArenaCommand::updateLoadout)))
+                        .then(literal("list")
+                                .executes(ArenaCommand::listLoadouts))));
+        dispatcher.register(literal("loadout")
+                .requires(CommandSourceStack::isPlayer)
+                .then(argument("name", StringArgumentType.string())
+                        .suggests(LOADOUT_SUGGESTIONS)
+                        .executes(ArenaCommand::selectLoadout)));
     }
 
     private static int start(CommandContext<CommandSourceStack> ctx) {
@@ -110,7 +130,7 @@ public class ArenaCommand {
         return 0;
     }
 
-    private static int deleteMap(CommandContext<CommandSourceStack> ctx) {
+    private static int removeMap(CommandContext<CommandSourceStack> ctx) {
         String name = StringArgumentType.getString(ctx, "name");
         if (MapList.removeMap(name)) {
             ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.removed_map", name).withStyle(ChatFormatting.GREEN), true);
@@ -175,6 +195,68 @@ public class ArenaCommand {
         return 0;
     }
 
+    private static int addLoadout(CommandContext<CommandSourceStack> ctx) {
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        String name = StringArgumentType.getString(ctx, "name");
+        if (data.getLoadouts().contains(name)) {
+            ctx.getSource().sendFailure(Component.translatable("arena.error.loadout_already_exists", name));
+            return 0;
+        }
+        if (ctx.getSource().getPlayer() != null) {
+            data.addLoadout(ctx.getSource().getPlayer(), name);
+            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.added_loadout", name).withStyle(ChatFormatting.GREEN), true);
+            return 1;
+        }
+        ctx.getSource().sendFailure(Component.translatable("permissions.requires.player"));
+        return 0;
+    }
+
+    private static int removeLoadout(CommandContext<CommandSourceStack> ctx) {
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        String name = StringArgumentType.getString(ctx, "name");
+        if (data.getLoadouts().contains(name)) {
+            data.removeLoadout(name);
+            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.removed_loadout", name).withStyle(ChatFormatting.GREEN), true);
+            return 1;
+        }
+        ctx.getSource().sendFailure(Component.translatable("arena.error.loadout_not_found", name));
+        return 0;
+    }
+
+    private static int updateLoadout(CommandContext<CommandSourceStack> ctx) {
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        String name = StringArgumentType.getString(ctx, "name");
+        if (data.getLoadouts().contains(name) && ctx.getSource().getPlayer() != null) {
+            data.updateLoadout(ctx.getSource().getPlayer(), name);
+            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.updated_loadout", name).withStyle(ChatFormatting.GREEN), true);
+            return 1;
+        }
+        ctx.getSource().sendFailure(Component.translatable("arena.error.loadout_not_found", name));
+        return 0;
+    }
+
+    private static int listLoadouts(CommandContext<CommandSourceStack> ctx) {
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        if (data.getLoadouts().isEmpty()) {
+            ctx.getSource().sendFailure(Component.translatable("arena.error.no_loadouts"));
+            return 0;
+        }
+        data.getLoadouts().forEach(name -> ctx.getSource().sendSuccess(() -> Component.literal(name).withStyle(ChatFormatting.GREEN), false));
+        return 1;
+    }
+
+    private static int selectLoadout(CommandContext<CommandSourceStack> ctx) {
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        String name = StringArgumentType.getString(ctx, "name");
+        if (data.getLoadouts().contains(name) && ctx.getSource().getPlayer() != null) {
+            data.setLoadoutChoice(ctx.getSource().getPlayer(), name);
+            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.selected_loadout", name).withStyle(ChatFormatting.GREEN), true);
+            return 1;
+        }
+        ctx.getSource().sendFailure(Component.translatable("arena.error.loadout_not_found", name));
+        return 0;
+    }
+
     private static final SuggestionProvider<CommandSourceStack> MAP_SUGGESTIONS = (ctx, builder) -> {
         MapList.forEachMap(map -> builder.suggest("\"" + map.getName() + "\""));
         return builder.buildFuture();
@@ -189,6 +271,12 @@ public class ArenaCommand {
         for (ArenaTeam team : ArenaTeam.values()) {
             builder.suggest(team.getSerializedName());
         }
+        return builder.buildFuture();
+    };
+
+    private static final SuggestionProvider<CommandSourceStack> LOADOUT_SUGGESTIONS = (ctx, builder) -> {
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        data.getLoadouts().forEach(name -> builder.suggest("\"" + name + "\""));
         return builder.buildFuture();
     };
 }

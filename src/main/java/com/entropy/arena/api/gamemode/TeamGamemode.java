@@ -3,20 +3,25 @@ package com.entropy.arena.api.gamemode;
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.Notification;
 import com.entropy.arena.api.data.ArenaData;
+import com.entropy.arena.api.loadout.Loadout;
+import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.core.map.ArenaMap;
 import com.entropy.arena.core.network.toClient.ScoresPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
@@ -91,7 +96,8 @@ public abstract class TeamGamemode extends ArenaGamemode {
     public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
         Component failureMessage = super.validateMap(level, arenaMap);
         if (failureMessage != null) return failureMessage;
-        if (arenaMap.getSpawns(level).keySet().stream().filter(team -> team != ArenaTeam.NONE).count() < 2) return Component.translatable("arena.error.not_enough_teams");
+        if (arenaMap.getSpawns(level).keySet().stream().filter(team -> team != ArenaTeam.NONE).count() < 2)
+            return Component.translatable("arena.error.not_enough_teams");
         return null;
     }
 
@@ -111,6 +117,16 @@ public abstract class TeamGamemode extends ArenaGamemode {
     public void onLeave(ArenaData data, ServerPlayer player) {
         super.onLeave(data, player);
         setPlayerTeam(player, ArenaTeam.NONE);
+    }
+
+    @Override
+    public void onGiveLoadout(ServerPlayer player, Loadout loadout) {
+        super.onGiveLoadout(player, loadout);
+        LoadoutSerializerRegistry.forEachStack(player, (serializer, slot, stack) -> {
+            if (stack.is(ItemTags.DYEABLE)) {
+                stack.set(DataComponents.DYED_COLOR, new DyedItemColor(getPlayerTeam(player).getColor(), true));
+            }
+        });
     }
 
     public void setScore(ArenaTeam team, int score) {

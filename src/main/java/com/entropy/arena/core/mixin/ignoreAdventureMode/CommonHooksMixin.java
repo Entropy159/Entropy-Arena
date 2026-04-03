@@ -22,7 +22,7 @@ public class CommonHooksMixin {
     @ModifyExpressionValue(method = "onPlaceItemIntoWorld", at = @At("MIXINEXTRAS:EXPRESSION"))
     private static boolean allowInfinite(boolean original, @Local(argsOnly = true) UseOnContext context, @Local(name = "itemstack") ItemStack itemstack) {
         if (itemstack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof IgnoresAdventureMode ignores) {
-            return ignores.shouldIgnorePlace(context.getClickedPos(), context.getLevel().getBlockState(context.getClickedPos()));
+            return original || ignores.shouldIgnorePlace(context.getClickedPos(), context.getLevel().getBlockState(context.getClickedPos()));
         }
         return original;
     }

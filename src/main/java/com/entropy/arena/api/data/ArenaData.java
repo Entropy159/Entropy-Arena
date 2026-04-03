@@ -2,12 +2,12 @@ package com.entropy.arena.api.data;
 
 import com.entropy.arena.api.ArenaUtils;
 import com.entropy.arena.api.Notification;
+import com.entropy.arena.api.events.GiveLoadoutEvent;
 import com.entropy.arena.api.events.MatchEndEvent;
 import com.entropy.arena.api.events.MatchStartEvent;
-import com.entropy.arena.api.events.StarterGearEvent;
 import com.entropy.arena.api.events.TeleportToLobbyEvent;
 import com.entropy.arena.api.gamemode.ArenaGamemode;
-import com.entropy.arena.api.gear.StarterGear;
+import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.map.ArenaMap;
@@ -18,6 +18,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -44,6 +46,8 @@ public class ArenaData extends SavedData {
     private @Nullable BlockPos lobbyPos;
     private ArenaMap currentMap;
     private ArenaGamemode currentGamemode;
+    private HashMap<String, Loadout> loadouts = new HashMap<>();
+    private HashMap<UUID, String> loadoutSelections = new HashMap<>();
     private final HashMap<UUID, String> mapVotes = new HashMap<>();
     private final ArrayList<String> votableMaps = new ArrayList<>();
     private final HashMap<UUID, Long> respawnTimes = new HashMap<>();
@@ -52,6 +56,8 @@ public class ArenaData extends SavedData {
         MapList.loadFromTag(tag.getCompound("mapList"));
         ArenaData data = new ArenaData();
         data.targetScore = tag.getInt("targetScore");
+        data.loadouts = ArenaUtils.tagToHashMap(tag.getCompound("loadouts"), s -> s, t -> new Loadout((CompoundTag) t));
+        data.loadoutSelections = ArenaUtils.tagToHashMap(tag.getCompound("loadoutSelections"), UUID::fromString, Tag::getAsString);
         if (tag.contains("lobbyPos")) data.lobbyPos = BlockPos.of(tag.getLong("lobbyPos"));
         return data;
     }
@@ -60,6 +66,8 @@ public class ArenaData extends SavedData {
     public @NotNull CompoundTag save(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         tag.put("mapList", MapList.saveToTag());
         tag.putInt("targetScore", targetScore);
+        tag.put("loadouts", ArenaUtils.mapToTag(loadouts, s -> s, Loadout::getCompound));
+        tag.put("loadoutSelections", ArenaUtils.mapToTag(loadoutSelections, UUID::toString, StringTag::valueOf));
         if (lobbyPos != null) tag.putLong("lobbyPos", lobbyPos.asLong());
         return tag;
     }
@@ -80,6 +88,9 @@ public class ArenaData extends SavedData {
         }
         if (MapList.mapListIsEmpty()) {
             return Component.translatable("arena.error.no_maps");
+        }
+        if (loadouts.isEmpty()) {
+            return Component.translatable("arena.error.no_loadouts");
         }
         Notification.toAll(Component.translatable("arena.message.enable").withStyle(ChatFormatting.DARK_GREEN));
         timer = ServerConfig.INTERVAL_SECONDS.get();
@@ -276,10 +287,14 @@ public class ArenaData extends SavedData {
     }
 
     public void giveStarterGear(ServerPlayer player) {
-        StarterGear gear = new StarterGear(player, getCurrentGamemode().getTeamForBlock(player));
-        getCurrentGamemode().modifyStarterGear(gear);
-        NeoForge.EVENT_BUS.post(new StarterGearEvent(this, player, gear));
-        gear.give();
+        Loadout loadout = loadouts.get(loadoutSelections.getOrDefault(player.getUUID(), loadouts.keySet().stream().toList().getFirst()));
+        loadout.giveToPlayer(player);
+        getCurrentGamemode().onGiveLoadout(player, loadout);
+        NeoForge.EVENT_BUS.post(new GiveLoadoutEvent(this, player, loadout));
+    }
+
+    public void addLoadout(ServerPlayer player, String name) {
+        loadouts.put(name, new Loadout(player));
     }
 
     public void onJoin(ServerPlayer player) {
@@ -335,5 +350,23 @@ public class ArenaData extends SavedData {
 
     public boolean isLobby() {
         return lobby;
+    }
+
+    public Set<String> getLoadouts() {
+        return loadouts.keySet();
+    }
+
+    public void removeLoadout(String name) {
+        loadouts.remove(name);
+    }
+
+    public void updateLoadout(ServerPlayer player, String name) {
+        loadouts.put(name, new Loadout(player));
+    }
+
+    public void setLoadoutChoice(ServerPlayer player, String name) {
+        if (loadouts.containsKey(name)) {
+            loadoutSelections.put(player.getUUID(), name);
+        }
     }
 }

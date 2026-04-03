@@ -123,7 +123,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang(MODID + ".configuration.notificationFadeoutDuration", "Notification Fade Out Duration");
 
         REGISTRATE.addRawLang(MODID + ".configuration.intervalSeconds", "Interval Seconds");
-        REGISTRATE.addRawLang(MODID + ".configuration.roundsSeconds", "Round Seconds");
+        REGISTRATE.addRawLang(MODID + ".configuration.roundSeconds", "Round Seconds");
         REGISTRATE.addRawLang(MODID + ".configuration.friendlyFire", "Friendly Fire");
         REGISTRATE.addRawLang(MODID + ".configuration.hideEnemyNametags", "Hide Enemy Nametags");
         REGISTRATE.addRawLang(MODID + ".configuration.respawnDelay", "Respawn Delay");
@@ -159,10 +159,14 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.capture_point_contested", "Capture point is contested");
         REGISTRATE.addRawLang("arena.message.capture_point_taken", "%s has taken a capture point");
         REGISTRATE.addRawLang("arena.message.team_capture_point_taken", "Team %s has taken a capture point");
+        REGISTRATE.addRawLang("arena.message.added_loadout", "Added loadout %s");
+        REGISTRATE.addRawLang("arena.message.removed_loadout", "Removed loadout %s");
+        REGISTRATE.addRawLang("arena.message.updated_loadout", "Updated loadout %s");
+        REGISTRATE.addRawLang("arena.message.selected_loadout", "Selected loadout %s");
 
         REGISTRATE.addRawLang("arena.error.already_running", "Game is already running");
-        REGISTRATE.addRawLang("arena.error.no_lobby", "No lobby position found! Set it to get started");
-        REGISTRATE.addRawLang("arena.error.no_maps", "No maps found! Create one to get started");
+        REGISTRATE.addRawLang("arena.error.no_lobby", "No lobby position found");
+        REGISTRATE.addRawLang("arena.error.no_maps", "No maps found");
         REGISTRATE.addRawLang("arena.error.no_gamemode", "Gamemode %s not found");
         REGISTRATE.addRawLang("arena.error.map_already_exists", "Map %s already exists");
         REGISTRATE.addRawLang("arena.error.map_not_found", "No map found with name %s");
@@ -172,5 +176,8 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.error.no_enemy_spawns", "No enemy spawns found");
         REGISTRATE.addRawLang("arena.error.no_capture_points", "No capture points found");
         REGISTRATE.addRawLang("arena.error.too_many_capture_points", "Too many capturep points found, limit is %s");
+        REGISTRATE.addRawLang("arena.error.no_loadouts", "No loadouts found");
+        REGISTRATE.addRawLang("arena.error.loadout_already_exists", "Loadout %s already exists");
+        REGISTRATE.addRawLang("arena.error.loadout_not_found", "Loadout %s not found");
     }
 }

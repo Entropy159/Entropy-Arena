@@ -13,6 +13,7 @@ import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
@@ -106,5 +107,9 @@ public enum ArenaTeam implements StringRepresentable {
 
     public Component getColoredName() {
         return Component.literal(getName()).withColor(color);
+    }
+
+    public DyeColor getDye() {
+        return dyeColor;
     }
 }

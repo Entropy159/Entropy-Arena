@@ -46,7 +46,7 @@ public class PedestalBlock extends Block {
             ArenaTeam stackColor = ArenaTeam.getFromStack(stack);
             if (stackColor != null) {
                 ArenaData data = ArenaData.get(level);
-                if (data.inGame() && data.getCurrentGamemode() instanceof CaptureTheFlag ctf) {
+                if (data.inGame() && data.currentGamemode instanceof CaptureTheFlag ctf) {
                     if (stack.getItem() instanceof TeamGemItem) {
                         if (stackColor == state.getValue(GEM_COLOR)) {
                             if (!state.getValue(HAS_GEM)) ctf.returnGem(player, pos, stack);
@@ -66,7 +66,7 @@ public class PedestalBlock extends Block {
     protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level l, @NotNull BlockPos pos, @NotNull Player p, @NotNull BlockHitResult hitResult) {
         if (l instanceof ServerLevel level && p instanceof ServerPlayer player) {
             ArenaData data = ArenaData.get(level);
-            if (data.inGame() && data.getCurrentGamemode() instanceof CaptureTheFlag ctf) {
+            if (data.inGame() && data.currentGamemode instanceof CaptureTheFlag ctf) {
                 if (state.getValue(HAS_GEM)) {
                     ctf.takeGem(player, pos);
                 }

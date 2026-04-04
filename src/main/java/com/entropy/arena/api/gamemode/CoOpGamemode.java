@@ -34,14 +34,14 @@ public abstract class CoOpGamemode extends ArenaGamemode {
     }
 
     @Override
-    public void onMatchEnd(ArenaData data) {
-        super.onMatchEnd(data);
+    public void onMatchEnd(ServerLevel level) {
+        super.onMatchEnd(level);
         Notification.toAll(Component.translatable("arena.message.collective_winner", collectiveScore).withStyle(ChatFormatting.GREEN));
     }
 
     @Override
-    public ArrayList<BlockPos> getValidSpawns(ArenaData data, ServerPlayer player) {
-        return data.getCurrentMap().getSpawns(data.getLevel()).get(ArenaTeam.NONE);
+    public ArrayList<BlockPos> getValidSpawns(ServerPlayer player, ArenaMap map) {
+        return map.getSpawns(player.serverLevel()).get(ArenaTeam.NONE);
     }
 
     @Override

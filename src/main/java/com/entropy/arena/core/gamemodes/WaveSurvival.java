@@ -46,22 +46,22 @@ public class WaveSurvival extends CoOpGamemode {
     }
 
     @Override
-    public void onMatchStart(ArenaData data) {
-        super.onMatchStart(data);
-        mobSpawns = data.getCurrentMap().getSpawns(data.getLevel()).get(ENEMY_TEAM);
+    public void onMatchStart(ServerLevel level) {
+        super.onMatchStart(level);
+        mobSpawns = ArenaData.get(level).currentMap.getSpawns(level).get(ENEMY_TEAM);
     }
 
     @Override
-    public void onLevelTick(ArenaData data) {
-        super.onLevelTick(data);
+    public void onLevelTick(ServerLevel level) {
+        super.onLevelTick(level);
         if (isInterval) {
             tickCooldown();
             if (cooldownTicks == 0) {
-                spawnMobs(data.getLevel());
+                spawnMobs(level);
                 isInterval = false;
             }
         } else {
-            calculateMobCount(data.getLevel(), data.getCurrentMap().getBoundingBox());
+            calculateMobCount(level, ArenaData.get(level).currentMap.getBoundingBox());
             if (mobCount == 0) {
                 isInterval = true;
                 cooldownTicks = WAVE_INTERVAL_TICKS;
@@ -77,7 +77,8 @@ public class WaveSurvival extends CoOpGamemode {
     public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
         Component failureMessage = super.validateMap(level, arenaMap);
         if (failureMessage != null) return failureMessage;
-        if (!arenaMap.getSpawns(level).containsKey(ENEMY_TEAM)) return Component.translatable("arena.error.no_enemy_spawns");
+        if (!arenaMap.getSpawns(level).containsKey(ENEMY_TEAM))
+            return Component.translatable("arena.error.no_enemy_spawns");
         return null;
     }
 

@@ -55,16 +55,16 @@ public class CaptureTheFlag extends TeamGamemode {
     }
 
     @Override
-    public void onMatchStart(ArenaData data) {
-        super.onMatchStart(data);
-        pedestalPositions = data.getCurrentMap().getBlockPropertyMap(data.getLevel(), PedestalBlock.GEM_COLOR);
+    public void onMatchStart(ServerLevel level) {
+        super.onMatchStart(level);
+        pedestalPositions = ArenaData.get(level).currentMap.getBlockPropertyMap(level, PedestalBlock.GEM_COLOR);
         pedestalPositions.values().forEach(list -> list.forEach(pos -> pedestalValueMap.put(pos, true)));
         sendToAll();
     }
 
     @Override
-    public void onEntityTick(ArenaData data, Entity entity) {
-        super.onEntityTick(data, entity);
+    public void onEntityTick(ServerLevel level, Entity entity) {
+        super.onEntityTick(level, entity);
         if (isTeamGem(entity)) {
             entity.setGlowingTag(true);
         }
@@ -106,7 +106,8 @@ public class CaptureTheFlag extends TeamGamemode {
     public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
         Component failureMessage = super.validateMap(level, arenaMap);
         if (failureMessage != null) return failureMessage;
-        if (pedestalPositions.size() > arenaMap.getSpawns(level).size()) return Component.translatable("arena.error.not_enough_pedestals");
+        if (pedestalPositions.size() > arenaMap.getSpawns(level).size())
+            return Component.translatable("arena.error.not_enough_pedestals");
         return null;
     }
 

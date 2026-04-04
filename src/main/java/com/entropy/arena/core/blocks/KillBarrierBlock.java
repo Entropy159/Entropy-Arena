@@ -26,7 +26,7 @@ public class KillBarrierBlock extends BarrierBlock {
                 entity.lavaHurt();
                 entity.hurt(entity.damageSources().fellOutOfWorld(), 1000000);
                 if ((entity instanceof ItemEntity itemEntity) && (itemEntity.getItem().getItem() instanceof TeamGemItem flag)) {
-                    flag.reset(data, itemEntity.getItem());
+                    flag.reset(serverLevel, itemEntity.getItem());
                 }
             }
         }

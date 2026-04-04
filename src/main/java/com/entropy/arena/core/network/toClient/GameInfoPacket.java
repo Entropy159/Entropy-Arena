@@ -22,7 +22,7 @@ public record GameInfoPacket(String mapName, ResourceLocation gamemode) implemen
     }
 
     public static GameInfoPacket fromData(ArenaData data) {
-        return new GameInfoPacket(data.getCurrentMap() == null ? "" : data.getCurrentMap().getName(), data.getCurrentGamemode() == null ? GamemodeRegistry.NONE_ID : data.getCurrentGamemode().getRegistryID());
+        return new GameInfoPacket(data.currentMap == null ? "" : data.currentMap.getName(), data.currentGamemode == null ? GamemodeRegistry.NONE_ID : data.currentGamemode.getRegistryID());
     }
 
     public void handle(IPayloadContext ctx) {

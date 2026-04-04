@@ -2,6 +2,7 @@ package com.entropy.arena.client.screen;
 
 import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.data.ArenaData;
+import com.entropy.arena.core.ArenaLogic;
 import com.entropy.arena.core.map.ArenaMapInfo;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -39,7 +40,7 @@ public class MapVotingScreen extends Screen {
     }
 
     private int getMapWidth() {
-        return width / (ArenaData.MAPS_FOR_VOTING + 1);
+        return width / (ArenaLogic.MAPS_FOR_VOTING + 1);
     }
 
     @Override

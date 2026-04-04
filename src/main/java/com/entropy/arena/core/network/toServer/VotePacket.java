@@ -1,6 +1,6 @@
 package com.entropy.arena.core.network.toServer;
 
-import com.entropy.arena.api.data.ArenaData;
+import com.entropy.arena.core.ArenaLogic;
 import com.entropy.arena.core.EntropyArena;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -21,8 +21,7 @@ public record VotePacket(String mapName) implements CustomPacketPayload {
 
     public void handle(IPayloadContext ctx) {
         if (ctx.player() instanceof ServerPlayer player) {
-            ArenaData data = ArenaData.get(player.serverLevel());
-            data.vote(player, mapName);
+            ArenaLogic.get(player.serverLevel()).vote(player, mapName);
         }
     }
 }

@@ -3,6 +3,8 @@ package com.entropy.arena.core.commands;
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
+import com.entropy.arena.api.loadout.Loadout;
+import com.entropy.arena.core.ArenaLogic;
 import com.entropy.arena.core.map.ArenaMap;
 import com.entropy.arena.core.map.MapList;
 import com.entropy.arena.core.network.toClient.TakeScreenshotPacket;
@@ -87,8 +89,7 @@ public class ArenaCommand {
     }
 
     private static int start(CommandContext<CommandSourceStack> ctx) {
-        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
-        Component error = data.enable();
+        Component error = ArenaLogic.get(ctx.getSource().getLevel()).enable();
         if (error == null) {
             ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.match_start").withStyle(ChatFormatting.GREEN), true);
             return 1;
@@ -99,8 +100,7 @@ public class ArenaCommand {
     }
 
     private static int stop(CommandContext<CommandSourceStack> ctx) {
-        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
-        data.disable();
+        ArenaLogic.get(ctx.getSource().getLevel()).disable();
         ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.match_stop").withStyle(ChatFormatting.RED), true);
         return 1;
     }
@@ -108,7 +108,7 @@ public class ArenaCommand {
     private static int setLobbyPos(CommandContext<CommandSourceStack> ctx) {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         BlockPos pos = BlockPosArgument.getBlockPos(ctx, "position");
-        data.setLobbyPos(pos);
+        data.lobbyPos = pos;
         ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.set_lobby_pos", pos.toShortString()).withStyle(ChatFormatting.GREEN), true);
         return 1;
     }
@@ -198,12 +198,12 @@ public class ArenaCommand {
     private static int addLoadout(CommandContext<CommandSourceStack> ctx) {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         String name = StringArgumentType.getString(ctx, "name");
-        if (data.getLoadouts().contains(name)) {
+        if (data.loadouts.containsKey(name)) {
             ctx.getSource().sendFailure(Component.translatable("arena.error.loadout_already_exists", name));
             return 0;
         }
         if (ctx.getSource().getPlayer() != null) {
-            data.addLoadout(ctx.getSource().getPlayer(), name);
+            data.loadouts.put(name, new Loadout(ctx.getSource().getPlayer()));
             ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.added_loadout", name).withStyle(ChatFormatting.GREEN), true);
             return 1;
         }
@@ -214,8 +214,8 @@ public class ArenaCommand {
     private static int removeLoadout(CommandContext<CommandSourceStack> ctx) {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         String name = StringArgumentType.getString(ctx, "name");
-        if (data.getLoadouts().contains(name)) {
-            data.removeLoadout(name);
+        if (data.loadouts.containsKey(name)) {
+            data.loadouts.remove(name);
             ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.removed_loadout", name).withStyle(ChatFormatting.GREEN), true);
             return 1;
         }
@@ -226,8 +226,8 @@ public class ArenaCommand {
     private static int updateLoadout(CommandContext<CommandSourceStack> ctx) {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         String name = StringArgumentType.getString(ctx, "name");
-        if (data.getLoadouts().contains(name) && ctx.getSource().getPlayer() != null) {
-            data.updateLoadout(ctx.getSource().getPlayer(), name);
+        if (data.loadouts.containsKey(name) && ctx.getSource().getPlayer() != null) {
+            data.loadouts.put(name, new Loadout(ctx.getSource().getPlayer()));
             ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.updated_loadout", name).withStyle(ChatFormatting.GREEN), true);
             return 1;
         }
@@ -237,18 +237,18 @@ public class ArenaCommand {
 
     private static int listLoadouts(CommandContext<CommandSourceStack> ctx) {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
-        if (data.getLoadouts().isEmpty()) {
+        if (data.loadouts.isEmpty()) {
             ctx.getSource().sendFailure(Component.translatable("arena.error.no_loadouts"));
             return 0;
         }
-        data.getLoadouts().forEach(name -> ctx.getSource().sendSuccess(() -> Component.literal(name).withStyle(ChatFormatting.GREEN), false));
+        data.loadouts.keySet().forEach(name -> ctx.getSource().sendSuccess(() -> Component.literal(name).withStyle(ChatFormatting.GREEN), false));
         return 1;
     }
 
     private static int selectLoadout(CommandContext<CommandSourceStack> ctx) {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         String name = StringArgumentType.getString(ctx, "name");
-        if (data.getLoadouts().contains(name) && ctx.getSource().getPlayer() != null) {
+        if (data.loadouts.containsKey(name) && ctx.getSource().getPlayer() != null) {
             data.setLoadoutChoice(ctx.getSource().getPlayer(), name);
             ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.selected_loadout", name).withStyle(ChatFormatting.GREEN), true);
             return 1;
@@ -276,7 +276,7 @@ public class ArenaCommand {
 
     private static final SuggestionProvider<CommandSourceStack> LOADOUT_SUGGESTIONS = (ctx, builder) -> {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
-        data.getLoadouts().forEach(name -> builder.suggest("\"" + name + "\""));
+        data.loadouts.keySet().forEach(name -> builder.suggest("\"" + name + "\""));
         return builder.buildFuture();
     };
 }

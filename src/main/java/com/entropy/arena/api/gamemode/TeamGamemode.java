@@ -44,13 +44,13 @@ public abstract class TeamGamemode extends ArenaGamemode {
     }
 
     @Override
-    public void onMatchStart(ArenaData data) {
-        super.onMatchStart(data);
-        if (data.getCurrentMap() == null) return;
-        ArrayList<ArenaTeam> validTeams = data.getCurrentMap().getTeams(data.getLevel());
+    public void onMatchStart(ServerLevel level) {
+        super.onMatchStart(level);
+        ArenaData data = ArenaData.get(level);
+        ArrayList<ArenaTeam> validTeams = data.currentMap.getTeams(level);
         validTeams.forEach(team -> setScore(team, 0));
         int index = 0;
-        for (ServerPlayer player : data.getLevel().players()) {
+        for (ServerPlayer player : level.players()) {
             ArenaTeam team = validTeams.get(index);
             team.setThisTeam(player);
             setPlayerTeam(player, team);
@@ -62,8 +62,8 @@ public abstract class TeamGamemode extends ArenaGamemode {
     }
 
     @Override
-    public void onMatchEnd(ArenaData data) {
-        super.onMatchEnd(data);
+    public void onMatchEnd(ServerLevel level) {
+        super.onMatchEnd(level);
         int winningScore = 0;
         boolean tied = true;
         ArenaTeam winningTeam = null;
@@ -88,8 +88,8 @@ public abstract class TeamGamemode extends ArenaGamemode {
     }
 
     @Override
-    public ArrayList<BlockPos> getValidSpawns(ArenaData data, ServerPlayer player) {
-        return data.getCurrentMap().getSpawns(player.serverLevel()).getOrDefault(teamMap.getOrDefault(player.getUUID(), ArenaTeam.NONE), new ArrayList<>());
+    public ArrayList<BlockPos> getValidSpawns(ServerPlayer player, ArenaMap map) {
+        return map.getSpawns(player.serverLevel()).getOrDefault(teamMap.getOrDefault(player.getUUID(), ArenaTeam.NONE), new ArrayList<>());
     }
 
     @Override
@@ -102,10 +102,10 @@ public abstract class TeamGamemode extends ArenaGamemode {
     }
 
     @Override
-    public void onJoin(ArenaData data, ServerPlayer player) {
-        super.onJoin(data, player);
-        if (data.getCurrentMap() == null) return;
-        List<ArenaTeam> validTeams = data.getCurrentMap().getTeams(data.getLevel()).stream().sorted(Comparator.comparingInt(t -> Math.toIntExact(teamMap.values().stream().filter(t2 -> t == t2).count()))).toList();
+    public void onJoin(ServerPlayer player) {
+        super.onJoin(player);
+        ArenaData data = ArenaData.get(player.serverLevel());
+        List<ArenaTeam> validTeams = data.currentMap.getTeams(player.serverLevel()).stream().sorted(Comparator.comparingInt(t -> Math.toIntExact(teamMap.values().stream().filter(t2 -> t == t2).count()))).toList();
         if (!validTeams.isEmpty()) {
             ArenaTeam team = validTeams.getFirst();
             team.setThisTeam(player);
@@ -114,8 +114,8 @@ public abstract class TeamGamemode extends ArenaGamemode {
     }
 
     @Override
-    public void onLeave(ArenaData data, ServerPlayer player) {
-        super.onLeave(data, player);
+    public void onLeave(ServerPlayer player) {
+        super.onLeave(player);
         setPlayerTeam(player, ArenaTeam.NONE);
     }
 

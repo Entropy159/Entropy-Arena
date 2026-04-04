@@ -34,10 +34,10 @@ public record RunningPacket(boolean running, boolean lobby) implements CustomPac
     }
 
     public static void sendToEveryone(ArenaData data) {
-        PacketDistributor.sendToAllPlayers(new RunningPacket(data.isRunning(), data.isLobby()));
+        PacketDistributor.sendToAllPlayers(new RunningPacket(data.running, data.lobby));
     }
 
     public static void sendToPlayer(ArenaData data, ServerPlayer player) {
-        PacketDistributor.sendToPlayer(player, new RunningPacket(data.isRunning(), data.isLobby()));
+        PacketDistributor.sendToPlayer(player, new RunningPacket(data.running, data.lobby));
     }
 }

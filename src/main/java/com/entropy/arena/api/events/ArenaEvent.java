@@ -1,16 +1,16 @@
 package com.entropy.arena.api.events;
 
-import com.entropy.arena.api.data.ArenaData;
+import net.minecraft.server.level.ServerLevel;
 import net.neoforged.bus.api.Event;
 
 public abstract class ArenaEvent extends Event {
-    private final ArenaData data;
+    private final ServerLevel level;
 
-    public ArenaEvent(ArenaData data) {
-        this.data = data;
+    public ArenaEvent(ServerLevel level) {
+        this.level = level;
     }
 
-    public ArenaData getData() {
-        return data;
+    public ServerLevel getLevel() {
+        return level;
     }
 }

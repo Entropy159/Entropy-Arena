@@ -2,7 +2,6 @@ package com.entropy.arena.api.gamemode;
 
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.client.ClientData;
-import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.core.EntropyArena;
@@ -58,11 +57,11 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
         EntropyArena.REGISTRATE.addRawLang("arena.gamemode." + getRegistryID().toLanguageKey(), name);
     }
 
-    public void onLevelTick(ArenaData data) {
+    public void onLevelTick(ServerLevel level) {
 
     }
 
-    public void onEntityTick(ArenaData data, Entity entity) {
+    public void onEntityTick(ServerLevel level, Entity entity) {
 
     }
 
@@ -70,12 +69,11 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
      * This method is called when the player dies. It drops items that either have
      * the SHOULD_DROP_ON_DEATH data component, or returns true from shouldDropOnDeath()
      *
-     * @param data   The ArenaData object the method is called from
      * @param player The player that died
      * @param source The damage source that caused the player to die
      * @return Whether to prevent the player from dying or not
      */
-    public boolean onDeath(ArenaData data, ServerPlayer player, DamageSource source) {
+    public boolean onDeath(ServerPlayer player, DamageSource source) {
         Inventory inventory = player.getInventory();
         for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
             ItemStack stack = inventory.getItem(slot);
@@ -102,19 +100,19 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
         });
     }
 
-    public void onJoin(ArenaData data, ServerPlayer player) {
+    public void onJoin(ServerPlayer player) {
         sendToPlayer(player);
     }
 
-    public void onLeave(ArenaData data, ServerPlayer player) {
+    public void onLeave(ServerPlayer player) {
 
     }
 
-    public void onMatchEnd(ArenaData data) {
+    public void onMatchEnd(ServerLevel level) {
 
     }
 
-    public void onMatchStart(ArenaData data) {
+    public void onMatchStart(ServerLevel level) {
 
     }
 
@@ -126,7 +124,7 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
 
     public abstract List<Component> getScoreText(ServerLevel level);
 
-    public abstract ArrayList<BlockPos> getValidSpawns(ArenaData data, ServerPlayer player);
+    public abstract ArrayList<BlockPos> getValidSpawns(ServerPlayer player, ArenaMap map);
 
     public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
         return arenaMap.getSpawns(level).isEmpty() ? Component.translatable("arena.error.no_spawns") : null;

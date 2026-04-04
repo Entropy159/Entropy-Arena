@@ -1,7 +1,6 @@
 package com.entropy.arena.core.gamemodes;
 
 import com.entropy.arena.api.ArenaTeam;
-import com.entropy.arena.api.capturePoint.CapturePoint;
 import com.entropy.arena.api.capturePoint.TeamCapturePoint;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.HasCapturePoints;
@@ -32,17 +31,17 @@ public class Domination extends TeamGamemode implements HasCapturePoints<TeamCap
     }
 
     @Override
-    public void onMatchStart(ArenaData data) {
-        super.onMatchStart(data);
-        capturePoints = calculateCapturePoints(data.getCurrentMap(), data.getLevel(), TeamCapturePoint::new);
+    public void onMatchStart(ServerLevel level) {
+        super.onMatchStart(level);
+        capturePoints = calculateCapturePoints(ArenaData.get(level).currentMap, level, TeamCapturePoint::new);
         sendToAll();
     }
 
     @Override
-    public void onLevelTick(ArenaData data) {
-        super.onLevelTick(data);
-        capturePoints.forEach(point -> point.onLevelTick(data.getLevel()));
-        if (data.getLevel().getGameTime() % SCORING_DELAY_TICKS == 0) {
+    public void onLevelTick(ServerLevel level) {
+        super.onLevelTick(level);
+        capturePoints.forEach(point -> point.onLevelTick(level));
+        if (level.getGameTime() % SCORING_DELAY_TICKS == 0) {
             capturePoints.forEach(point -> {
                 if (point.getTeam() != ArenaTeam.NONE) {
                     incrementScore(point.getTeam());
@@ -56,7 +55,8 @@ public class Domination extends TeamGamemode implements HasCapturePoints<TeamCap
     public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
         Component failureMessage = super.validateMap(level, arenaMap);
         if (failureMessage != null) return failureMessage;
-        if (arenaMap.getBlockPropertyMap(level, CapturePointBlock.VISIBLE).isEmpty()) return Component.translatable("arena.error.no_capture_points");
+        if (arenaMap.getBlockPropertyMap(level, CapturePointBlock.VISIBLE).isEmpty())
+            return Component.translatable("arena.error.no_capture_points");
         return null;
     }
 

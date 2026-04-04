@@ -2,7 +2,6 @@ package com.entropy.arena.api.gamemode;
 
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.Notification;
-import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.core.map.ArenaMap;
 import com.entropy.arena.core.network.toClient.ScoresPacket;
 import io.netty.buffer.ByteBuf;
@@ -35,18 +34,18 @@ public abstract class FFAGamemode extends ArenaGamemode {
     }
 
     @Override
-    public void onMatchStart(ArenaData data) {
-        super.onMatchStart(data);
-        data.getLevel().players().forEach(player -> scoreMap.put(player.getUUID(), 0));
+    public void onMatchStart(ServerLevel level) {
+        super.onMatchStart(level);
+        level.players().forEach(player -> scoreMap.put(player.getUUID(), 0));
     }
 
     @Override
-    public void onMatchEnd(ArenaData data) {
-        super.onMatchEnd(data);
+    public void onMatchEnd(ServerLevel level) {
+        super.onMatchEnd(level);
         int winningScore = 0;
         boolean tied = true;
         ServerPlayer winningPlayer = null;
-        for (ServerPlayer player : data.getLevel().players()) {
+        for (ServerPlayer player : level.players()) {
             int score = scoreMap.getOrDefault(player.getUUID(), 0);
             if (score > winningScore) {
                 tied = false;
@@ -67,8 +66,8 @@ public abstract class FFAGamemode extends ArenaGamemode {
     }
 
     @Override
-    public ArrayList<BlockPos> getValidSpawns(ArenaData data, ServerPlayer player) {
-        return data.getCurrentMap().getSpawns(data.getLevel()).getOrDefault(ArenaTeam.NONE, new ArrayList<>());
+    public ArrayList<BlockPos> getValidSpawns(ServerPlayer player, ArenaMap map) {
+        return map.getSpawns(player.serverLevel()).getOrDefault(ArenaTeam.NONE, new ArrayList<>());
     }
 
     @Override
@@ -79,14 +78,14 @@ public abstract class FFAGamemode extends ArenaGamemode {
     }
 
     @Override
-    public void onJoin(ArenaData data, ServerPlayer player) {
-        super.onJoin(data, player);
+    public void onJoin(ServerPlayer player) {
+        super.onJoin(player);
         scoreMap.put(player.getUUID(), 0);
     }
 
     @Override
-    public void onLeave(ArenaData data, ServerPlayer player) {
-        super.onLeave(data, player);
+    public void onLeave(ServerPlayer player) {
+        super.onLeave(player);
         scoreMap.remove(player.getUUID());
     }
 

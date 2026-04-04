@@ -40,12 +40,12 @@ public class KingOfTheHill extends FFAGamemode implements HasCapturePoints<KOTHC
     }
 
     @Override
-    public void onLevelTick(ArenaData data) {
-        super.onLevelTick(data);
+    public void onLevelTick(ServerLevel level) {
+        super.onLevelTick(level);
         if (capturePoint == null) return;
-        capturePoint.onLevelTick(data.getLevel());
-        if (data.getLevel().getGameTime() % SCORE_DELAY_TICKS == 0) {
-            if (capturePoint.getKing() != null && data.getLevel().getPlayerByUUID(capturePoint.getKing()) instanceof ServerPlayer king) {
+        capturePoint.onLevelTick(level);
+        if (level.getGameTime() % SCORE_DELAY_TICKS == 0) {
+            if (capturePoint.getKing() != null && level.getPlayerByUUID(capturePoint.getKing()) instanceof ServerPlayer king) {
                 incrementScore(king);
             }
         }
@@ -71,9 +71,9 @@ public class KingOfTheHill extends FFAGamemode implements HasCapturePoints<KOTHC
     }
 
     @Override
-    public void onMatchStart(ArenaData data) {
-        super.onMatchStart(data);
-        capturePoint = calculateCapturePoints(data.getCurrentMap(), data.getLevel(), KOTHCapturePoint::new).getFirst();
+    public void onMatchStart(ServerLevel level) {
+        super.onMatchStart(level);
+        capturePoint = calculateCapturePoints(ArenaData.get(level).currentMap, level, KOTHCapturePoint::new).getFirst();
 //        removeCapturePointBlocks(data.getLevel());
         sendToAll();
     }

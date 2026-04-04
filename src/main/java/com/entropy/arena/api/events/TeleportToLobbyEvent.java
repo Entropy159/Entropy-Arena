@@ -1,22 +1,22 @@
 package com.entropy.arena.api.events;
 
-import com.entropy.arena.api.data.ArenaData;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
-public abstract class TeleportToLobbyEvent extends ArenaPlayerEvent {
-    public TeleportToLobbyEvent(ArenaData data, ServerPlayer player) {
-        super(data, player);
+public abstract class TeleportToLobbyEvent extends PlayerEvent {
+    public TeleportToLobbyEvent(ServerPlayer player) {
+        super(player);
     }
 
     public static class Pre extends TeleportToLobbyEvent {
-        public Pre(ArenaData data, ServerPlayer player) {
-            super(data, player);
+        public Pre(ServerPlayer player) {
+            super(player);
         }
     }
 
     public static class Post extends TeleportToLobbyEvent {
-        public Post(ArenaData data, ServerPlayer player) {
-            super(data, player);
+        public Post(ServerPlayer player) {
+            super(player);
         }
     }
 }

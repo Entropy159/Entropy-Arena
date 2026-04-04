@@ -1,21 +1,21 @@
 package com.entropy.arena.api.events;
 
-import com.entropy.arena.api.data.ArenaData;
+import net.minecraft.server.level.ServerLevel;
 
 public abstract class MatchStartEvent extends ArenaEvent {
-    public MatchStartEvent(ArenaData data) {
-        super(data);
+    public MatchStartEvent(ServerLevel level) {
+        super(level);
     }
 
     public static class Pre extends MatchStartEvent {
-        public Pre(ArenaData data) {
-            super(data);
+        public Pre(ServerLevel level) {
+            super(level);
         }
     }
 
     public static class Post extends MatchStartEvent {
-        public Post(ArenaData data) {
-            super(data);
+        public Post(ServerLevel level) {
+            super(level);
         }
     }
 }

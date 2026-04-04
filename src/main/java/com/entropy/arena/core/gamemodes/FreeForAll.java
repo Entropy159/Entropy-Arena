@@ -1,6 +1,5 @@
 package com.entropy.arena.core.gamemodes;
 
-import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.FFAGamemode;
 import com.entropy.arena.core.EntropyArena;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,10 +11,10 @@ public class FreeForAll extends FFAGamemode {
     }
 
     @Override
-    public boolean onDeath(ArenaData data, ServerPlayer player, DamageSource source) {
+    public boolean onDeath(ServerPlayer player, DamageSource source) {
         if (source.getEntity() instanceof ServerPlayer killer) {
             incrementScore(killer);
         }
-        return super.onDeath(data, player, source);
+        return super.onDeath(player, source);
     }
 }

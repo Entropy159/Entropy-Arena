@@ -16,6 +16,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,11 +65,13 @@ public class KOTHCapturePoint extends CapturePoint {
             Player oldKing = getKing() == null ? null : level.getPlayerByUUID(getKing());
             if (setKing(null) && oldKing != null) {
                 Notification.toAll(Component.translatable("arena.message.koth.hill_lost", oldKing.getDisplayName()).withStyle(ChatFormatting.RED));
+                level.playSound(null, getPos().getCenter().x, getPos().getCenter().y, getPos().getCenter().z, SoundEvents.BEACON_DEACTIVATE, SoundSource.AMBIENT, 16, 1);
             }
         } else if (contestants.size() == 1) {
             if (tryIncrementCapture(level)) {
                 if (setKing(contestants.getFirst().getUUID())) {
                     Notification.toAll(Component.translatable("arena.message.koth.new_king", contestants.getFirst().getDisplayName()).withStyle(ChatFormatting.GREEN));
+                    level.playSound(null, getPos().getCenter().x, getPos().getCenter().y, getPos().getCenter().z, SoundEvents.BEACON_ACTIVATE, SoundSource.AMBIENT, 16, 1);
                 }
             }
         }

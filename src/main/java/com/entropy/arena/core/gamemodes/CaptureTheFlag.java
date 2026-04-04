@@ -22,6 +22,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -128,6 +130,7 @@ public class CaptureTheFlag extends TeamGamemode {
                 gem.set(ArenaDataComponents.TEAM, gemTeam);
                 player.addItem(gem);
                 Notification.toAll(Component.translatable("arena.message.ctf.flag_taken", gemTeam.getColoredName(), playerTeam.getColoredName()).withStyle(ChatFormatting.RED));
+                player.serverLevel().playSound(null, pos.getCenter().x, pos.getCenter().y, pos.getCenter().z, SoundEvents.BEACON_DEACTIVATE, SoundSource.AMBIENT, 16, 1);
                 sendToAll();
             }
         }
@@ -147,6 +150,7 @@ public class CaptureTheFlag extends TeamGamemode {
                         PedestalBlock.setHasGem(level, pedestalPosition, true);
                         pedestalValueMap.put(pedestalPosition, true);
                         Notification.toAll(Component.translatable("arena.message.ctf.flag_returned", pedestalTeam.getColoredName()));
+                        level.playSound(null, pos.getCenter().x, pos.getCenter().y, pos.getCenter().z, SoundEvents.BEACON_ACTIVATE, SoundSource.AMBIENT, 16, 1);
                         sendToAll();
                     }
                 } catch (IndexOutOfBoundsException e) {
@@ -165,6 +169,7 @@ public class CaptureTheFlag extends TeamGamemode {
                 PedestalBlock.setHasGem(level, pos, true);
                 pedestalValueMap.put(pos, true);
                 Notification.toAll(Component.translatable("arena.message.ctf.flag_dropped", flagTeam.getColoredName()).withStyle(ChatFormatting.YELLOW));
+                level.playSound(null, pos.getCenter().x, pos.getCenter().y, pos.getCenter().z, SoundEvents.BEACON_ACTIVATE, SoundSource.AMBIENT, 16, 1);
                 sendToAll();
             }
         } catch (IndexOutOfBoundsException e) {
@@ -192,6 +197,7 @@ public class CaptureTheFlag extends TeamGamemode {
                         incrementScore(playerTeam);
                         gem.shrink(1);
                         Notification.toAll(Component.translatable("arena.message.ctf.flag_scored", pedestalTeam.getColoredName()).withStyle(ChatFormatting.GREEN));
+                        level.playSound(null, pos.getCenter().x, pos.getCenter().y, pos.getCenter().z, SoundEvents.PLAYER_LEVELUP, SoundSource.AMBIENT, 16, 1);
                         sendToAll();
                     }
                 } catch (IndexOutOfBoundsException e) {

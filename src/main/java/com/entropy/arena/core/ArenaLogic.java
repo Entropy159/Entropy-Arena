@@ -175,7 +175,7 @@ public class ArenaLogic {
         if (!data.running) {
             return;
         }
-        if ((data.isTimed() || data.lobby) && level.getGameTime() % 20 == 0) {
+        if ((data.isTimed() || data.lobby) && level.getGameTime() % 20 == 0 && !level.players().isEmpty()) {
             data.timer--;
             PacketDistributor.sendToAllPlayers(new TimerPacket(data.timer));
             if (data.timer <= 0) {
@@ -194,6 +194,9 @@ public class ArenaLogic {
                 EntropyArena.LOGGER.info("Ending game due to winning score {}", data.currentGamemode.getHighestScore());
                 onMatchEnd();
             }
+        }
+        if (level.players().isEmpty()) {
+            onMatchEnd();
         }
     }
 

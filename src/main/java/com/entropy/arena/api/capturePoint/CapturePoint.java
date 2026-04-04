@@ -23,33 +23,27 @@ public abstract class CapturePoint {
     private BlockPos pos;
     private float captureProgress;
     private boolean contested;
-    private int captureTimer;
 
     public CapturePoint(BlockPos pos) {
-        this(pos, 0, 0, false);
+        this(pos, 0, false);
     }
 
-    public CapturePoint(BlockPos pos, float captureProgress, int captureTimer, boolean contested) {
+    public CapturePoint(BlockPos pos, float captureProgress, boolean contested) {
         this.pos = pos;
         this.captureProgress = captureProgress;
         this.contested = contested;
-        this.captureTimer = captureTimer;
     }
 
     public CapturePoint(CapturePoint other) {
-        this(other.pos, other.captureProgress, other.captureTimer, other.contested);
+        this(other.pos, other.captureProgress, other.contested);
     }
 
     public int getCaptureRadius() {
         return 5;
     }
 
-    public int getCaptureDelayTicks() {
-        return 40;
-    }
-
     public float getCaptureIncrement() {
-        return 0.2f;
+        return 0.005f;
     }
 
     public void onLevelTick(ServerLevel level) {
@@ -87,23 +81,11 @@ public abstract class CapturePoint {
 
     public boolean tryIncrementCapture(ServerLevel level) {
         getPlayersInRadius(level).forEach(player -> player.displayClientMessage(getCaptureProgressText(), true));
-        if (incrementCaptureTimer()) {
-            return incrementCaptureProgress();
-        }
-        return false;
+        return incrementCaptureProgress(level);
     }
 
-    public boolean incrementCaptureTimer() {
-        captureTimer--;
-        if (captureTimer <= 0) {
-            captureTimer = getCaptureDelayTicks();
-            return true;
-        }
-        return false;
-    }
-
-    public boolean incrementCaptureProgress() {
-        captureProgress += getCaptureIncrement();
+    public boolean incrementCaptureProgress(ServerLevel level) {
+        captureProgress += getCaptureIncrement() * getPlayersInRadius(level).size();
         if (captureProgress >= 1) {
             captureProgress = 1;
             return true;
@@ -127,13 +109,8 @@ public abstract class CapturePoint {
         this.contested = contested;
     }
 
-    public int getCaptureTimer() {
-        return captureTimer;
-    }
-
     public void resetCaptureProgress() {
         captureProgress = 0;
-        captureTimer = 0;
     }
 
     public List<ServerPlayer> getPlayersInRadius(ServerLevel level) {
@@ -147,14 +124,12 @@ public abstract class CapturePoint {
     public void encodeData(ByteBuf buffer) {
         BlockPos.STREAM_CODEC.encode(buffer, pos);
         ByteBufCodecs.FLOAT.encode(buffer, captureProgress);
-        ByteBufCodecs.INT.encode(buffer, captureTimer);
         ByteBufCodecs.BOOL.encode(buffer, contested);
     }
 
     public void decode(ByteBuf buffer) {
         pos = BlockPos.STREAM_CODEC.decode(buffer);
         captureProgress = ByteBufCodecs.FLOAT.decode(buffer);
-        captureTimer = ByteBufCodecs.INT.decode(buffer);
         contested = ByteBufCodecs.BOOL.decode(buffer);
     }
 

@@ -49,6 +49,11 @@ public class KOTHCapturePoint extends CapturePoint {
     }
 
     @Override
+    public float getCaptureIncrement() {
+        return super.getCaptureIncrement() * 2;
+    }
+
+    @Override
     public void onLevelTick(ServerLevel level) {
         super.onLevelTick(level);
         List<ServerPlayer> contestants = getPlayersInRadius(level);

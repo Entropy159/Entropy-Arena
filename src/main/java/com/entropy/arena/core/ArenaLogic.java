@@ -63,7 +63,6 @@ public class ArenaLogic {
         data.lobby = true;
         data.running = true;
         sendAllToLobby();
-        startMapVote();
         return null;
     }
 
@@ -109,8 +108,6 @@ public class ArenaLogic {
             data.timer = ServerConfig.INTERVAL_SECONDS.get();
             PacketDistributor.sendToAllPlayers(new TimerPacket(data.timer));
             data.lobby = true;
-
-            startMapVote();
         }
         RunningPacket.sendToEveryone(data);
         PacketDistributor.sendToAllPlayers(GameInfoPacket.fromData(data));
@@ -178,6 +175,9 @@ public class ArenaLogic {
         if ((data.isTimed() || data.lobby) && level.getGameTime() % 20 == 0 && !level.players().isEmpty()) {
             data.timer--;
             PacketDistributor.sendToAllPlayers(new TimerPacket(data.timer));
+            if (data.lobby && data.timer == ServerConfig.RECAP_SECONDS.get()) {
+                startMapVote();
+            }
             if (data.timer <= 0) {
                 if (data.lobby) {
                     EntropyArena.LOGGER.info("Starting game!");

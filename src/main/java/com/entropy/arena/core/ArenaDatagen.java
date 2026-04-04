@@ -124,6 +124,7 @@ public class ArenaDatagen {
 
         REGISTRATE.addRawLang(MODID + ".configuration.intervalSeconds", "Interval Seconds");
         REGISTRATE.addRawLang(MODID + ".configuration.roundSeconds", "Round Seconds");
+        REGISTRATE.addRawLang(MODID + ".configuration.recapSeconds", "Recap Seconds");
         REGISTRATE.addRawLang(MODID + ".configuration.friendlyFire", "Friendly Fire");
         REGISTRATE.addRawLang(MODID + ".configuration.hideEnemyNametags", "Hide Enemy Nametags");
         REGISTRATE.addRawLang(MODID + ".configuration.respawnDelay", "Respawn Delay");

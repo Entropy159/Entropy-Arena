@@ -18,6 +18,11 @@ group = mod_group_id
 
 repositories {
     maven { url = "https://maven.ithundxr.dev/snapshots" }
+
+    maven {
+        name = "Illusive Soulworks maven"
+        url = "https://maven.theillusivec4.top/"
+    }
 }
 
 base {
@@ -96,6 +101,8 @@ dependencies {
 
     implementation "com.tterrag.registrate:Registrate:${registrate_version}"
     jarJar(group: 'com.tterrag.registrate', name: 'Registrate', version: "[${registrate_version},)")
+
+    implementation "top.theillusivec4.curios:curios-neoforge:9.5.1+1.21.1"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

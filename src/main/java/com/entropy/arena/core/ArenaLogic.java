@@ -175,7 +175,7 @@ public class ArenaLogic {
         if ((data.isTimed() || data.lobby) && level.getGameTime() % 20 == 0 && !level.players().isEmpty()) {
             data.timer--;
             PacketDistributor.sendToAllPlayers(new TimerPacket(data.timer));
-            if (data.lobby && data.timer == ServerConfig.RECAP_SECONDS.get()) {
+            if (data.lobby && data.timer == ServerConfig.INTERVAL_SECONDS.get() - ServerConfig.RECAP_SECONDS.get()) {
                 startMapVote();
             }
             if (data.timer <= 0) {

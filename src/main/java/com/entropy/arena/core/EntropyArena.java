@@ -1,6 +1,7 @@
 package com.entropy.arena.core;
 
 import com.entropy.arena.core.commands.ArenaCommand;
+import com.entropy.arena.core.commands.LoadoutCommand;
 import com.entropy.arena.core.config.ClientConfig;
 import com.entropy.arena.core.config.CommonConfig;
 import com.entropy.arena.core.config.ServerConfig;
@@ -43,6 +44,7 @@ public class EntropyArena {
     @SubscribeEvent
     public void registerCommands(RegisterCommandsEvent event) {
         ArenaCommand.register(event.getDispatcher());
+        LoadoutCommand.register(event.getDispatcher());
     }
 
     public static ResourceLocation id(String path) {

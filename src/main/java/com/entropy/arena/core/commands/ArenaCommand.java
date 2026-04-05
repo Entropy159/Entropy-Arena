@@ -3,7 +3,6 @@ package com.entropy.arena.core.commands;
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
-import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.core.ArenaLogic;
 import com.entropy.arena.core.map.ArenaMap;
 import com.entropy.arena.core.map.MapList;
@@ -66,26 +65,7 @@ public class ArenaCommand {
                                         .suggests(MAP_SUGGESTIONS)
                                         .executes(ArenaCommand::loadMap)))
                         .then(literal("list")
-                                .executes(ArenaCommand::listMaps)))
-                .then(literal("loadout")
-                        .then(literal("add")
-                                .requires(CommandSourceStack::isPlayer)
-                                .then(argument("name", StringArgumentType.string())
-                                        .executes(ArenaCommand::addLoadout)))
-                        .then(literal("remove")
-                                .then(argument("name", StringArgumentType.string())
-                                        .executes(ArenaCommand::removeLoadout)))
-                        .then(literal("update")
-                                .requires(CommandSourceStack::isPlayer)
-                                .then(argument("name", StringArgumentType.string())
-                                        .executes(ArenaCommand::updateLoadout)))
-                        .then(literal("list")
-                                .executes(ArenaCommand::listLoadouts))));
-        dispatcher.register(literal("loadout")
-                .requires(CommandSourceStack::isPlayer)
-                .then(argument("name", StringArgumentType.string())
-                        .suggests(LOADOUT_SUGGESTIONS)
-                        .executes(ArenaCommand::selectLoadout)));
+                                .executes(ArenaCommand::listMaps))));
     }
 
     private static int start(CommandContext<CommandSourceStack> ctx) {
@@ -195,68 +175,6 @@ public class ArenaCommand {
         return 0;
     }
 
-    private static int addLoadout(CommandContext<CommandSourceStack> ctx) {
-        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
-        String name = StringArgumentType.getString(ctx, "name");
-        if (data.loadouts.containsKey(name)) {
-            ctx.getSource().sendFailure(Component.translatable("arena.error.loadout_already_exists", name));
-            return 0;
-        }
-        if (ctx.getSource().getPlayer() != null) {
-            data.loadouts.put(name, new Loadout(ctx.getSource().getPlayer()));
-            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.added_loadout", name).withStyle(ChatFormatting.GREEN), true);
-            return 1;
-        }
-        ctx.getSource().sendFailure(Component.translatable("permissions.requires.player"));
-        return 0;
-    }
-
-    private static int removeLoadout(CommandContext<CommandSourceStack> ctx) {
-        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
-        String name = StringArgumentType.getString(ctx, "name");
-        if (data.loadouts.containsKey(name)) {
-            data.loadouts.remove(name);
-            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.removed_loadout", name).withStyle(ChatFormatting.GREEN), true);
-            return 1;
-        }
-        ctx.getSource().sendFailure(Component.translatable("arena.error.loadout_not_found", name));
-        return 0;
-    }
-
-    private static int updateLoadout(CommandContext<CommandSourceStack> ctx) {
-        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
-        String name = StringArgumentType.getString(ctx, "name");
-        if (data.loadouts.containsKey(name) && ctx.getSource().getPlayer() != null) {
-            data.loadouts.put(name, new Loadout(ctx.getSource().getPlayer()));
-            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.updated_loadout", name).withStyle(ChatFormatting.GREEN), true);
-            return 1;
-        }
-        ctx.getSource().sendFailure(Component.translatable("arena.error.loadout_not_found", name));
-        return 0;
-    }
-
-    private static int listLoadouts(CommandContext<CommandSourceStack> ctx) {
-        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
-        if (data.loadouts.isEmpty()) {
-            ctx.getSource().sendFailure(Component.translatable("arena.error.no_loadouts"));
-            return 0;
-        }
-        data.loadouts.keySet().forEach(name -> ctx.getSource().sendSuccess(() -> Component.literal(name).withStyle(ChatFormatting.GREEN), false));
-        return 1;
-    }
-
-    private static int selectLoadout(CommandContext<CommandSourceStack> ctx) {
-        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
-        String name = StringArgumentType.getString(ctx, "name");
-        if (data.loadouts.containsKey(name) && ctx.getSource().getPlayer() != null) {
-            data.setLoadoutChoice(ctx.getSource().getPlayer(), name);
-            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.selected_loadout", name).withStyle(ChatFormatting.GREEN), true);
-            return 1;
-        }
-        ctx.getSource().sendFailure(Component.translatable("arena.error.loadout_not_found", name));
-        return 0;
-    }
-
     private static final SuggestionProvider<CommandSourceStack> MAP_SUGGESTIONS = (ctx, builder) -> {
         MapList.forEachMap(map -> builder.suggest("\"" + map.getName() + "\""));
         return builder.buildFuture();
@@ -271,12 +189,6 @@ public class ArenaCommand {
         for (ArenaTeam team : ArenaTeam.values()) {
             builder.suggest(team.getSerializedName());
         }
-        return builder.buildFuture();
-    };
-
-    private static final SuggestionProvider<CommandSourceStack> LOADOUT_SUGGESTIONS = (ctx, builder) -> {
-        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
-        data.loadouts.keySet().forEach(name -> builder.suggest("\"" + name + "\""));
         return builder.buildFuture();
     };
 }

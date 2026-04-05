@@ -164,6 +164,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.removed_loadout", "Removed loadout %s");
         REGISTRATE.addRawLang("arena.message.updated_loadout", "Updated loadout %s");
         REGISTRATE.addRawLang("arena.message.selected_loadout", "Selected loadout %s");
+        REGISTRATE.addRawLang("arena.message.gave_loadout", "Gave loadout %s");
 
         REGISTRATE.addRawLang("arena.error.already_running", "Game is already running");
         REGISTRATE.addRawLang("arena.error.no_lobby", "No lobby position found");

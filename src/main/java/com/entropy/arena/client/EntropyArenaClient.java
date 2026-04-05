@@ -72,7 +72,7 @@ public class EntropyArenaClient {
     }
 
     private static Component getTimerText() {
-        return Component.translatable((inLobby ? "arena.hud.interval" : "arena.hud.timer"), String.format("%02d:%02d", timer / 60, timer % 60));
+        return targetScore > 0 ? Component.translatable("arena.hud.target_score", targetScore) : Component.translatable((inLobby ? "arena.hud.interval" : "arena.hud.timer"), String.format("%02d:%02d", timer / 60, timer % 60));
     }
 
     private static void renderScores(GuiGraphics graphics) {

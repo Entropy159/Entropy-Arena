@@ -132,6 +132,7 @@ public class ArenaDatagen {
 
         REGISTRATE.addRawLang("arena.hud.interval", "Interval: %s");
         REGISTRATE.addRawLang("arena.hud.timer", "Timer: %s");
+        REGISTRATE.addRawLang("arena.hud.target_score", "Target score: %s");
         REGISTRATE.addRawLang("arena.hud.score_value", "Score: %s");
 
         REGISTRATE.addRawLang("arena.screen.map_voting", "Map Voting");

@@ -13,9 +13,9 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
-public record RunningPacket(boolean running, boolean lobby) implements CustomPacketPayload {
+public record RunningPacket(boolean running, boolean lobby, int targetScore) implements CustomPacketPayload {
     public static final Type<RunningPacket> TYPE = new Type<>(EntropyArena.id("running"));
-    public static final StreamCodec<ByteBuf, RunningPacket> STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.BOOL, RunningPacket::running, ByteBufCodecs.BOOL, RunningPacket::lobby, RunningPacket::new);
+    public static final StreamCodec<ByteBuf, RunningPacket> STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.BOOL, RunningPacket::running, ByteBufCodecs.BOOL, RunningPacket::lobby, ByteBufCodecs.INT, RunningPacket::targetScore, RunningPacket::new);
 
     @Override
     public @NotNull Type<? extends CustomPacketPayload> type() {
@@ -28,16 +28,17 @@ public record RunningPacket(boolean running, boolean lobby) implements CustomPac
         }
         ClientData.running = running;
         ClientData.inLobby = lobby;
+        ClientData.targetScore = targetScore;
         if (!lobby || !running) {
             ClientData.votableMaps.clear();
         }
     }
 
     public static void sendToEveryone(ArenaData data) {
-        PacketDistributor.sendToAllPlayers(new RunningPacket(data.running, data.lobby));
+        PacketDistributor.sendToAllPlayers(new RunningPacket(data.running, data.lobby, data.targetScore));
     }
 
     public static void sendToPlayer(ArenaData data, ServerPlayer player) {
-        PacketDistributor.sendToPlayer(player, new RunningPacket(data.running, data.lobby));
+        PacketDistributor.sendToPlayer(player, new RunningPacket(data.running, data.lobby, data.targetScore));
     }
 }

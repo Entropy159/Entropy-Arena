@@ -11,6 +11,7 @@ public class ClientData {
     public static boolean running = false;
     public static boolean inLobby = true;
     public static int timer = 0;
+    public static int targetScore = 0;
     public static String currentMap;
     public static ArenaGamemode currentGamemode;
 

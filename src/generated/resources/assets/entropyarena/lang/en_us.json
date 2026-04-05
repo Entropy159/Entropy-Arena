@@ -22,6 +22,7 @@
   "arena.gamemode.entropyarena.wave_survival": "Wave Survival",
   "arena.hud.interval": "Interval: %s",
   "arena.hud.score_value": "Score: %s",
+  "arena.hud.target_score": "Target score: %s",
   "arena.hud.timer": "Timer: %s",
   "arena.message.added_loadout": "Added loadout %s",
   "arena.message.added_map": "Added map %s",

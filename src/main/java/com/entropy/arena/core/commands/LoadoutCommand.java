@@ -32,11 +32,13 @@ public class LoadoutCommand {
                 .then(literal("remove")
                         .requires(ctx -> ctx.hasPermission(3))
                         .then(argument("name", StringArgumentType.string())
+                                .suggests(LOADOUT_SUGGESTIONS)
                                 .executes(LoadoutCommand::removeLoadout)))
                 .then(literal("update")
                         .requires(ctx -> ctx.hasPermission(3))
                         .requires(CommandSourceStack::isPlayer)
                         .then(argument("name", StringArgumentType.string())
+                                .suggests(LOADOUT_SUGGESTIONS)
                                 .executes(LoadoutCommand::updateLoadout)))
                 .then(literal("list")
                         .executes(LoadoutCommand::listLoadouts)));

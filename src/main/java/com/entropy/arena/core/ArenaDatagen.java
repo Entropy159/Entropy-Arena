@@ -123,8 +123,9 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang(MODID + ".configuration.notificationFadeoutDuration", "Notification Fade Out Duration");
 
         REGISTRATE.addRawLang(MODID + ".configuration.intervalSeconds", "Interval Seconds");
-        REGISTRATE.addRawLang(MODID + ".configuration.roundSeconds", "Round Seconds");
         REGISTRATE.addRawLang(MODID + ".configuration.recapSeconds", "Recap Seconds");
+        REGISTRATE.addRawLang(MODID + ".configuration.defaultRoundSeconds", "Default Round Seconds");
+        REGISTRATE.addRawLang(MODID + ".configuration.defaultTargetScore", "Default Target Score");
         REGISTRATE.addRawLang(MODID + ".configuration.friendlyFire", "Friendly Fire");
         REGISTRATE.addRawLang(MODID + ".configuration.hideEnemyNametags", "Hide Enemy Nametags");
         REGISTRATE.addRawLang(MODID + ".configuration.respawnDelay", "Respawn Delay");
@@ -135,7 +136,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.hud.target_score", "Target score: %s");
         REGISTRATE.addRawLang("arena.hud.score_value", "Score: %s");
 
-        REGISTRATE.addRawLang("arena.screen.map_voting", "Map Voting");
+        REGISTRATE.addRawLang("arena.screen.voting", "Voting");
 
         REGISTRATE.addRawLang("arena.message.match_start", "Started match");
         REGISTRATE.addRawLang("arena.message.match_stop", "Stopped match");
@@ -143,10 +144,13 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.added_map", "Added map %s");
         REGISTRATE.addRawLang("arena.message.removed_map", "Removed map %s");
         REGISTRATE.addRawLang("arena.message.updated_map", "Updated map %s");
+        REGISTRATE.addRawLang("arena.message.updated_map_overrides", "Updated map overrides for %s");
         REGISTRATE.addRawLang("arena.message.loaded_map", "Loaded map %s");
         REGISTRATE.addRawLang("arena.message.game_over", "Game over");
         REGISTRATE.addRawLang("arena.message.game_start", "Game starting");
         REGISTRATE.addRawLang("arena.message.voted_for_map", "Voted for map %s");
+        REGISTRATE.addRawLang("arena.message.voted_for_timed", "Voted for timed match");
+        REGISTRATE.addRawLang("arena.message.voted_for_score", "Voted for score match");
         REGISTRATE.addRawLang("arena.message.enable", "Starting Entropy Arena");
         REGISTRATE.addRawLang("arena.message.map_info", "Map: %s - gamemode: ");
         REGISTRATE.addRawLang("arena.message.switch_team", "You are on team %s");

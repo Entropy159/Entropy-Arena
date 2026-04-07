@@ -7,7 +7,7 @@ import com.entropy.arena.api.client.ScreenAnchorPoint;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.CoOpGamemode;
 import com.entropy.arena.core.EntropyArena;
-import com.entropy.arena.core.map.ArenaMap;
+import com.entropy.arena.api.map.ArenaMap;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;

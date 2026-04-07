@@ -6,7 +6,7 @@ import com.entropy.arena.api.gamemode.HasCapturePoints;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.CapturePointBlock;
 import com.entropy.arena.core.capturePoint.KOTHCapturePoint;
-import com.entropy.arena.core.map.ArenaMap;
+import com.entropy.arena.api.map.ArenaMap;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;

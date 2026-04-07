@@ -1,9 +1,9 @@
 package com.entropy.arena.core.network.toServer;
 
 import com.entropy.arena.core.EntropyArena;
-import com.entropy.arena.core.map.ArenaMap;
-import com.entropy.arena.core.map.MapList;
-import com.entropy.arena.core.map.MapScreenshot;
+import com.entropy.arena.api.map.ArenaMap;
+import com.entropy.arena.api.map.MapList;
+import com.entropy.arena.api.map.MapScreenshot;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;

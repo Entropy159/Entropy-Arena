@@ -2,7 +2,7 @@ package com.entropy.arena.api.client;
 
 import com.entropy.arena.api.Notification;
 import com.entropy.arena.api.gamemode.ArenaGamemode;
-import com.entropy.arena.core.map.ArenaMapInfo;
+import com.entropy.arena.api.map.ArenaMapInfo;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;

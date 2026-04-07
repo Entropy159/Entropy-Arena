@@ -1,8 +1,8 @@
-package com.entropy.arena.core.map;
+package com.entropy.arena.api.map;
 
 import com.entropy.arena.api.gamemode.ArenaGamemode;
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
-import com.entropy.arena.core.network.toServer.VotePacket;
+import com.entropy.arena.core.network.toServer.MapVotePacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -45,7 +45,7 @@ public record ArenaMapInfo(String name, MapScreenshot screenshot, ResourceLocati
     public record ScreenLocation(String name, double x, double y, double width, double height) {
         public boolean tryClick(double mouseX, double mouseY) {
             if (isWithinBounds(mouseX, mouseY)) {
-                PacketDistributor.sendToServer(new VotePacket(name));
+                PacketDistributor.sendToServer(new MapVotePacket(name));
                 return true;
             }
             return false;

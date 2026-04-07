@@ -3,9 +3,9 @@ package com.entropy.arena.api.data;
 import com.entropy.arena.api.ArenaUtils;
 import com.entropy.arena.api.gamemode.ArenaGamemode;
 import com.entropy.arena.api.loadout.Loadout;
+import com.entropy.arena.api.map.ArenaMap;
+import com.entropy.arena.api.map.MapList;
 import com.entropy.arena.core.EntropyArena;
-import com.entropy.arena.core.map.ArenaMap;
-import com.entropy.arena.core.map.MapList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -25,20 +25,20 @@ public class ArenaData extends SavedData {
     public boolean running = false;
     public boolean lobby = false;
     public int timer = 0;
-    public int targetScore = 0;
+    public boolean isTimed = true;
     public @Nullable BlockPos lobbyPos;
     public ArenaMap currentMap;
     public ArenaGamemode currentGamemode;
     public HashMap<String, Loadout> loadouts = new HashMap<>();
     public HashMap<UUID, String> loadoutSelections = new HashMap<>();
     public final HashMap<UUID, String> mapVotes = new HashMap<>();
+    public final HashMap<UUID, Boolean> typeVotes = new HashMap<>();
     public final ArrayList<String> votableMaps = new ArrayList<>();
     public final HashMap<UUID, Long> respawnTimes = new HashMap<>();
 
     public static ArenaData load(CompoundTag tag, HolderLookup.Provider provider) {
         MapList.loadFromTag(tag.getCompound("mapList"));
         ArenaData data = new ArenaData();
-        data.targetScore = tag.getInt("targetScore");
         data.loadouts = ArenaUtils.tagToHashMap(tag.getCompound("loadouts"), s -> s, t -> new Loadout((CompoundTag) t));
         data.loadoutSelections = ArenaUtils.tagToHashMap(tag.getCompound("loadoutSelections"), UUID::fromString, Tag::getAsString);
         if (tag.contains("lobbyPos")) data.lobbyPos = BlockPos.of(tag.getLong("lobbyPos"));
@@ -48,7 +48,6 @@ public class ArenaData extends SavedData {
     @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         tag.put("mapList", MapList.saveToTag());
-        tag.putInt("targetScore", targetScore);
         tag.put("loadouts", ArenaUtils.mapToTag(loadouts, s -> s, Loadout::getCompound));
         tag.put("loadoutSelections", ArenaUtils.mapToTag(loadoutSelections, UUID::toString, StringTag::valueOf));
         if (lobbyPos != null) tag.putLong("lobbyPos", lobbyPos.asLong());
@@ -69,13 +68,5 @@ public class ArenaData extends SavedData {
 
     public boolean inGame() {
         return running && !lobby && currentMap != null && currentGamemode != null;
-    }
-
-    public boolean isTimed() {
-        return targetScore == 0;
-    }
-
-    public boolean scoreShouldEndGame(int score) {
-        return !isTimed() && score >= targetScore;
     }
 }

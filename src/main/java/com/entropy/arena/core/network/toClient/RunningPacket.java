@@ -8,8 +8,6 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,11 +32,7 @@ public record RunningPacket(boolean running, boolean lobby, int targetScore) imp
         }
     }
 
-    public static void sendToEveryone(ArenaData data) {
-        PacketDistributor.sendToAllPlayers(new RunningPacket(data.running, data.lobby, data.targetScore));
-    }
-
-    public static void sendToPlayer(ArenaData data, ServerPlayer player) {
-        PacketDistributor.sendToPlayer(player, new RunningPacket(data.running, data.lobby, data.targetScore));
+    public static RunningPacket fromData(ArenaData data) {
+        return new RunningPacket(data.running, data.lobby, data.currentMap == null ? 0 : (data.isTimed ? 0 : data.currentMap.getTargetScore()));
     }
 }

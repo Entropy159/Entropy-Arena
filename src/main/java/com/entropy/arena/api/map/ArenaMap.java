@@ -1,4 +1,4 @@
-package com.entropy.arena.core.map;
+package com.entropy.arena.api.map;
 
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.ArenaUtils;
@@ -7,6 +7,7 @@ import com.entropy.arena.api.gamemode.ArenaGamemode;
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.SpawnpointBlock;
+import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.network.toClient.TakeScreenshotPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -46,13 +47,15 @@ public class ArenaMap {
     private boolean raining;
     private boolean thundering;
     private MapScreenshot screenshot;
+    private int timerOverride;
+    private int targetScoreOverride;
     private static CompoundTag backup;
 
     public ArenaMap(ServerLevel level, String name, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2) {
-        this(name, gamemodeID, ArenaUtils.min(corner1, corner2), ArenaUtils.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name));
+        this(name, gamemodeID, ArenaUtils.min(corner1, corner2), ArenaUtils.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), 0, 0);
     }
 
-    public ArenaMap(String name, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot) {
+    public ArenaMap(String name, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, int timerOverride, int targetScoreOverride) {
         this.name = name;
         this.gamemodeID = gamemodeID;
         this.corner1 = corner1;
@@ -61,6 +64,8 @@ public class ArenaMap {
         this.raining = raining;
         this.thundering = thundering;
         this.screenshot = screenshot;
+        this.timerOverride = timerOverride;
+        this.targetScoreOverride = targetScoreOverride;
     }
 
     public void forEachBlock(BiConsumer<Vec3i, BlockPos> function) {
@@ -102,6 +107,11 @@ public class ArenaMap {
         raining = level.isRaining();
         thundering = level.isThundering();
         PacketDistributor.sendToPlayer(player, new TakeScreenshotPacket(name));
+    }
+
+    public void setOverrides(int timerOverride, int targetScoreOverride) {
+        this.timerOverride = timerOverride;
+        this.targetScoreOverride = targetScoreOverride;
     }
 
     public void setScreenshot(MapScreenshot newScreenshot) {
@@ -161,6 +171,8 @@ public class ArenaMap {
         tag.putBoolean("raining", raining);
         tag.putBoolean("thundering", thundering);
         tag.putByteArray("screenshot", screenshot.getData());
+        tag.putInt("timerOverride", timerOverride);
+        tag.putInt("targetScoreOverride", targetScoreOverride);
         return tag;
     }
 
@@ -173,7 +185,9 @@ public class ArenaMap {
         boolean raining = tag.getBoolean("raining");
         boolean thundering = tag.getBoolean("thundering");
         MapScreenshot screenshot = new MapScreenshot(name, tag.getByteArray("screenshot"));
-        return new ArenaMap(name, gamemode, corner1, corner2, time, raining, thundering, screenshot);
+        int timerOverride = tag.getInt("timerOverride");
+        int targetScoreOverride = tag.getInt("targetScoreOverride");
+        return new ArenaMap(name, gamemode, corner1, corner2, time, raining, thundering, screenshot, timerOverride, targetScoreOverride);
     }
 
     public String getName() {
@@ -202,5 +216,17 @@ public class ArenaMap {
         ArenaGamemode gamemode = getNewGamemode();
         if (gamemode == null) return Component.translatable("arena.error.no_gamemode", gamemodeID.toString());
         return gamemode.validateMap(level, this);
+    }
+
+    public int getTimer() {
+        return timerOverride > 0 ? timerOverride : ServerConfig.DEFAULT_ROUND_SECONDS.get();
+    }
+
+    public int getTargetScore() {
+        return targetScoreOverride > 0 ? targetScoreOverride : ServerConfig.DEFAULT_TARGET_SCORE.get();
+    }
+
+    public boolean shouldScoreEndGame(int score) {
+        return score >= getTargetScore();
     }
 }

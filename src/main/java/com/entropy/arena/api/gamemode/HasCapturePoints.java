@@ -2,7 +2,7 @@ package com.entropy.arena.api.gamemode;
 
 import com.entropy.arena.api.capturePoint.CapturePoint;
 import com.entropy.arena.core.blocks.CapturePointBlock;
-import com.entropy.arena.core.map.ArenaMap;
+import com.entropy.arena.api.map.ArenaMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 

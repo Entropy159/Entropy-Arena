@@ -5,7 +5,7 @@ import com.entropy.arena.api.Notification;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
-import com.entropy.arena.core.map.ArenaMap;
+import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.core.network.toClient.ScoresPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;

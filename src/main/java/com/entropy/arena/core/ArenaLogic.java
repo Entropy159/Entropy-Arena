@@ -8,10 +8,10 @@ import com.entropy.arena.api.events.MatchEndEvent;
 import com.entropy.arena.api.events.MatchStartEvent;
 import com.entropy.arena.api.events.TeleportToLobbyEvent;
 import com.entropy.arena.api.loadout.Loadout;
+import com.entropy.arena.api.map.ArenaMap;
+import com.entropy.arena.api.map.ArenaMapInfo;
+import com.entropy.arena.api.map.MapList;
 import com.entropy.arena.core.config.ServerConfig;
-import com.entropy.arena.core.map.ArenaMap;
-import com.entropy.arena.core.map.ArenaMapInfo;
-import com.entropy.arena.core.map.MapList;
 import com.entropy.arena.core.network.toClient.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -76,7 +76,7 @@ public class ArenaLogic {
 
     public void sendAllToLobby() {
         level.players().forEach(this::sendToLobby);
-        RunningPacket.sendToEveryone(data);
+        PacketDistributor.sendToAllPlayers(RunningPacket.fromData(data));
     }
 
     private void sendToLobby(ServerPlayer player) {
@@ -109,7 +109,7 @@ public class ArenaLogic {
             PacketDistributor.sendToAllPlayers(new TimerPacket(data.timer));
             data.lobby = true;
         }
-        RunningPacket.sendToEveryone(data);
+        PacketDistributor.sendToAllPlayers(RunningPacket.fromData(data));
         PacketDistributor.sendToAllPlayers(GameInfoPacket.fromData(data));
         NeoForge.EVENT_BUS.post(new MatchEndEvent.Post(level));
     }
@@ -132,6 +132,7 @@ public class ArenaLogic {
     public void onMatchStart() {
         NeoForge.EVENT_BUS.post(new MatchStartEvent.Pre(level));
         data.lobby = false;
+        data.isTimed = votedForTimedMap();
         data.currentMap = votedMap();
         data.mapVotes.clear();
         if (data.currentMap == null) {
@@ -143,15 +144,15 @@ public class ArenaLogic {
         data.currentGamemode = data.currentMap.getNewGamemode();
         Notification.toAll(Component.translatable("arena.message.game_start").withStyle(ChatFormatting.GREEN));
         Notification.toAll(Component.translatable("arena.message.map_info", data.currentMap.getName()).withStyle(ChatFormatting.YELLOW).append(data.currentGamemode.getName()));
-        if (data.isTimed()) {
-            data.timer = ServerConfig.ROUND_SECONDS.get();
+        if (data.isTimed) {
+            data.timer = data.currentMap.getTimer();
         }
         data.currentMap.backup(level);
         data.currentMap.load(level);
         PacketDistributor.sendToAllPlayers(GameInfoPacket.fromData(data));
         data.currentGamemode.onMatchStart(level);
         level.players().forEach(this::onRespawn);
-        RunningPacket.sendToEveryone(data);
+        PacketDistributor.sendToAllPlayers(RunningPacket.fromData(data));
         PacketDistributor.sendToAllPlayers(new ScoresPacket(data.currentGamemode.getScoreText(level)));
         NeoForge.EVENT_BUS.post(new MatchStartEvent.Post(level));
     }
@@ -163,16 +164,27 @@ public class ArenaLogic {
         return selectedOptional.orElse(null);
     }
 
-    public void vote(ServerPlayer player, String mapName) {
+    private boolean votedForTimedMap() {
+        long votesForTimed = data.typeVotes.values().stream().filter(b -> b).count();
+        long votesForScore = data.typeVotes.values().stream().filter(b -> !b).count();
+        return votesForTimed >= votesForScore;
+    }
+
+    public void voteForMap(ServerPlayer player, String mapName) {
         data.mapVotes.put(player.getUUID(), mapName);
         Notification.toPlayer(Component.translatable("arena.message.voted_for_map", mapName).withStyle(ChatFormatting.GREEN), player);
+    }
+
+    public void voteForType(ServerPlayer player, boolean isTimed) {
+        data.typeVotes.put(player.getUUID(), isTimed);
+        Notification.toPlayer(Component.translatable(isTimed ? "arena.message.voted_for_timed" : "arena.message.voted_for_score").withStyle(ChatFormatting.GREEN), player);
     }
 
     public void onLevelTick() {
         if (!data.running) {
             return;
         }
-        if ((data.isTimed() || data.lobby) && level.getGameTime() % 20 == 0 && !level.players().isEmpty()) {
+        if ((data.isTimed || data.lobby) && level.getGameTime() % 20 == 0 && !level.players().isEmpty()) {
             data.timer--;
             PacketDistributor.sendToAllPlayers(new TimerPacket(data.timer));
             if (data.lobby && data.timer == ServerConfig.INTERVAL_SECONDS.get() - ServerConfig.RECAP_SECONDS.get()) {
@@ -190,7 +202,7 @@ public class ArenaLogic {
         }
         if (data.inGame()) {
             data.currentGamemode.onLevelTick(level);
-            if (data.scoreShouldEndGame(data.currentGamemode.getHighestScore())) {
+            if (!data.isTimed && data.currentMap.shouldScoreEndGame(data.currentGamemode.getHighestScore())) {
                 EntropyArena.LOGGER.info("Ending game due to winning score {}", data.currentGamemode.getHighestScore());
                 onMatchEnd();
             }
@@ -223,7 +235,8 @@ public class ArenaLogic {
                 if (!data.currentGamemode.onDeath(player, source)) {
                     player.setGameMode(GameType.SPECTATOR);
                     data.respawnTimes.put(player.getUUID(), level.getGameTime());
-                    Notification.toAll(player.getCombatTracker().getDeathMessage());
+                    player.removeAllEffects();
+                    Notification.toAll(player.getCombatTracker().getDeathMessage().copy().withStyle(ChatFormatting.RED));
                 }
                 return true;
             }
@@ -266,7 +279,7 @@ public class ArenaLogic {
             data.currentGamemode.onJoin(player);
             onRespawn(player);
         }
-        RunningPacket.sendToPlayer(data, player);
+        PacketDistributor.sendToPlayer(player, RunningPacket.fromData(data));
     }
 
     public void onLeave(ServerPlayer player) {

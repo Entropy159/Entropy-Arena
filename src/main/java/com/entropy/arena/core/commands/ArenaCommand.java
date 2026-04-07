@@ -3,9 +3,9 @@ package com.entropy.arena.core.commands;
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
+import com.entropy.arena.api.map.ArenaMap;
+import com.entropy.arena.api.map.MapList;
 import com.entropy.arena.core.ArenaLogic;
-import com.entropy.arena.core.map.ArenaMap;
-import com.entropy.arena.core.map.MapList;
 import com.entropy.arena.core.network.toClient.TakeScreenshotPacket;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.entropy.arena.core.registry.ArenaItems;
@@ -60,6 +60,12 @@ public class ArenaCommand {
                                 .then(argument("name", StringArgumentType.string())
                                         .suggests(MAP_SUGGESTIONS)
                                         .executes(ArenaCommand::updateMap)))
+                        .then(literal("overrides")
+                                .then(argument("name", StringArgumentType.string())
+                                        .suggests(MAP_SUGGESTIONS)
+                                        .then(argument("timer", IntegerArgumentType.integer(0, 1800))
+                                                .then(argument("score", IntegerArgumentType.integer(0, 1000))
+                                                        .executes(ArenaCommand::updateMapOverrides)))))
                         .then(literal("load")
                                 .then(argument("name", StringArgumentType.string())
                                         .suggests(MAP_SUGGESTIONS)
@@ -126,6 +132,20 @@ public class ArenaCommand {
         if (map != null) {
             map.update(ctx.getSource().getLevel(), ctx.getSource().getPlayer());
             ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.updated_map", name).withStyle(ChatFormatting.GREEN), true);
+            return 1;
+        }
+        ctx.getSource().sendFailure(Component.translatable("arena.error.map_not_found", name).withStyle(ChatFormatting.DARK_RED));
+        return 0;
+    }
+
+    private static int updateMapOverrides(CommandContext<CommandSourceStack> ctx) {
+        String name = StringArgumentType.getString(ctx, "name");
+        int timer = IntegerArgumentType.getInteger(ctx, "timer");
+        int score = IntegerArgumentType.getInteger(ctx, "score");
+        ArenaMap map = MapList.getMap(name);
+        if (map != null) {
+            map.setOverrides(timer, score);
+            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.updated_map_overrides", name).withStyle(ChatFormatting.GREEN), true);
             return 1;
         }
         ctx.getSource().sendFailure(Component.translatable("arena.error.map_not_found", name).withStyle(ChatFormatting.DARK_RED));

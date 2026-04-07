@@ -2,8 +2,9 @@ package com.entropy.arena.core.network;
 
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
 import com.entropy.arena.core.network.toClient.*;
+import com.entropy.arena.core.network.toServer.MapVotePacket;
 import com.entropy.arena.core.network.toServer.ScreenshotPacket;
-import com.entropy.arena.core.network.toServer.VotePacket;
+import com.entropy.arena.core.network.toServer.TypeVotePacket;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -24,7 +25,8 @@ public class PacketRegistry {
         registrar.playToClient(GameInfoPacket.TYPE, GameInfoPacket.STREAM_CODEC, GameInfoPacket::handle);
 
         registrar.playToServer(ScreenshotPacket.TYPE, ScreenshotPacket.STREAM_CODEC, ScreenshotPacket::handle);
-        registrar.playToServer(VotePacket.TYPE, VotePacket.STREAM_CODEC, VotePacket::handle);
+        registrar.playToServer(MapVotePacket.TYPE, MapVotePacket.STREAM_CODEC, MapVotePacket::handle);
+        registrar.playToServer(TypeVotePacket.TYPE, TypeVotePacket.STREAM_CODEC, TypeVotePacket::handle);
 
         GamemodeRegistry.forEach(gamemode -> gamemode.registerPacket(registrar));
     }

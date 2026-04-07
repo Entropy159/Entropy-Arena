@@ -1,4 +1,4 @@
-package com.entropy.arena.core.map;
+package com.entropy.arena.api.map;
 
 import com.entropy.arena.api.ArenaUtils;
 import net.minecraft.core.BlockPos;

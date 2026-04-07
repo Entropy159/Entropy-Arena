@@ -1,4 +1,4 @@
-package com.entropy.arena.core.map;
+package com.entropy.arena.api.map;
 
 import com.entropy.arena.core.EntropyArena;
 import com.mojang.blaze3d.platform.NativeImage;

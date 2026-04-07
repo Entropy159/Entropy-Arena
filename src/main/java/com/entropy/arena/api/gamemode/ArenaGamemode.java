@@ -6,7 +6,7 @@ import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.TeamBlock;
-import com.entropy.arena.core.map.ArenaMap;
+import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.DeltaTracker;

@@ -9,7 +9,7 @@ import com.entropy.arena.api.gamemode.TeamGamemode;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.PedestalBlock;
 import com.entropy.arena.core.items.TeamGemItem;
-import com.entropy.arena.core.map.ArenaMap;
+import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.entropy.arena.core.registry.ArenaItems;
 import io.netty.buffer.ByteBuf;

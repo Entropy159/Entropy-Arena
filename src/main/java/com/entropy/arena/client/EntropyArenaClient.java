@@ -5,7 +5,7 @@ import com.entropy.arena.api.client.ArenaRenderingUtils;
 import com.entropy.arena.api.client.ScreenAnchorPoint;
 import com.entropy.arena.api.events.ModifyGlowColorEvent;
 import com.entropy.arena.core.EntropyArena;
-import com.entropy.arena.core.map.MapScreenshot;
+import com.entropy.arena.api.map.MapScreenshot;
 import com.entropy.arena.core.network.toServer.ScreenshotPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

@@ -10,9 +10,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
-public record VotePacket(String mapName) implements CustomPacketPayload {
-    public static final Type<VotePacket> TYPE = new Type<>(EntropyArena.id("vote"));
-    public static final StreamCodec<ByteBuf, VotePacket> STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.STRING_UTF8, VotePacket::mapName, VotePacket::new);
+public record TypeVotePacket(boolean isTimed) implements CustomPacketPayload {
+    public static final Type<TypeVotePacket> TYPE = new Type<>(EntropyArena.id("type_vote"));
+    public static final StreamCodec<ByteBuf, TypeVotePacket> STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.BOOL, TypeVotePacket::isTimed, TypeVotePacket::new);
 
     @Override
     public @NotNull Type<? extends CustomPacketPayload> type() {
@@ -21,7 +21,7 @@ public record VotePacket(String mapName) implements CustomPacketPayload {
 
     public void handle(IPayloadContext ctx) {
         if (ctx.player() instanceof ServerPlayer player) {
-            ArenaLogic.get(player.serverLevel()).vote(player, mapName);
+            ArenaLogic.get(player.serverLevel()).voteForType(player, isTimed);
         }
     }
 }

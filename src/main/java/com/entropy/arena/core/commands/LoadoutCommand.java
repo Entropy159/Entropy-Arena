@@ -10,8 +10,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 
-import static net.minecraft.commands.Commands.argument;
-import static net.minecraft.commands.Commands.literal;
+import static net.minecraft.commands.Commands.*;
 
 public class LoadoutCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

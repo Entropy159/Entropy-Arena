@@ -2,11 +2,13 @@ package com.entropy.arena.api.gamemode;
 
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.client.ClientData;
+import com.entropy.arena.api.data.ArenaData;
+import com.entropy.arena.api.loadout.ItemList;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
+import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.TeamBlock;
-import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.DeltaTracker;
@@ -97,7 +99,17 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
             if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof TeamBlock) {
                 serializer.setStack(player, slot, TeamBlock.getStack(getTeamForBlock(player)));
             }
+            if (stack.has(ArenaDataComponents.ITEM_LIST)) {
+                ArenaData data = ArenaData.get(player.serverLevel());
+                ItemList list = data.itemLists.get(stack.get(ArenaDataComponents.ITEM_LIST));
+                if (list != null)
+                    serializer.setStack(player, slot, list.get(getIndexForItemList(player, list)));
+            }
         });
+    }
+
+    public int getIndexForItemList(ServerPlayer player, ItemList list) {
+        return 0;
     }
 
     public void onJoin(ServerPlayer player) {

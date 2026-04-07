@@ -7,6 +7,7 @@ import com.entropy.arena.api.events.ModifyGlowColorEvent;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.api.map.MapScreenshot;
 import com.entropy.arena.core.network.toServer.ScreenshotPacket;
+import com.entropy.arena.core.registry.ArenaDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -23,6 +24,7 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWImage;
@@ -48,6 +50,13 @@ public class EntropyArenaClient {
 
     public EntropyArenaClient(ModContainer container) {
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+    }
+
+    @SubscribeEvent
+    public static void modifyTooltips(ItemTooltipEvent event) {
+        if (event.getItemStack().has(ArenaDataComponents.ITEM_LIST)) {
+            event.getToolTip().add(Component.translatable("arena.tooltip.item_list", event.getItemStack().get(ArenaDataComponents.ITEM_LIST)));
+        }
     }
 
     @SubscribeEvent

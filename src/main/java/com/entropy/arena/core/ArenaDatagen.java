@@ -138,6 +138,8 @@ public class ArenaDatagen {
 
         REGISTRATE.addRawLang("arena.screen.voting", "Voting");
 
+        REGISTRATE.addRawLang("arena.tooltip.item_list", "From Item List: %s");
+
         REGISTRATE.addRawLang("arena.message.match_start", "Started match");
         REGISTRATE.addRawLang("arena.message.match_stop", "Stopped match");
         REGISTRATE.addRawLang("arena.message.set_lobby_pos", "Set lobby position to %s");
@@ -170,6 +172,11 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.updated_loadout", "Updated loadout %s");
         REGISTRATE.addRawLang("arena.message.selected_loadout", "Selected loadout %s");
         REGISTRATE.addRawLang("arena.message.gave_loadout", "Gave loadout %s");
+        REGISTRATE.addRawLang("arena.message.added_item_list", "Added item list %s");
+        REGISTRATE.addRawLang("arena.message.removed_item_list", "Removed item list %s");
+        REGISTRATE.addRawLang("arena.message.saved_item_list", "Saved item list %s");
+        REGISTRATE.addRawLang("arena.message.loaded_item_list", "Loaded item list %s");
+        REGISTRATE.addRawLang("arena.message.gave_item_list", "Gave item list %s");
 
         REGISTRATE.addRawLang("arena.error.already_running", "Game is already running");
         REGISTRATE.addRawLang("arena.error.no_lobby", "No lobby position found");
@@ -185,6 +192,9 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.error.too_many_capture_points", "Too many capturep points found, limit is %s");
         REGISTRATE.addRawLang("arena.error.no_loadouts", "No loadouts found");
         REGISTRATE.addRawLang("arena.error.loadout_already_exists", "Loadout %s already exists");
-        REGISTRATE.addRawLang("arena.error.loadout_not_found", "Loadout %s not found");
+        REGISTRATE.addRawLang("arena.error.loadout_not_found", "Loadout %s not found");;
+        REGISTRATE.addRawLang("arena.error.item_list_already_exists", "Item list %s already exists");
+        REGISTRATE.addRawLang("arena.error.item_list_not_found", "Item list %s not found");
+        REGISTRATE.addRawLang("arena.error.no_inventory_at_pos", "No block with inventory at %s");
     }
 }

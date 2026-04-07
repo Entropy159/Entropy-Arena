@@ -2,6 +2,7 @@ package com.entropy.arena.api.data;
 
 import com.entropy.arena.api.ArenaUtils;
 import com.entropy.arena.api.gamemode.ArenaGamemode;
+import com.entropy.arena.api.loadout.ItemList;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.api.map.MapList;
@@ -9,6 +10,7 @@ import com.entropy.arena.core.EntropyArena;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
@@ -31,6 +33,7 @@ public class ArenaData extends SavedData {
     public ArenaGamemode currentGamemode;
     public HashMap<String, Loadout> loadouts = new HashMap<>();
     public HashMap<UUID, String> loadoutSelections = new HashMap<>();
+    public HashMap<String, ItemList> itemLists = new HashMap<>();
     public final HashMap<UUID, String> mapVotes = new HashMap<>();
     public final HashMap<UUID, Boolean> typeVotes = new HashMap<>();
     public final ArrayList<String> votableMaps = new ArrayList<>();
@@ -41,6 +44,7 @@ public class ArenaData extends SavedData {
         ArenaData data = new ArenaData();
         data.loadouts = ArenaUtils.tagToHashMap(tag.getCompound("loadouts"), s -> s, t -> new Loadout((CompoundTag) t));
         data.loadoutSelections = ArenaUtils.tagToHashMap(tag.getCompound("loadoutSelections"), UUID::fromString, Tag::getAsString);
+        data.itemLists = ArenaUtils.tagToHashMap(tag.getCompound("itemLists"), s -> s, t -> new ItemList((CompoundTag) t, provider));
         if (tag.contains("lobbyPos")) data.lobbyPos = BlockPos.of(tag.getLong("lobbyPos"));
         return data;
     }
@@ -50,6 +54,7 @@ public class ArenaData extends SavedData {
         tag.put("mapList", MapList.saveToTag());
         tag.put("loadouts", ArenaUtils.mapToTag(loadouts, s -> s, Loadout::getCompound));
         tag.put("loadoutSelections", ArenaUtils.mapToTag(loadoutSelections, UUID::toString, StringTag::valueOf));
+        tag.put("itemLists", ArenaUtils.mapToTag(itemLists, s -> s, itemList -> itemList.toTag(registries)));
         if (lobbyPos != null) tag.putLong("lobbyPos", lobbyPos.asLong());
         return tag;
     }

@@ -1,13 +1,16 @@
 package com.entropy.arena.core;
 
 import com.entropy.arena.core.commands.ArenaCommand;
+import com.entropy.arena.core.commands.ItemListCommand;
 import com.entropy.arena.core.commands.LoadoutCommand;
 import com.entropy.arena.core.config.ClientConfig;
 import com.entropy.arena.core.config.CommonConfig;
 import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.registry.*;
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
 import com.tterrag.registrate.Registrate;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -43,8 +46,10 @@ public class EntropyArena {
 
     @SubscribeEvent
     public void registerCommands(RegisterCommandsEvent event) {
-        ArenaCommand.register(event.getDispatcher());
-        LoadoutCommand.register(event.getDispatcher());
+        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+        ArenaCommand.register(dispatcher);
+        LoadoutCommand.register(dispatcher);
+        ItemListCommand.register(dispatcher);
     }
 
     public static ResourceLocation id(String path) {

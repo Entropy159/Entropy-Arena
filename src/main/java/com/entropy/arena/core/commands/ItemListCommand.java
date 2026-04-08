@@ -8,11 +8,17 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
+import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -23,11 +29,16 @@ public class ItemListCommand {
                 .then(literal("add")
                         .then(argument("name", StringArgumentType.string())
                                 .then(argument("pos", BlockPosArgument.blockPos())
-                                        .executes(ctx -> addList(ctx, true)))))
+                                        .executes(ctx -> addList(ctx, true, null)))))
                 .then(literal("addOrdered")
                         .then(argument("name", StringArgumentType.string())
                                 .then(argument("pos", BlockPosArgument.blockPos())
-                                        .executes(ctx -> addList(ctx, false)))))
+                                        .executes(ctx -> addList(ctx, false, null)))))
+                .then(literal("addTag")
+                        .then(argument("name", StringArgumentType.string())
+                                .then(argument("tag", ResourceLocationArgument.id())
+                                        .suggests(ITEM_TAGS)
+                                        .executes(ctx -> addList(ctx, true, ResourceLocationArgument.getId(ctx, "tag"))))))
                 .then(literal("remove")
                         .then(argument("name", StringArgumentType.string())
                                 .suggests(ITEM_LISTS)
@@ -49,12 +60,13 @@ public class ItemListCommand {
                                 .executes(ItemListCommand::getListItem))));
     }
 
-    private static int addList(CommandContext<CommandSourceStack> ctx, boolean random) {
+    private static int addList(CommandContext<CommandSourceStack> ctx, boolean random, @Nullable ResourceLocation tagLocation) {
         String name = StringArgumentType.getString(ctx, "name");
-        BlockPos pos = BlockPosArgument.getBlockPos(ctx, "pos");
+        BlockPos pos = tagLocation == null ? BlockPosArgument.getBlockPos(ctx, "pos") : null;
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        TagKey<Item> tagKey = tagLocation == null ? null : TagKey.create(Registries.ITEM, tagLocation);
         if (!data.itemLists.containsKey(name)) {
-            data.itemLists.put(name, new ItemList(ctx.getSource().getLevel(), pos, random));
+            data.itemLists.put(name, new ItemList(ctx.getSource().getLevel(), pos, random, tagKey));
             ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.added_item_list", name).withStyle(ChatFormatting.GREEN), true);
             return 1;
         }
@@ -125,6 +137,11 @@ public class ItemListCommand {
     private static final SuggestionProvider<CommandSourceStack> ITEM_LISTS = (ctx, builder) -> {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         data.itemLists.keySet().forEach(name -> builder.suggest("\"" + name + "\""));
+        return builder.buildFuture();
+    };
+
+    private static final SuggestionProvider<CommandSourceStack> ITEM_TAGS = (ctx, builder) -> {
+        ctx.getSource().registryAccess().registry(Registries.ITEM).ifPresent(registry -> registry.getTagNames().forEach(tag -> builder.suggest(tag.location().toString())));
         return builder.buildFuture();
     };
 }

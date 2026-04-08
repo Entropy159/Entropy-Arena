@@ -19,6 +19,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.GameType;
@@ -111,6 +113,7 @@ public class ArenaLogic {
         }
         PacketDistributor.sendToAllPlayers(RunningPacket.fromData(data));
         PacketDistributor.sendToAllPlayers(GameInfoPacket.fromData(data));
+        ArenaUtils.playSoundForEveryone(level, SoundEvents.PLAYER_LEVELUP, SoundSource.AMBIENT);
         NeoForge.EVENT_BUS.post(new MatchEndEvent.Post(level));
     }
 
@@ -154,13 +157,14 @@ public class ArenaLogic {
         level.players().forEach(this::onRespawn);
         PacketDistributor.sendToAllPlayers(RunningPacket.fromData(data));
         PacketDistributor.sendToAllPlayers(new ScoresPacket(data.currentGamemode.getScoreText(level)));
+        ArenaUtils.playSoundForEveryone(level, SoundEvents.NOTE_BLOCK_PLING.value(), SoundSource.AMBIENT);
         NeoForge.EVENT_BUS.post(new MatchStartEvent.Post(level));
     }
 
     private ArenaMap votedMap() {
         HashMap<String, Integer> voteMap = new HashMap<>();
         data.mapVotes.forEach((playerUUID, mapName) -> voteMap.put(mapName, voteMap.getOrDefault(mapName, 0) + 1));
-        Optional<ArenaMap> selectedOptional = MapList.getMaps().stream().filter(map -> data.votableMaps.contains(map.getName())).max(Comparator.comparingInt(m -> voteMap.getOrDefault(m.getName(), 0)));
+        Optional<ArenaMap> selectedOptional = MapList.getMaps().stream().max(Comparator.comparingInt(m -> voteMap.getOrDefault(m.getName(), 0)));
         return selectedOptional.orElse(null);
     }
 
@@ -173,11 +177,13 @@ public class ArenaLogic {
     public void voteForMap(ServerPlayer player, String mapName) {
         data.mapVotes.put(player.getUUID(), mapName);
         Notification.toPlayer(Component.translatable("arena.message.voted_for_map", mapName).withStyle(ChatFormatting.GREEN), player);
+        ArenaUtils.playSoundForPlayer(level, player, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.AMBIENT);
     }
 
     public void voteForType(ServerPlayer player, boolean isTimed) {
         data.typeVotes.put(player.getUUID(), isTimed);
         Notification.toPlayer(Component.translatable(isTimed ? "arena.message.voted_for_timed" : "arena.message.voted_for_score").withStyle(ChatFormatting.GREEN), player);
+        ArenaUtils.playSoundForPlayer(level, player, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.AMBIENT);
     }
 
     public void onLevelTick() {

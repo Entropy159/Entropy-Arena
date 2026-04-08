@@ -10,7 +10,6 @@ import com.entropy.arena.core.EntropyArena;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
@@ -25,7 +24,7 @@ import java.util.UUID;
 
 public class ArenaData extends SavedData {
     public boolean running = false;
-    public boolean lobby = false;
+    public boolean lobby = true;
     public int timer = 0;
     public boolean isTimed = true;
     public @Nullable BlockPos lobbyPos;

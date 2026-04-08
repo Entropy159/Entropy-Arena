@@ -5,6 +5,7 @@ import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.loadout.ItemList;
 import com.entropy.arena.api.loadout.Loadout;
+import com.entropy.arena.api.loadout.LoadoutSerializer;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.core.EntropyArena;
@@ -100,16 +101,28 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
                 serializer.setStack(player, slot, TeamBlock.getStack(getTeamForBlock(player)));
             }
             if (stack.has(ArenaDataComponents.ITEM_LIST)) {
-                ArenaData data = ArenaData.get(player.serverLevel());
-                ItemList list = data.itemLists.get(stack.get(ArenaDataComponents.ITEM_LIST));
-                if (list != null)
-                    serializer.setStack(player, slot, list.get(getIndexForItemList(player, list)));
+                applyItemList(player, serializer, slot, stack, 0);
             }
         });
     }
 
-    public int getIndexForItemList(ServerPlayer player, ItemList list) {
-        return 0;
+    public void applyItemList(ServerPlayer player, LoadoutSerializer serializer, int slot, ItemStack stack, int recursionCount) {
+        ArenaData data = ArenaData.get(player.serverLevel());
+        ItemList list = data.itemLists.get(stack.get(ArenaDataComponents.ITEM_LIST));
+        if (list != null) {
+            ItemStack newStack = getItemFromList(player, list);
+            boolean shouldRecurse = newStack.has(ArenaDataComponents.ITEM_LIST) && recursionCount < 10;
+            newStack.applyComponents(stack.getComponents());
+            if (shouldRecurse) {
+                applyItemList(player, serializer, slot, newStack, recursionCount + 1);
+            } else {
+                serializer.setStack(player, slot, newStack);
+            }
+        }
+    }
+
+    public ItemStack getItemFromList(ServerPlayer player, ItemList list) {
+        return list.get(0);
     }
 
     public void onJoin(ServerPlayer player) {

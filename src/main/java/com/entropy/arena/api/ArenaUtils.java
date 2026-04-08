@@ -2,12 +2,17 @@ package com.entropy.arena.api;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.GameRules;
 
 import javax.annotation.Nullable;
@@ -88,5 +93,13 @@ public class ArenaUtils {
         if (server.getGameRules().getBoolean(GameRules.RULE_LOGADMINCOMMANDS)) {
             server.sendSystemMessage(messageWithPrefix);
         }
+    }
+
+    public static void playSoundForEveryone(ServerLevel level, SoundEvent event, SoundSource source) {
+        level.players().forEach(player -> playSoundForPlayer(level, player, event, source));
+    }
+
+    public static void playSoundForPlayer(ServerLevel level, ServerPlayer player, SoundEvent event, SoundSource source) {
+        player.connection.send(new ClientboundSoundPacket(Holder.direct(SoundEvent.createFixedRangeEvent(event.getLocation(), 16)), source, player.getEyePosition().x, player.getEyePosition().y, player.getEyePosition().z, 1, 1, level.getRandom().nextLong()));
     }
 }

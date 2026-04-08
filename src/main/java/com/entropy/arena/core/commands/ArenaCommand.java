@@ -4,7 +4,6 @@ import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
 import com.entropy.arena.api.map.ArenaMap;
-import com.entropy.arena.api.map.MapList;
 import com.entropy.arena.core.ArenaLogic;
 import com.entropy.arena.core.network.toClient.TakeScreenshotPacket;
 import com.entropy.arena.core.registry.ArenaDataComponents;
@@ -104,7 +103,8 @@ public class ArenaCommand {
         ResourceLocation gamemode = ResourceLocationArgument.getId(ctx, "gamemode");
         BlockPos pos1 = BlockPosArgument.getBlockPos(ctx, "corner1");
         BlockPos pos2 = BlockPosArgument.getBlockPos(ctx, "corner2");
-        Component failureMessage = MapList.addMap(ctx.getSource().getLevel(), name, gamemode, pos1, pos2);
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        Component failureMessage = data.mapList.addMap(ctx.getSource().getLevel(), name, gamemode, pos1, pos2);
         if (failureMessage == null) {
             if (ctx.getSource().getPlayer() != null) {
                 PacketDistributor.sendToPlayer(ctx.getSource().getPlayer(), new TakeScreenshotPacket(name));
@@ -118,7 +118,8 @@ public class ArenaCommand {
 
     private static int removeMap(CommandContext<CommandSourceStack> ctx) {
         String name = StringArgumentType.getString(ctx, "name");
-        if (MapList.removeMap(name)) {
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        if (data.mapList.removeMap(name)) {
             ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.removed_map", name).withStyle(ChatFormatting.GREEN), true);
             return 1;
         }
@@ -128,7 +129,8 @@ public class ArenaCommand {
 
     private static int updateMap(CommandContext<CommandSourceStack> ctx) {
         String name = StringArgumentType.getString(ctx, "name");
-        ArenaMap map = MapList.getMap(name);
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        ArenaMap map = data.mapList.getMap(name);
         if (map != null) {
             map.update(ctx.getSource().getLevel(), ctx.getSource().getPlayer());
             ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.updated_map", name).withStyle(ChatFormatting.GREEN), true);
@@ -142,7 +144,8 @@ public class ArenaCommand {
         String name = StringArgumentType.getString(ctx, "name");
         int timer = IntegerArgumentType.getInteger(ctx, "timer");
         int score = IntegerArgumentType.getInteger(ctx, "score");
-        ArenaMap map = MapList.getMap(name);
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        ArenaMap map = data.mapList.getMap(name);
         if (map != null) {
             map.setOverrides(timer, score);
             ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.updated_map_overrides", name).withStyle(ChatFormatting.GREEN), true);
@@ -154,7 +157,8 @@ public class ArenaCommand {
 
     private static int loadMap(CommandContext<CommandSourceStack> ctx) {
         String name = StringArgumentType.getString(ctx, "name");
-        ArenaMap map = MapList.getMap(name);
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        ArenaMap map = data.mapList.getMap(name);
         if (map != null) {
             map.load(ctx.getSource().getLevel());
             if (ctx.getSource().getPlayer() != null) {
@@ -168,11 +172,12 @@ public class ArenaCommand {
     }
 
     private static int listMaps(CommandContext<CommandSourceStack> ctx) {
-        if (MapList.mapListIsEmpty()) {
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        if (data.mapList.mapListIsEmpty()) {
             ctx.getSource().sendFailure(Component.translatable("arena.error.no_maps"));
             return 0;
         }
-        MapList.forEachMap(map -> ctx.getSource().sendSuccess(map::toComponent, false));
+        data.mapList.forEachMap(map -> ctx.getSource().sendSuccess(map::toComponent, false));
         return 1;
     }
 
@@ -196,7 +201,8 @@ public class ArenaCommand {
     }
 
     private static final SuggestionProvider<CommandSourceStack> MAP_SUGGESTIONS = (ctx, builder) -> {
-        MapList.forEachMap(map -> builder.suggest("\"" + map.getName() + "\""));
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        data.mapList.forEachMap(map -> builder.suggest("\"" + map.getName() + "\""));
         return builder.buildFuture();
     };
 

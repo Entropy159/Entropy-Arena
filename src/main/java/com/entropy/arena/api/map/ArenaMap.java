@@ -36,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 public class ArenaMap {
@@ -125,11 +126,31 @@ public class ArenaMap {
 
     public void backup(ServerLevel level) {
         loadChunks(level);
-        EventScheduler.schedule(2, () -> {
+        waitForChunkLoad(level, () -> {
             StructureTemplate template = new StructureTemplate();
             template.fillFromWorld(level, corner1, corner2.subtract(corner1), true, null);
             backup = template.save(new CompoundTag());
             unloadChunks(level);
+        });
+    }
+
+    private void waitForChunkLoad(ServerLevel level, Runnable runnable) {
+        waitForChunkLoad(level, runnable, 0);
+    }
+
+    private void waitForChunkLoad(ServerLevel level, Runnable runnable, int recursionLevel) {
+        EventScheduler.schedule(1, () -> {
+            if (recursionLevel > 2000) {
+                EntropyArena.LOGGER.error("Took too long waiting for chunk load!");
+                return;
+            }
+            AtomicBoolean loaded = new AtomicBoolean(true);
+            forEachChunk(level, (pos, chunk) -> loaded.set(loaded.get() && level.areEntitiesLoaded(pos.toLong())));
+            if (loaded.get()) {
+                runnable.run();
+            } else {
+                waitForChunkLoad(level, runnable, recursionLevel + 1);
+            }
         });
     }
 
@@ -152,7 +173,7 @@ public class ArenaMap {
     public void reset(ServerLevel level) {
         if (backup == null) return;
         loadChunks(level);
-        EventScheduler.schedule(2, () -> {
+        waitForChunkLoad(level, () -> {
             level.getEntities((Entity) null, new AABB(corner1.getCenter(), corner2.getCenter()).inflate(1), e -> !(e instanceof Player)).forEach(e -> e.remove(Entity.RemovalReason.DISCARDED));
             StructureTemplate template = new StructureTemplate();
             template.load(level.holderLookup(Registries.BLOCK), backup);
@@ -196,7 +217,7 @@ public class ArenaMap {
 
     public Component toComponent() {
         ArenaGamemode gamemode = getNewGamemode();
-        return Component.literal(name).withStyle(ChatFormatting.YELLOW).append(Component.literal(" - from ").withStyle(ChatFormatting.GRAY)).append(Component.literal(corner1.toShortString()).withStyle(ChatFormatting.BLUE)).append(Component.literal(" to ").withStyle(ChatFormatting.GRAY)).append(Component.literal(corner2.toShortString()).withStyle(ChatFormatting.BLUE)).append(Component.literal(", gamemode: ").withStyle(ChatFormatting.GRAY)).append((gamemode == null ? Component.literal("None") : gamemode.getName().copy()).withStyle(ChatFormatting.DARK_AQUA)).append(Component.literal(", ").withStyle(ChatFormatting.GRAY)).append(screenshot.isPresent() ? Component.literal("has screenshot").withStyle(ChatFormatting.GREEN) : Component.literal("no screenshot").withStyle(ChatFormatting.RED));
+        return Component.literal(name).withStyle(ChatFormatting.YELLOW).append(Component.literal(" - from ").withStyle(ChatFormatting.GRAY)).append(Component.literal(corner1.toShortString()).withStyle(ChatFormatting.BLUE)).append(Component.literal(" to ").withStyle(ChatFormatting.GRAY)).append(Component.literal(corner2.toShortString()).withStyle(ChatFormatting.BLUE)).append(Component.literal(", gamemode: ").withStyle(ChatFormatting.GRAY)).append((gamemode == null ? Component.literal("None") : gamemode.getName().copy()).withStyle(ChatFormatting.DARK_AQUA));
     }
 
     public ArenaMapInfo getInfo(ServerLevel level) {

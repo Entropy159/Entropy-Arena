@@ -1,12 +1,13 @@
 package com.entropy.arena.core.network.toServer;
 
-import com.entropy.arena.core.EntropyArena;
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.map.ArenaMap;
-import com.entropy.arena.api.map.MapList;
 import com.entropy.arena.api.map.MapScreenshot;
+import com.entropy.arena.core.EntropyArena;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,9 +21,12 @@ public record ScreenshotPacket(MapScreenshot screenshot) implements CustomPacket
     }
 
     public void handle(IPayloadContext ctx) {
-        ArenaMap map = MapList.getMap(screenshot.getMapName());
-        if (map != null) {
-            map.setScreenshot(screenshot);
+        if (ctx.player() instanceof ServerPlayer player) {
+            ArenaData data = ArenaData.get(player.serverLevel());
+            ArenaMap map = data.mapList.getMap(screenshot.getMapName());
+            if (map != null) {
+                map.setScreenshot(screenshot);
+            }
         }
     }
 }

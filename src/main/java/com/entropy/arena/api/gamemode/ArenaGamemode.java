@@ -122,7 +122,7 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
     }
 
     public ItemStack getItemFromList(ServerPlayer player, ItemList list) {
-        return list.get(0);
+        return list.get(player.serverLevel().registryAccess(), 0);
     }
 
     public void onJoin(ServerPlayer player) {

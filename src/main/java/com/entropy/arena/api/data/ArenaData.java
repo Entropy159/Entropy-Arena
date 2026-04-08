@@ -29,6 +29,7 @@ public class ArenaData extends SavedData {
     public boolean isTimed = true;
     public @Nullable BlockPos lobbyPos;
     public ArenaMap currentMap;
+    public MapList mapList = new MapList();
     public ArenaGamemode currentGamemode;
     public HashMap<String, Loadout> loadouts = new HashMap<>();
     public HashMap<UUID, String> loadoutSelections = new HashMap<>();
@@ -39,8 +40,8 @@ public class ArenaData extends SavedData {
     public final HashMap<UUID, Long> respawnTimes = new HashMap<>();
 
     public static ArenaData load(CompoundTag tag, HolderLookup.Provider provider) {
-        MapList.loadFromTag(tag.getCompound("mapList"));
         ArenaData data = new ArenaData();
+        data.mapList.loadFromTag(tag.getCompound("mapList"));
         data.loadouts = ArenaUtils.tagToHashMap(tag.getCompound("loadouts"), s -> s, t -> new Loadout((CompoundTag) t));
         data.loadoutSelections = ArenaUtils.tagToHashMap(tag.getCompound("loadoutSelections"), UUID::fromString, Tag::getAsString);
         data.itemLists = ArenaUtils.tagToHashMap(tag.getCompound("itemLists"), s -> s, t -> new ItemList((CompoundTag) t, provider));
@@ -50,7 +51,7 @@ public class ArenaData extends SavedData {
 
     @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
-        tag.put("mapList", MapList.saveToTag());
+        tag.put("mapList", mapList.saveToTag());
         tag.put("loadouts", ArenaUtils.mapToTag(loadouts, s -> s, Loadout::getCompound));
         tag.put("loadoutSelections", ArenaUtils.mapToTag(loadoutSelections, UUID::toString, StringTag::valueOf));
         tag.put("itemLists", ArenaUtils.mapToTag(itemLists, s -> s, itemList -> itemList.toTag(registries)));

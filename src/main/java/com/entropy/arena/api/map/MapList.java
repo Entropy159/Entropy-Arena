@@ -13,21 +13,21 @@ import java.util.HashMap;
 import java.util.function.Consumer;
 
 public class MapList {
-    private static HashMap<String, ArenaMap> maps = new HashMap<>();
+    private HashMap<String, ArenaMap> maps = new HashMap<>();
 
-    public static CompoundTag saveToTag() {
+    public CompoundTag saveToTag() {
         return ArenaUtils.mapToTag(maps, s -> s, ArenaMap::toTag);
     }
 
-    public static void loadFromTag(CompoundTag tag) {
+    public void loadFromTag(CompoundTag tag) {
         maps = ArenaUtils.tagToHashMap(tag, s -> s, t -> ArenaMap.fromTag((CompoundTag) t));
     }
 
-    public static boolean mapListIsEmpty() {
+    public boolean mapListIsEmpty() {
         return maps.isEmpty();
     }
 
-    public static @Nullable Component addMap(ServerLevel level, String name, ResourceLocation gamemode, BlockPos one, BlockPos two) {
+    public @Nullable Component addMap(ServerLevel level, String name, ResourceLocation gamemode, BlockPos one, BlockPos two) {
         if (maps.containsKey(name)) {
             return Component.translatable("arena.error.map_already_exists", name);
         }
@@ -37,19 +37,19 @@ public class MapList {
         return failureMessage;
     }
 
-    public static boolean removeMap(String name) {
+    public boolean removeMap(String name) {
         return maps.remove(name) != null;
     }
 
-    public static void forEachMap(Consumer<ArenaMap> function) {
+    public void forEachMap(Consumer<ArenaMap> function) {
         maps.values().forEach(function);
     }
 
-    public static @Nullable ArenaMap getMap(String name) {
+    public @Nullable ArenaMap getMap(String name) {
         return maps.get(name);
     }
 
-    public static ArrayList<ArenaMap> getMaps() {
+    public ArrayList<ArenaMap> getMaps() {
         return new ArrayList<>(maps.values().stream().toList());
     }
 }

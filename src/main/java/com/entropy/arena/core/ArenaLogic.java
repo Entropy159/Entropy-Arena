@@ -10,7 +10,6 @@ import com.entropy.arena.api.events.TeleportToLobbyEvent;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.api.map.ArenaMapInfo;
-import com.entropy.arena.api.map.MapList;
 import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.network.toClient.*;
 import net.minecraft.ChatFormatting;
@@ -54,7 +53,7 @@ public class ArenaLogic {
         if (data.lobbyPos == null) {
             return Component.translatable("arena.error.no_lobby");
         }
-        if (MapList.mapListIsEmpty()) {
+        if (data.mapList.mapListIsEmpty()) {
             return Component.translatable("arena.error.no_maps");
         }
         if (data.loadouts.isEmpty()) {
@@ -119,7 +118,7 @@ public class ArenaLogic {
 
     private void startMapVote() {
         data.mapVotes.clear();
-        ArrayList<ArenaMap> maps = MapList.getMaps();
+        ArrayList<ArenaMap> maps = data.mapList.getMaps();
         ArrayList<ArenaMapInfo> mapInfos = new ArrayList<>();
         int mapCount = Math.min(MAPS_FOR_VOTING, maps.size());
         for (int i = 0; i < mapCount; i++) {
@@ -164,7 +163,7 @@ public class ArenaLogic {
     private ArenaMap votedMap() {
         HashMap<String, Integer> voteMap = new HashMap<>();
         data.mapVotes.forEach((playerUUID, mapName) -> voteMap.put(mapName, voteMap.getOrDefault(mapName, 0) + 1));
-        Optional<ArenaMap> selectedOptional = MapList.getMaps().stream().max(Comparator.comparingInt(m -> voteMap.getOrDefault(m.getName(), 0)));
+        Optional<ArenaMap> selectedOptional = data.mapList.getMaps().stream().max(Comparator.comparingInt(m -> voteMap.getOrDefault(m.getName(), 0)));
         return selectedOptional.orElse(null);
     }
 

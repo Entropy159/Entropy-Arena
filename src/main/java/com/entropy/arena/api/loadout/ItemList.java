@@ -1,10 +1,11 @@
 package com.entropy.arena.api.loadout;
 
+import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ItemList {
     private final ArrayList<ItemStack> stacks = new ArrayList<>();
@@ -41,7 +43,7 @@ public class ItemList {
     public ItemList(CompoundTag tag, HolderLookup.Provider provider) {
         isRandom = tag.getBoolean("random");
         if (tag.contains("tagKey")) {
-            tagKey = TagKey.create(Registries.ITEM, ResourceLocation.parse(tag.getString("tag")));
+            tagKey = TagKey.create(Registries.ITEM, ResourceLocation.parse(tag.getString("tagKey")));
         } else {
             tag.getList("stacks", ListTag.TAG_COMPOUND).forEach(t -> ItemStack.parse(provider, t).ifPresent(stacks::add));
         }
@@ -50,17 +52,24 @@ public class ItemList {
     public CompoundTag toTag(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         tag.putBoolean("random", isRandom);
-        ListTag list = new ListTag(ListTag.TAG_COMPOUND);
-        stacks.stream().filter(stack -> !stack.isEmpty()).forEach(stack -> list.addTag(list.size(), stack.save(provider)));
-        tag.put("stacks", list);
-        if (tagKey != null) tag.putString("tagKey", tagKey.location().toString());
+        if (tagKey != null) {
+            tag.putString("tagKey", tagKey.location().toString());
+        } else {
+            ListTag list = new ListTag(ListTag.TAG_COMPOUND);
+            stacks.stream().filter(stack -> !stack.isEmpty()).forEach(stack -> list.addTag(list.size(), stack.save(provider)));
+            tag.put("stacks", list);
+        }
         return tag;
     }
 
-    public ItemStack get(int index) {
+    public ItemStack get(RegistryAccess registries, int index) {
         if (tagKey != null) {
-            List<Holder<Item>> items = BuiltInRegistries.ITEM.getOrCreateTag(tagKey).stream().toList();
-            return new ItemStack(items.get(new Random().nextInt(items.size())).value());
+            AtomicReference<ItemStack> stack = new AtomicReference<>(ItemStack.EMPTY);
+            registries.registry(Registries.ITEM).orElseThrow().getTag(tagKey).ifPresentOrElse(tag -> {
+                List<Holder<Item>> items = tag.stream().toList();
+                stack.set(new ItemStack(items.get(new Random().nextInt(items.size()))));
+            }, () -> EntropyArena.LOGGER.error("No items found for tag {}!", tagKey));
+            return stack.get();
         }
         return stacks.get(isRandom ? new Random().nextInt(stacks.size()) : index).copy();
     }
@@ -86,8 +95,8 @@ public class ItemList {
         }
     }
 
-    public ItemStack getItem(String name) {
-        ItemStack stack = get(0);
+    public ItemStack getItem(RegistryAccess registries, String name) {
+        ItemStack stack = get(registries, 0);
         if (stack.isEmpty()) {
             return ItemStack.EMPTY;
         }

@@ -6,26 +6,23 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 @EventBusSubscriber(modid = EntropyArena.MODID)
 public class EventScheduler {
-    private static final ArrayList<TickEvent> events = new ArrayList<>();
+    private static final ArrayList<TickEvent> eventList = new ArrayList<>();
 
     @SubscribeEvent
     private static void onServerTick(ServerTickEvent.Pre event) {
-        Set<TickEvent> toRemove = new HashSet<>();
-        events.forEach(runnable -> {
+        ArrayList<TickEvent> events = new ArrayList<>(eventList);
+        for (TickEvent runnable : events) {
             if (runnable.onTick()) {
-                toRemove.add(runnable);
+                eventList.remove(runnable);
             }
-        });
-        events.removeAll(toRemove);
+        }
     }
 
     public static void schedule(int delay, Runnable runnable) {
-        events.add(new TickEvent(delay, runnable));
+        eventList.add(new TickEvent(delay, runnable));
     }
 
     private static class TickEvent {

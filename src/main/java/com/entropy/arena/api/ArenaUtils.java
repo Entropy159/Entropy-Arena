@@ -58,14 +58,6 @@ public class ArenaUtils {
         player.teleportTo(pos.getBottomCenter().x, pos.getBottomCenter().y, pos.getBottomCenter().z);
     }
 
-    public static BlockPos min(BlockPos one, BlockPos two) {
-        return new BlockPos(Math.min(one.getX(), two.getX()), Math.min(one.getY(), two.getY()), Math.min(one.getZ(), two.getZ()));
-    }
-
-    public static BlockPos max(BlockPos one, BlockPos two) {
-        return new BlockPos(Math.max(one.getX(), two.getX()), Math.max(one.getY(), two.getY()), Math.max(one.getZ(), two.getZ()));
-    }
-
     public static float lerp(float a, float b, float f) {
         return (float) (a * (1.0 - f)) + (b * f);
     }

@@ -1,7 +1,6 @@
 package com.entropy.arena.api.map;
 
 import com.entropy.arena.api.ArenaTeam;
-import com.entropy.arena.api.ArenaUtils;
 import com.entropy.arena.api.EventScheduler;
 import com.entropy.arena.api.gamemode.ArenaGamemode;
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
@@ -15,11 +14,12 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.TicketType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
@@ -33,10 +33,10 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
 public class ArenaMap {
@@ -50,10 +50,10 @@ public class ArenaMap {
     private MapScreenshot screenshot;
     private int timerOverride;
     private int targetScoreOverride;
-    private static CompoundTag backup;
+    private static Backup backup;
 
     public ArenaMap(ServerLevel level, String name, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2) {
-        this(name, gamemodeID, ArenaUtils.min(corner1, corner2), ArenaUtils.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), 0, 0);
+        this(name, gamemodeID, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), 0, 0);
     }
 
     public ArenaMap(String name, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, int timerOverride, int targetScoreOverride) {
@@ -124,42 +124,8 @@ public class ArenaMap {
         level.setDayTime(time);
     }
 
-    public void backup(ServerLevel level) {
-        loadChunks(level);
-        waitForChunkLoad(level, () -> {
-            StructureTemplate template = new StructureTemplate();
-            template.fillFromWorld(level, corner1, corner2.subtract(corner1), true, null);
-            backup = template.save(new CompoundTag());
-            unloadChunks(level);
-        });
-    }
-
-    private void waitForChunkLoad(ServerLevel level, Runnable runnable) {
-        waitForChunkLoad(level, runnable, 0);
-    }
-
-    private void waitForChunkLoad(ServerLevel level, Runnable runnable, int recursionLevel) {
-        EventScheduler.schedule(1, () -> {
-            if (recursionLevel > 2000) {
-                EntropyArena.LOGGER.error("Took too long waiting for chunk load!");
-                return;
-            }
-            AtomicBoolean loaded = new AtomicBoolean(true);
-            forEachChunk(level, (pos, chunk) -> loaded.set(loaded.get() && level.areEntitiesLoaded(pos.toLong())));
-            if (loaded.get()) {
-                runnable.run();
-            } else {
-                waitForChunkLoad(level, runnable, recursionLevel + 1);
-            }
-        });
-    }
-
-    private void loadChunks(ServerLevel level) {
-        forEachChunk(level, (pos, chunk) -> level.getChunkSource().addRegionTicket(TicketType.FORCED, pos, 0, pos, true));
-    }
-
-    private void unloadChunks(ServerLevel level) {
-        forEachChunk(level, (pos, chunk) -> level.getChunkSource().removeRegionTicket(TicketType.FORCED, pos, 0, pos, true));
+    public void backup(ServerLevel level, Runnable after) {
+        backup = new Backup(level, this, after);
     }
 
     public void forEachChunk(ServerLevel level, BiConsumer<ChunkPos, LevelChunk> consumer) {
@@ -170,16 +136,13 @@ public class ArenaMap {
         }
     }
 
-    public void reset(ServerLevel level) {
-        if (backup == null) return;
-        loadChunks(level);
-        waitForChunkLoad(level, () -> {
-            level.getEntities((Entity) null, new AABB(corner1.getCenter(), corner2.getCenter()).inflate(1), e -> !(e instanceof Player)).forEach(e -> e.remove(Entity.RemovalReason.DISCARDED));
-            StructureTemplate template = new StructureTemplate();
-            template.load(level.holderLookup(Registries.BLOCK), backup);
-            template.placeInWorld(level, corner1, corner1, new StructurePlaceSettings(), level.getRandom(), Block.UPDATE_CLIENTS);
-            unloadChunks(level);
-        });
+    public void reset(ServerLevel level, Runnable after) {
+        if (backup == null) {
+            after.run();
+            return;
+        }
+        backup.restore(level, after);
+        backup = null;
     }
 
     public CompoundTag toTag() {
@@ -249,5 +212,97 @@ public class ArenaMap {
 
     public boolean shouldScoreEndGame(int score) {
         return score >= getTargetScore();
+    }
+
+    private static class Backup {
+        private final File backupFolder;
+        private final Queue<ChunkPos> queue = new ArrayDeque<>();
+        private final Set<ChunkPos> active = new HashSet<>();
+        private final BlockPos corner1;
+        private final BlockPos corner2;
+
+        public Backup(ServerLevel level, ArenaMap map, Runnable after) {
+            backupFolder = level.getServer().getFile("arena_backup").toFile();
+            if (!backupFolder.exists() && !backupFolder.mkdirs()) {
+                EntropyArena.LOGGER.error("Failed to create map backup folder!");
+            }
+            corner1 = map.corner1;
+            corner2 = map.corner2;
+            map.forEachChunk(level, (pos, chunk) -> queue.add(pos));
+            int totalChunks = queue.size();
+            AtomicInteger currentChunk = new AtomicInteger();
+            EventScheduler.scheduleInverted(1, queue::isEmpty, () -> {
+                while (active.size() < ServerConfig.CONCURRENT_CHUNK_LOADS.get() && !queue.isEmpty()) {
+                    ChunkPos pos = queue.poll();
+                    if (pos == null) return;
+                    int chunkIndex = currentChunk.getAndIncrement();
+                    level.players().forEach(player -> player.displayClientMessage(Component.translatable("arena.message.chunk_load_progress", chunkIndex, totalChunks), true));
+                    active.add(pos);
+                    level.setChunkForced(pos.x, pos.z, true);
+                    EventScheduler.schedule(1, () -> level.areEntitiesLoaded(pos.toLong()), () -> {
+                        StructureTemplate template = new StructureTemplate();
+                        template.fillFromWorld(level, getMinPos(pos), getMaxPos(pos).subtract(getMinPos(pos)), true, null);
+                        try {
+                            NbtIo.writeCompressed(template.save(new CompoundTag()), backupFolder.toPath().resolve(pos.toLong() + ".nbt"));
+                        } catch (IOException e) {
+                            EntropyArena.LOGGER.error("Error saving map backup", e);
+                        }
+                        level.setChunkForced(pos.x, pos.z, false);
+                        active.remove(pos);
+                        if (queue.isEmpty() && active.isEmpty()) {
+                            after.run();
+                        }
+                    });
+                }
+            });
+        }
+
+        public void restore(ServerLevel level, Runnable after) {
+            File[] dataFiles = backupFolder.listFiles(file -> file.getName().endsWith(".nbt"));
+            if (dataFiles != null) {
+                for (File dataFile : dataFiles) {
+                    queue.add(new ChunkPos(Long.parseLong(dataFile.getName().replace(".nbt", ""))));
+                }
+            }
+            int totalChunks = queue.size();
+            AtomicInteger currentChunk = new AtomicInteger();
+            EventScheduler.scheduleInverted(1, queue::isEmpty, () -> {
+                while (active.size() < ServerConfig.CONCURRENT_CHUNK_LOADS.get() && !queue.isEmpty()) {
+                    ChunkPos pos = queue.poll();
+                    if (pos == null) return;
+                    int chunkIndex = currentChunk.getAndIncrement();
+                    level.players().forEach(player -> player.displayClientMessage(Component.translatable("arena.message.chunk_reset_progress", chunkIndex, totalChunks), true));
+                    active.add(pos);
+                    level.setChunkForced(pos.x, pos.z, true);
+                    EventScheduler.schedule(1, () -> level.areEntitiesLoaded(pos.toLong()), () -> {
+                        level.getEntities((Entity) null, new AABB(getMinPos(pos).getCenter().subtract(0.5, 0.5, 0.5), getMaxPos(pos).getCenter().add(0.5, 0.5, 0.5)), e -> !(e instanceof Player)).forEach(e -> e.remove(Entity.RemovalReason.DISCARDED));
+                        try {
+                            CompoundTag tag = NbtIo.readCompressed(backupFolder.toPath().resolve(pos.toLong() + ".nbt"), NbtAccounter.unlimitedHeap());
+                            StructureTemplate template = new StructureTemplate();
+                            template.load(level.holderLookup(Registries.BLOCK), tag);
+                            template.placeInWorld(level, getMinPos(pos), getMinPos(pos), new StructurePlaceSettings(), level.getRandom(), Block.UPDATE_CLIENTS);
+                        } catch (IOException e) {
+                            EntropyArena.LOGGER.error("Error reading map backup", e);
+                        }
+                        level.setChunkForced(pos.x, pos.z, false);
+                        active.remove(pos);
+                        if (!backupFolder.toPath().resolve(pos.toLong() + ".nbt").toFile().delete()) {
+                            EntropyArena.LOGGER.error("Failed to delete map backup file {}!", pos);
+                        }
+                        if (queue.isEmpty() && active.isEmpty()) {
+                            after.run();
+                        }
+                    });
+                }
+            });
+        }
+
+        private BlockPos getMinPos(ChunkPos pos) {
+            return BlockPos.max(corner1, new BlockPos(pos.getMinBlockX(), corner1.getY(), pos.getMinBlockZ()));
+        }
+
+        private BlockPos getMaxPos(ChunkPos pos) {
+            return BlockPos.min(corner2, new BlockPos(pos.getMinBlockX(), corner2.getY(), pos.getMinBlockZ()));
+        }
     }
 }

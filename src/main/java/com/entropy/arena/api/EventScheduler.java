@@ -6,6 +6,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = EntropyArena.MODID)
 public class EventScheduler {
@@ -25,20 +26,49 @@ public class EventScheduler {
         eventList.add(new TickEvent(delay, runnable));
     }
 
+    public static void schedule(int delay, Supplier<Boolean> shouldRun, Runnable runnable) {
+        eventList.add(new TickEvent(delay, runnable, shouldRun, false));
+    }
+
+    public static void scheduleInverted(int delay, Supplier<Boolean> shouldEnd, Runnable runnable) {
+        eventList.add(new TickEvent(delay, runnable, shouldEnd, true));
+    }
+
     private static class TickEvent {
         private final Runnable runnable;
-        private int tickDelay;
+        private final int tickDelay;
+        private int tickCounter;
+        private final Supplier<Boolean> condition;
+        private final boolean inverted;
 
         public TickEvent(int tickDelay, Runnable runnable) {
-            this.runnable = runnable;
+            this(tickDelay, runnable, () -> true, false);
+        }
+
+        public TickEvent(int tickDelay, Runnable runnable, Supplier<Boolean> condition, boolean inverted) {
             this.tickDelay = tickDelay;
+            this.tickCounter = tickDelay;
+            this.runnable = runnable;
+            this.condition = condition;
+            this.inverted = inverted;
         }
 
         public boolean onTick() {
-            tickDelay--;
-            if (tickDelay <= 0) {
-                runnable.run();
-                return true;
+            tickCounter--;
+            if (tickCounter <= 0) {
+                if (inverted) {
+                    if (condition.get()) {
+                        return true;
+                    }
+                    runnable.run();
+                    tickCounter = tickDelay;
+                    return false;
+                }
+                if (condition.get()) {
+                    runnable.run();
+                    return true;
+                }
+                tickCounter = tickDelay;
             }
             return false;
         }

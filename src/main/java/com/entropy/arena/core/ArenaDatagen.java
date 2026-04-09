@@ -122,6 +122,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang(MODID + ".configuration.notificationFadeoutDelay", "Notification Fade Out Delay");
         REGISTRATE.addRawLang(MODID + ".configuration.notificationFadeoutDuration", "Notification Fade Out Duration");
 
+        REGISTRATE.addRawLang(MODID + ".configuration.concurrentChunkLoads", "Concurrent Chunk Loads");
         REGISTRATE.addRawLang(MODID + ".configuration.intervalSeconds", "Interval Seconds");
         REGISTRATE.addRawLang(MODID + ".configuration.recapSeconds", "Recap Seconds");
         REGISTRATE.addRawLang(MODID + ".configuration.defaultRoundSeconds", "Default Round Seconds");
@@ -177,6 +178,8 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.saved_item_list", "Saved item list %s");
         REGISTRATE.addRawLang("arena.message.loaded_item_list", "Loaded item list %s");
         REGISTRATE.addRawLang("arena.message.gave_item_list", "Gave item list %s");
+        REGISTRATE.addRawLang("arena.message.chunk_load_progress", "Loaded chunk %s/%s");
+        REGISTRATE.addRawLang("arena.message.chunk_reset_progress", "Reset chunk %s/%s");
 
         REGISTRATE.addRawLang("arena.error.already_running", "Game is already running");
         REGISTRATE.addRawLang("arena.error.no_lobby", "No lobby position found");

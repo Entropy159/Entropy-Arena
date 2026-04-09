@@ -5,6 +5,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 public class ServerConfig {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
+    public static final ModConfigSpec.IntValue CONCURRENT_CHUNK_LOADS = BUILDER.defineInRange("concurrentChunkLoads", 5, 1, 50);
     public static final ModConfigSpec.IntValue INTERVAL_SECONDS = BUILDER.defineInRange("intervalSeconds", 30, 5, 120);
     public static final ModConfigSpec.IntValue RECAP_SECONDS = BUILDER.defineInRange("recapSeconds", 5, 0, 100);
     public static final ModConfigSpec.IntValue DEFAULT_ROUND_SECONDS = BUILDER.defineInRange("defaultRoundSeconds", 600, 15, 1800);

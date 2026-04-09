@@ -35,7 +35,7 @@ public class ArenaLogic {
     public static final int MAPS_FOR_VOTING = 3;
 
     private final ServerLevel level;
-    private final ArenaData data;
+    private ArenaData data;
 
     public ArenaLogic(ServerLevel level) {
         this.level = level;
@@ -43,7 +43,9 @@ public class ArenaLogic {
     }
 
     public static ArenaLogic get(ServerLevel level) {
-        return INSTANCE_MAP.computeIfAbsent(level.dimension(), (dim) -> new ArenaLogic(level));
+        ArenaLogic logic = INSTANCE_MAP.computeIfAbsent(level.dimension(), (dim) -> new ArenaLogic(level));
+        logic.data = ArenaData.get(level);
+        return logic;
     }
 
     public @Nullable Component enable() {
@@ -103,7 +105,10 @@ public class ArenaLogic {
             data.currentGamemode.onMatchEnd(level);
             data.currentGamemode = null;
         }
-        if (data.currentMap != null) data.currentMap.reset(level);
+        if (data.currentMap != null) data.currentMap.reset(level, this::afterMapReset);
+    }
+
+    private void afterMapReset() {
         data.currentMap = null;
         if (data.running) {
             data.timer = ServerConfig.INTERVAL_SECONDS.get();
@@ -145,12 +150,15 @@ public class ArenaLogic {
         }
         data.currentGamemode = data.currentMap.getNewGamemode();
         Notification.toAll(Component.translatable("arena.message.game_start").withStyle(ChatFormatting.GREEN));
+        data.currentMap.backup(level, this::afterMapBackup);
+        data.currentMap.load(level);
+    }
+
+    private void afterMapBackup() {
         Notification.toAll(Component.translatable("arena.message.map_info", data.currentMap.getName()).withStyle(ChatFormatting.YELLOW).append(data.currentGamemode.getName()));
         if (data.isTimed) {
             data.timer = data.currentMap.getTimer();
         }
-        data.currentMap.backup(level);
-        data.currentMap.load(level);
         PacketDistributor.sendToAllPlayers(GameInfoPacket.fromData(data));
         data.currentGamemode.onMatchStart(level);
         level.players().forEach(this::onRespawn);
@@ -190,18 +198,20 @@ public class ArenaLogic {
             return;
         }
         if ((data.isTimed || data.lobby) && level.getGameTime() % 20 == 0 && !level.players().isEmpty()) {
-            data.timer--;
-            PacketDistributor.sendToAllPlayers(new TimerPacket(data.timer));
-            if (data.lobby && data.timer == ServerConfig.INTERVAL_SECONDS.get() - ServerConfig.RECAP_SECONDS.get()) {
-                startMapVote();
-            }
-            if (data.timer <= 0) {
-                if (data.lobby) {
-                    EntropyArena.LOGGER.info("Starting game!");
-                    onMatchStart();
-                } else {
-                    EntropyArena.LOGGER.info("Ending game!");
-                    onMatchEnd();
+            if (data.timer > 0) {
+                data.timer--;
+                PacketDistributor.sendToAllPlayers(new TimerPacket(data.timer));
+                if (data.lobby && data.timer == ServerConfig.INTERVAL_SECONDS.get() - ServerConfig.RECAP_SECONDS.get()) {
+                    startMapVote();
+                }
+                if (data.timer == 0) {
+                    if (data.lobby) {
+                        EntropyArena.LOGGER.info("Starting game!");
+                        onMatchStart();
+                    } else {
+                        EntropyArena.LOGGER.info("Ending game!");
+                        onMatchEnd();
+                    }
                 }
             }
         }
@@ -296,7 +306,8 @@ public class ArenaLogic {
 
     public void onLevelClose() {
         if (data.currentMap != null) {
-            data.currentMap.reset(level);
+            data.currentMap.reset(level, () -> {});
         }
+        INSTANCE_MAP.remove(level.dimension());
     }
 }

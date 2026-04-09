@@ -29,6 +29,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ArenaLogic {
     private static final HashMap<ResourceKey<Level>, ArenaLogic> INSTANCE_MAP = new HashMap<>();
@@ -281,7 +282,10 @@ public class ArenaLogic {
     }
 
     public void giveStarterGear(ServerPlayer player) {
-        Loadout loadout = data.loadouts.get(data.loadoutSelections.getOrDefault(player.getUUID(), data.loadouts.keySet().stream().toList().getFirst()));
+        Loadout loadout = data.loadouts.get(data.loadoutSelections.getOrDefault(player.getUUID(), data.loadouts.keySet().stream().collect(Collectors.collectingAndThen(Collectors.toList(), l -> {
+            Collections.shuffle(l);
+            return l;
+        })).getFirst()));
         loadout.giveToPlayer(player);
         data.currentGamemode.onGiveLoadout(player, loadout);
         NeoForge.EVENT_BUS.post(new GiveLoadoutEvent(player, loadout));

@@ -24,7 +24,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
@@ -151,9 +150,11 @@ public class ArenaLogic {
         }
         data.currentGamemode = data.currentMap.getNewGamemode();
         Notification.toAll(Component.translatable("arena.message.game_start").withStyle(ChatFormatting.GREEN));
-        data.currentMap.backup(level);
+        data.currentMap.backup(level, data.currentGamemode.getPropertiesToLookFor(), this::afterMapLoad);
+    }
+
+    private void afterMapLoad() {
         data.currentMap.load(level);
-        data.currentMap.calculatePropertyMap(level, data.currentGamemode.getPropertiesToLookFor());
         Notification.toAll(Component.translatable("arena.message.map_info", data.currentMap.getName()).withStyle(ChatFormatting.YELLOW).append(data.currentGamemode.getName()));
         if (data.isTimed) {
             data.timer = data.currentMap.getTimer();
@@ -305,14 +306,9 @@ public class ArenaLogic {
 
     public void onLevelClose() {
         if (data.currentMap != null) {
-            data.currentMap.reset(level, () -> {});
+            data.currentMap.reset(level, () -> {
+            });
         }
         INSTANCE_MAP.remove(level.dimension());
-    }
-
-    public void onChunkLoad(ChunkAccess chunk) {
-        if (data.currentMap != null) {
-            data.currentMap.onChunkLoad(level, chunk);
-        }
     }
 }

@@ -67,14 +67,14 @@ public abstract class FFAGamemode extends ArenaGamemode {
 
     @Override
     public ArrayList<BlockPos> getValidSpawns(ServerPlayer player, ArenaMap map) {
-        return map.getSpawns().getOrDefault(ArenaTeam.NONE, new ArrayList<>());
+        return map.getSpawns(player.serverLevel()).getOrDefault(ArenaTeam.NONE, new ArrayList<>());
     }
 
     @Override
     public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
         Component errorMessage = super.validateMap(level, arenaMap);
         if (errorMessage != null) return errorMessage;
-        return arenaMap.getSpawns().containsKey(ArenaTeam.NONE) ? null : Component.translatable("arena.error.no_spawns");
+        return arenaMap.getSpawns(level).containsKey(ArenaTeam.NONE) ? null : Component.translatable("arena.error.no_spawns");
     }
 
     @Override

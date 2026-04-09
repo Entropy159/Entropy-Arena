@@ -156,7 +156,7 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
     public abstract ArrayList<BlockPos> getValidSpawns(ServerPlayer player, ArenaMap map);
 
     public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
-        return arenaMap.getSpawns().isEmpty() ? Component.translatable("arena.error.no_spawns") : null;
+        return arenaMap.getSpawns(level).isEmpty() ? Component.translatable("arena.error.no_spawns") : null;
     }
 
     public ArrayList<Property<?>> getPropertiesToLookFor() {

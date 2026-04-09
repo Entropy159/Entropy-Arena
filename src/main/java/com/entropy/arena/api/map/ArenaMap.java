@@ -24,8 +24,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
@@ -71,28 +71,12 @@ public class ArenaMap {
         this.targetScoreOverride = targetScoreOverride;
     }
 
-    public ArrayList<ArenaTeam> getTeams() {
-        return new ArrayList<>(getSpawns().keySet().stream().filter(t -> t != ArenaTeam.NONE).sorted(Comparator.comparingInt(Enum::ordinal)).toList());
+    public ArrayList<ArenaTeam> getTeams(ServerLevel level) {
+        return new ArrayList<>(getSpawns(level).keySet().stream().filter(t -> t != ArenaTeam.NONE).sorted(Comparator.comparingInt(Enum::ordinal)).toList());
     }
 
-    public HashMap<ArenaTeam, ArrayList<BlockPos>> getSpawns() {
-        return getBlockPropertyMap(SpawnpointBlock.SPAWN_COLOR);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends Comparable<T>> HashMap<T, ArrayList<BlockPos>> getBlockPropertyMap(Property<T> property) {
-        return (HashMap<T, ArrayList<BlockPos>>) (HashMap<?, ?>) blockPropertyMap.get(property);
-    }
-
-    public void calculatePropertyMap(ServerLevel level, List<Property<?>> propertiesToLookFor) {
-        forEachBlock((offset, pos) -> {
-            for (Property<?> property : propertiesToLookFor) {
-                if (level.getBlockState(pos).hasProperty(property)) {
-                    Object value = level.getBlockState(pos).getValue(property);
-                    blockPropertyMap.computeIfAbsent(property, v -> new HashMap<>()).computeIfAbsent(value, v -> new ArrayList<>()).add(pos);
-                }
-            }
-        });
+    public HashMap<ArenaTeam, ArrayList<BlockPos>> getSpawns(ServerLevel level) {
+        return getBlockPropertyMap(level, SpawnpointBlock.SPAWN_COLOR);
     }
 
     private void forEachBlock(BiConsumer<Vec3i, BlockPos> function) {
@@ -104,6 +88,20 @@ public class ArenaMap {
                 }
             }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Comparable<T>> HashMap<T, ArrayList<BlockPos>> getBlockPropertyMap(ServerLevel level, Property<T> property) {
+        if (backup == null) {
+            HashMap<T, ArrayList<BlockPos>> map = new HashMap<>();
+            forEachBlock((offset, pos) -> {
+                if (level.getBlockState(pos).hasProperty(property)) {
+                    map.computeIfAbsent(level.getBlockState(pos).getValue(property), v -> new ArrayList<>()).add(pos);
+                }
+            });
+            return map;
+        }
+        return (HashMap<T, ArrayList<BlockPos>>) (HashMap<?, ?>) blockPropertyMap.get(property);
     }
 
     public @Nullable ArenaGamemode getNewGamemode() {
@@ -131,8 +129,8 @@ public class ArenaMap {
         level.setDayTime(time);
     }
 
-    public void backup(ServerLevel level) {
-        backup = new Backup(level, this);
+    public void backup(ServerLevel level, List<Property<?>> propertiesToLookFor, Runnable after) {
+        backup = new Backup(level, this, propertiesToLookFor, after);
     }
 
     public void forEachChunk(Consumer<ChunkPos> consumer) {
@@ -151,12 +149,6 @@ public class ArenaMap {
         backup.restore(level, after);
         backup = null;
         blockPropertyMap.clear();
-    }
-
-    public void onChunkLoad(ServerLevel level, ChunkAccess chunk) {
-        if (backup != null) {
-            backup.onChunkLoad(level, chunk);
-        }
     }
 
     public CompoundTag toTag() {
@@ -232,23 +224,61 @@ public class ArenaMap {
         private final File backupFolder;
         private final BlockPos corner1;
         private final BlockPos corner2;
-        private final ArrayList<ChunkPos> toSave = new ArrayList<>();
 
-        public Backup(ServerLevel level, ArenaMap map) {
+        public Backup(ServerLevel level, ArenaMap map, List<Property<?>> propertiesToLookFor, Runnable after) {
             backupFolder = level.getServer().getFile("arena_backup").toFile();
             if (!backupFolder.exists() && !backupFolder.mkdirs()) {
                 EntropyArena.LOGGER.error("Failed to create map backup folder!");
             }
             corner1 = map.corner1;
             corner2 = map.corner2;
-            map.forEachChunk(toSave::add);
+            Queue<ChunkPos> queue = new ArrayDeque<>();
+            Set<ChunkPos> active = new HashSet<>();
+            map.forEachChunk(queue::add);
+            int totalChunks = queue.size();
+            AtomicInteger currentChunk = new AtomicInteger(1);
+            EventScheduler.scheduleUntil(1, queue::isEmpty, () -> {
+                while (active.size() < ServerConfig.CONCURRENT_CHUNK_LOADS.get() && !queue.isEmpty()) {
+                    ChunkPos pos = queue.poll();
+                    if (pos == null) return;
+                    active.add(pos);
+                    level.setChunkForced(pos.x, pos.z, true);
+                    EventScheduler.schedule(1, () -> level.areEntitiesLoaded(pos.toLong()), () -> {
+                        forEachBlockInChunk(pos, p -> {
+                            BlockState state = level.getBlockState(p);
+                            for (Property<?> property : propertiesToLookFor) {
+                                if (state.hasProperty(property)) {
+                                    map.blockPropertyMap.computeIfAbsent(property, v -> new HashMap<>()).computeIfAbsent(state.getValue(property), v -> new ArrayList<>()).add(p);
+                                }
+                            }
+                        });
+                        StructureTemplate template = new StructureTemplate();
+                        template.fillFromWorld(level, clampMinBlockPos(pos), getChunkAreaSize(pos), true, null);
+                        try {
+                            NbtIo.writeCompressed(template.save(new CompoundTag()), backupFolder.toPath().resolve(pos.toLong() + ".nbt"));
+                        } catch (IOException e) {
+                            EntropyArena.LOGGER.error("Error saving map backup", e);
+                        }
+                        level.setChunkForced(pos.x, pos.z, false);
+                        active.remove(pos);
+                        level.players().forEach(player -> player.displayClientMessage(Component.translatable("arena.message.chunk_load_progress", currentChunk.getAndIncrement(), totalChunks), true));
+                        if (queue.isEmpty() && active.isEmpty()) {
+                            after.run();
+                        }
+                    });
+                }
+            });
         }
 
-        public void onChunkLoad(ServerLevel level, ChunkAccess chunk) {
-            ChunkPos pos = chunk.getPos();
-            if (toSave.contains(pos)) {
-                saveChunk(level, pos);
-                toSave.remove(pos);
+        private void forEachBlockInChunk(ChunkPos pos, Consumer<BlockPos> function) {
+            BlockPos min = clampMinBlockPos(pos);
+            BlockPos max = clampMaxBlockPos(pos);
+            for (int x = min.getX(); x <= max.getX(); x++) {
+                for (int y = min.getY(); y <= max.getY(); y++) {
+                    for (int z = min.getZ(); z <= max.getZ(); z++) {
+                        function.accept(new BlockPos(x, y, z));
+                    }
+                }
             }
         }
 
@@ -262,13 +292,12 @@ public class ArenaMap {
                 }
             }
             int totalChunks = queue.size();
-            AtomicInteger currentChunk = new AtomicInteger();
-            EventScheduler.scheduleInverted(1, queue::isEmpty, () -> {
+            AtomicInteger currentChunk = new AtomicInteger(1);
+            EventScheduler.scheduleUntil(1, queue::isEmpty, () -> {
                 while (active.size() < ServerConfig.CONCURRENT_CHUNK_LOADS.get() && !queue.isEmpty()) {
                     ChunkPos pos = queue.poll();
                     if (pos == null) return;
                     active.add(pos);
-                    int chunkIndex = currentChunk.getAndIncrement();
                     level.setChunkForced(pos.x, pos.z, true);
                     EventScheduler.schedule(1, () -> level.areEntitiesLoaded(pos.toLong()), () -> {
                         level.getEntities((Entity) null, new AABB(clampMinBlockPos(pos).getCenter().subtract(0.5, 0.5, 0.5), clampMaxBlockPos(pos).getCenter().add(0.5, 0.5, 0.5)), e -> !(e instanceof Player)).forEach(e -> e.remove(Entity.RemovalReason.DISCARDED));
@@ -282,7 +311,7 @@ public class ArenaMap {
                         }
                         level.setChunkForced(pos.x, pos.z, false);
                         active.remove(pos);
-                        level.players().forEach(player -> player.displayClientMessage(Component.translatable("arena.message.chunk_reset_progress", chunkIndex, totalChunks), true));
+                        level.players().forEach(player -> player.displayClientMessage(Component.translatable("arena.message.chunk_reset_progress", currentChunk.getAndIncrement(), totalChunks), true));
                         if (!backupFolder.toPath().resolve(pos.toLong() + ".nbt").toFile().delete()) {
                             EntropyArena.LOGGER.error("Failed to delete map backup file {}!", pos);
                         }
@@ -290,18 +319,6 @@ public class ArenaMap {
                             after.run();
                         }
                     });
-                }
-            });
-        }
-
-        private void saveChunk(ServerLevel level, ChunkPos pos) {
-            EventScheduler.schedule(1, () -> level.areEntitiesLoaded(pos.toLong()), () -> {
-                StructureTemplate template = new StructureTemplate();
-                template.fillFromWorld(level, clampMinBlockPos(pos), getChunkAreaSize(pos), true, null);
-                try {
-                    NbtIo.writeCompressed(template.save(new CompoundTag()), backupFolder.toPath().resolve(pos.toLong() + ".nbt"));
-                } catch (IOException e) {
-                    EntropyArena.LOGGER.error("Error saving map backup", e);
                 }
             });
         }

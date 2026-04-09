@@ -32,7 +32,7 @@ public class EventScheduler {
         eventList.add(new TickEvent(delay, runnable, shouldRun, false));
     }
 
-    public static void scheduleInverted(int delay, Supplier<Boolean> shouldEnd, Runnable runnable) {
+    public static void scheduleUntil(int delay, Supplier<Boolean> shouldEnd, Runnable runnable) {
         eventList.add(new TickEvent(delay, runnable, shouldEnd, true));
     }
 

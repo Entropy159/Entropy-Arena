@@ -48,7 +48,7 @@ public class WaveSurvival extends CoOpGamemode {
     @Override
     public void onMatchStart(ServerLevel level) {
         super.onMatchStart(level);
-        mobSpawns = ArenaData.get(level).currentMap.getSpawns().get(ENEMY_TEAM);
+        mobSpawns = ArenaData.get(level).currentMap.getSpawns(level).get(ENEMY_TEAM);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class WaveSurvival extends CoOpGamemode {
     public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
         Component failureMessage = super.validateMap(level, arenaMap);
         if (failureMessage != null) return failureMessage;
-        if (!arenaMap.getSpawns().containsKey(ENEMY_TEAM))
+        if (!arenaMap.getSpawns(level).containsKey(ENEMY_TEAM))
             return Component.translatable("arena.error.no_enemy_spawns");
         return null;
     }

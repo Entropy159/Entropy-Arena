@@ -33,7 +33,7 @@ public class Domination extends TeamGamemode implements HasCapturePoints<TeamCap
     @Override
     public void onMatchStart(ServerLevel level) {
         super.onMatchStart(level);
-        capturePoints = calculateCapturePoints(ArenaData.get(level).currentMap, TeamCapturePoint::new);
+        capturePoints = calculateCapturePoints(level, ArenaData.get(level).currentMap, TeamCapturePoint::new);
         sendToAll();
     }
 
@@ -55,7 +55,7 @@ public class Domination extends TeamGamemode implements HasCapturePoints<TeamCap
     public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
         Component failureMessage = super.validateMap(level, arenaMap);
         if (failureMessage != null) return failureMessage;
-        if (arenaMap.getBlockPropertyMap(CapturePointBlock.VISIBLE).isEmpty())
+        if (arenaMap.getBlockPropertyMap(level, CapturePointBlock.VISIBLE).isEmpty())
             return Component.translatable("arena.error.no_capture_points");
         return null;
     }

@@ -40,14 +40,14 @@ public abstract class CoOpGamemode extends ArenaGamemode {
 
     @Override
     public ArrayList<BlockPos> getValidSpawns(ServerPlayer player, ArenaMap map) {
-        return map.getSpawns().get(ArenaTeam.NONE);
+        return map.getSpawns(player.serverLevel()).get(ArenaTeam.NONE);
     }
 
     @Override
     public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
         Component failureMessage = super.validateMap(level, arenaMap);
         if (failureMessage != null) return failureMessage;
-        if (!arenaMap.getSpawns().containsKey(ArenaTeam.NONE)) return Component.translatable("arena.error.no_spawns");
+        if (!arenaMap.getSpawns(level).containsKey(ArenaTeam.NONE)) return Component.translatable("arena.error.no_spawns");
         return null;
     }
 

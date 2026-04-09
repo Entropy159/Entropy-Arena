@@ -47,7 +47,7 @@ public abstract class TeamGamemode extends ArenaGamemode {
     public void onMatchStart(ServerLevel level) {
         super.onMatchStart(level);
         ArenaData data = ArenaData.get(level);
-        ArrayList<ArenaTeam> validTeams = data.currentMap.getTeams(level);
+        ArrayList<ArenaTeam> validTeams = data.currentMap.getTeams();
         validTeams.forEach(team -> setScore(team, 0));
         int index = 0;
         for (ServerPlayer player : level.players()) {
@@ -89,14 +89,14 @@ public abstract class TeamGamemode extends ArenaGamemode {
 
     @Override
     public ArrayList<BlockPos> getValidSpawns(ServerPlayer player, ArenaMap map) {
-        return map.getSpawns(player.serverLevel()).getOrDefault(teamMap.getOrDefault(player.getUUID(), ArenaTeam.NONE), new ArrayList<>());
+        return map.getSpawns().getOrDefault(teamMap.getOrDefault(player.getUUID(), ArenaTeam.NONE), new ArrayList<>());
     }
 
     @Override
     public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
         Component failureMessage = super.validateMap(level, arenaMap);
         if (failureMessage != null) return failureMessage;
-        if (arenaMap.getSpawns(level).keySet().stream().filter(team -> team != ArenaTeam.NONE).count() < 2)
+        if (arenaMap.getSpawns().keySet().stream().filter(team -> team != ArenaTeam.NONE).count() < 2)
             return Component.translatable("arena.error.not_enough_teams");
         return null;
     }
@@ -105,7 +105,7 @@ public abstract class TeamGamemode extends ArenaGamemode {
     public void onJoin(ServerPlayer player) {
         super.onJoin(player);
         ArenaData data = ArenaData.get(player.serverLevel());
-        List<ArenaTeam> validTeams = data.currentMap.getTeams(player.serverLevel()).stream().sorted(Comparator.comparingInt(t -> Math.toIntExact(teamMap.values().stream().filter(t2 -> t == t2).count()))).toList();
+        List<ArenaTeam> validTeams = data.currentMap.getTeams().stream().sorted(Comparator.comparingInt(t -> Math.toIntExact(teamMap.values().stream().filter(t2 -> t == t2).count()))).toList();
         if (!validTeams.isEmpty()) {
             ArenaTeam team = validTeams.getFirst();
             team.setThisTeam(player);

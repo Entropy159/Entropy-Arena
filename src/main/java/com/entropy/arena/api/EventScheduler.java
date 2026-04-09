@@ -6,20 +6,22 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = EntropyArena.MODID)
 public class EventScheduler {
-    private static final ArrayList<TickEvent> eventList = new ArrayList<>();
+    private static final CopyOnWriteArrayList<TickEvent> eventList = new CopyOnWriteArrayList<>();
 
     @SubscribeEvent
     private static void onServerTick(ServerTickEvent.Pre event) {
-        ArrayList<TickEvent> events = new ArrayList<>(eventList);
-        for (TickEvent runnable : events) {
-            if (runnable.onTick()) {
-                eventList.remove(runnable);
+        ArrayList<TickEvent> toRemove = new ArrayList<>();
+        eventList.forEach(e -> {
+            if (e == null || e.onTick()) {
+                toRemove.add(e);
             }
-        }
+        });
+        eventList.removeAll(toRemove);
     }
 
     public static void schedule(int delay, Runnable runnable) {

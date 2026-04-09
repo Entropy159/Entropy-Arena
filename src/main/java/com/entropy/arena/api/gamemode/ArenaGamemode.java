@@ -9,6 +9,9 @@ import com.entropy.arena.api.loadout.LoadoutSerializer;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.core.EntropyArena;
+import com.entropy.arena.core.blocks.CapturePointBlock;
+import com.entropy.arena.core.blocks.PedestalBlock;
+import com.entropy.arena.core.blocks.SpawnpointBlock;
 import com.entropy.arena.core.blocks.TeamBlock;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import io.netty.buffer.ByteBuf;
@@ -26,6 +29,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -152,7 +156,15 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
     public abstract ArrayList<BlockPos> getValidSpawns(ServerPlayer player, ArenaMap map);
 
     public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
-        return arenaMap.getSpawns(level).isEmpty() ? Component.translatable("arena.error.no_spawns") : null;
+        return arenaMap.getSpawns().isEmpty() ? Component.translatable("arena.error.no_spawns") : null;
+    }
+
+    public ArrayList<Property<?>> getPropertiesToLookFor() {
+        ArrayList<Property<?>> list = new ArrayList<>();
+        list.add(SpawnpointBlock.SPAWN_COLOR);
+        list.add(CapturePointBlock.VISIBLE);
+        list.add(PedestalBlock.GEM_COLOR);
+        return list;
     }
 
     @OnlyIn(Dist.CLIENT)

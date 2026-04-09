@@ -56,7 +56,7 @@ public class KingOfTheHill extends FFAGamemode implements HasCapturePoints<KOTHC
     public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
         Component failureMessage = super.validateMap(level, arenaMap);
         if (failureMessage != null) return failureMessage;
-        int capturePoints = calculateCapturePoints(arenaMap, level, KOTHCapturePoint::new).size();
+        int capturePoints = calculateCapturePoints(arenaMap, KOTHCapturePoint::new).size();
         if (capturePoints == 0) return Component.translatable("arena.error.no_capture_points");
         if (capturePoints > 1) return Component.translatable("arena.error.too_many_capture_points", 1);
         return null;
@@ -73,7 +73,7 @@ public class KingOfTheHill extends FFAGamemode implements HasCapturePoints<KOTHC
     @Override
     public void onMatchStart(ServerLevel level) {
         super.onMatchStart(level);
-        capturePoint = calculateCapturePoints(ArenaData.get(level).currentMap, level, KOTHCapturePoint::new).getFirst();
+        capturePoint = calculateCapturePoints(ArenaData.get(level).currentMap, KOTHCapturePoint::new).getFirst();
 //        removeCapturePointBlocks(data.getLevel());
         sendToAll();
     }

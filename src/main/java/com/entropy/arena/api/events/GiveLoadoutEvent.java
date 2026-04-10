@@ -4,6 +4,9 @@ import com.entropy.arena.api.loadout.Loadout;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
+/**
+ * Fired after a loadout is given to a player.
+ */
 public class GiveLoadoutEvent extends PlayerEvent {
     private final Loadout loadout;
 

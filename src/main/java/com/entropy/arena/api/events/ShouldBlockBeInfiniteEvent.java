@@ -5,6 +5,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.Event;
 
+/**
+ * Fired when a block is placed, determines whether the item will be consumed or not.
+ */
 public class ShouldBlockBeInfiniteEvent extends Event {
     private final Block block;
     private final ItemStack blockStack;

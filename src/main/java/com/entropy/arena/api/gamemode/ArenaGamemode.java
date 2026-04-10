@@ -3,6 +3,7 @@ package com.entropy.arena.api.gamemode;
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.data.ArenaData;
+import com.entropy.arena.api.events.LoadoutComponentEvent;
 import com.entropy.arena.api.loadout.ItemList;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.loadout.LoadoutSerializer;
@@ -18,6 +19,8 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.TypedDataComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -32,6 +35,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -116,13 +120,23 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
         if (list != null) {
             ItemStack newStack = getItemFromList(player, list);
             boolean shouldRecurse = newStack.has(ArenaDataComponents.ITEM_LIST) && recursionCount < 10;
-            newStack.applyComponents(stack.getComponents());
+            DataComponentPatch.Builder builder = DataComponentPatch.builder();
+            stack.getComponents().forEach(typed -> {
+                if (isComponentAllowed(typed, newStack)) {
+                    builder.set(typed);
+                }
+            });
+            newStack.applyComponents(builder.build());
             if (shouldRecurse) {
                 applyItemList(player, serializer, slot, newStack, recursionCount + 1);
             } else {
                 serializer.setStack(player, slot, newStack);
             }
         }
+    }
+
+    public boolean isComponentAllowed(TypedDataComponent<?> component, ItemStack stack) {
+        return !NeoForge.EVENT_BUS.post(new LoadoutComponentEvent(component, stack)).isCanceled();
     }
 
     public ItemStack getItemFromList(ServerPlayer player, ItemList list) {

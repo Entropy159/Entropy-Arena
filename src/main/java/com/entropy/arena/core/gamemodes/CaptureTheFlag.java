@@ -6,9 +6,11 @@ import com.entropy.arena.api.Notification;
 import com.entropy.arena.api.client.ArenaRenderingUtils;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.TeamGamemode;
+import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.PedestalBlock;
+import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.items.TeamGemItem;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.entropy.arena.core.registry.ArenaItems;
@@ -117,46 +119,51 @@ public class CaptureTheFlag extends TeamGamemode {
         return pedestalPositions.getOrDefault(team, new ArrayList<>()).indexOf(pos);
     }
 
-    public void takeGem(ServerPlayer player, BlockPos pos) {
-        ArenaTeam gemTeam = player.serverLevel().getBlockState(pos).getValue(PedestalBlock.GEM_COLOR);
+    public void onClickPedestal(ServerPlayer player, BlockPos pos, boolean hasGem, ArenaTeam blockTeam, ItemStack stack, @Nullable ArenaTeam stackTeam) {
         ArenaTeam playerTeam = getPlayerTeam(player);
-        if (gemTeam != playerTeam) {
-            int flagIndex = getPedestalIndex(gemTeam, pos);
-            if (flagIndex > -1) {
-                PedestalBlock.setHasGem(player.serverLevel(), pos, false);
-                pedestalValueMap.put(pos, false);
-                ItemStack gem = new ItemStack(ArenaItems.TEAM_GEM.get());
-                gem.set(ArenaDataComponents.PEDESTAL_INDEX, flagIndex);
-                gem.set(ArenaDataComponents.TEAM, gemTeam);
-                player.addItem(gem);
-                Notification.toAll(Component.translatable("arena.message.ctf.flag_taken", gemTeam.getColoredName(), playerTeam.getColoredName()).withStyle(ChatFormatting.RED));
-                ArenaUtils.playSoundForEveryone(player.serverLevel(), SoundEvents.BEACON_DEACTIVATE, SoundSource.AMBIENT);
-                sendToAll();
-            }
+        if (!hasGem && playerTeam == blockTeam && blockTeam == stackTeam) {
+            returnGem(player, stack);
+        } else if (hasGem && playerTeam != blockTeam) {
+            takeGem(player, pos, blockTeam);
+        } else if (ServerConfig.RETURN_ALL_GEMS.get() && playerTeam == blockTeam) {
+            scoreAllGems(player, pos);
+        } else if (playerTeam == blockTeam && stackTeam != playerTeam) {
+            scoreGem(player, pos, stack, stackTeam);
         }
     }
 
-    public void returnGem(ServerPlayer player, BlockPos pos, ItemStack gem) {
-        ServerLevel level = player.serverLevel();
-        ArenaTeam pedestalTeam = level.getBlockState(pos).getValue(PedestalBlock.GEM_COLOR);
-        ArenaTeam gemTeam = ArenaTeam.getFromStack(gem);
+    public void takeGem(ServerPlayer player, BlockPos pos, ArenaTeam gemTeam) {
         ArenaTeam playerTeam = getPlayerTeam(player);
-        if (pedestalTeam == playerTeam && pedestalTeam == gemTeam) {
-            int pedestalIndex = gem.getOrDefault(ArenaDataComponents.PEDESTAL_INDEX, -1);
-            if (pedestalIndex > -1) {
-                try {
-                    BlockPos pedestalPosition = getPedestal(playerTeam, pedestalIndex);
-                    if (pedestalPosition != null && !level.getBlockState(pedestalPosition).getValue(PedestalBlock.HAS_GEM)) {
-                        PedestalBlock.setHasGem(level, pedestalPosition, true);
-                        pedestalValueMap.put(pedestalPosition, true);
-                        gem.shrink(1);
-                        Notification.toAll(Component.translatable("arena.message.ctf.flag_returned", pedestalTeam.getColoredName()));
-                        ArenaUtils.playSoundForEveryone(level, SoundEvents.BEACON_ACTIVATE, SoundSource.AMBIENT);
-                        sendToAll();
-                    }
-                } catch (IndexOutOfBoundsException e) {
-                    EntropyArena.LOGGER.error("Error returning gem", e);
+        int flagIndex = getPedestalIndex(gemTeam, pos);
+        if (flagIndex > -1) {
+            PedestalBlock.setHasGem(player.serverLevel(), pos, false);
+            pedestalValueMap.put(pos, false);
+            ItemStack gem = new ItemStack(ArenaItems.TEAM_GEM.get());
+            gem.set(ArenaDataComponents.PEDESTAL_INDEX, flagIndex);
+            gem.set(ArenaDataComponents.TEAM, gemTeam);
+            player.addItem(gem);
+            Notification.toAll(Component.translatable("arena.message.ctf.flag_taken", gemTeam.getColoredName(), playerTeam.getColoredName()).withStyle(ChatFormatting.RED));
+            ArenaUtils.playSoundForEveryone(player.serverLevel(), SoundEvents.BEACON_DEACTIVATE, SoundSource.AMBIENT);
+            sendToAll();
+        }
+    }
+
+    public void returnGem(ServerPlayer player, ItemStack gem) {
+        ServerLevel level = player.serverLevel();
+        int pedestalIndex = gem.getOrDefault(ArenaDataComponents.PEDESTAL_INDEX, -1);
+        if (pedestalIndex > -1) {
+            try {
+                BlockPos pedestalPosition = getPedestal(getPlayerTeam(player), pedestalIndex);
+                if (pedestalPosition != null && !level.getBlockState(pedestalPosition).getValue(PedestalBlock.HAS_GEM)) {
+                    PedestalBlock.setHasGem(level, pedestalPosition, true);
+                    pedestalValueMap.put(pedestalPosition, true);
+                    gem.shrink(1);
+                    Notification.toAll(Component.translatable("arena.message.ctf.flag_returned", getPlayerTeam(player).getColoredName()));
+                    ArenaUtils.playSoundForEveryone(level, SoundEvents.BEACON_ACTIVATE, SoundSource.AMBIENT);
+                    sendToAll();
                 }
+            } catch (IndexOutOfBoundsException e) {
+                EntropyArena.LOGGER.error("Error returning gem", e);
             }
         }
     }
@@ -171,7 +178,6 @@ public class CaptureTheFlag extends TeamGamemode {
                 pedestalValueMap.put(pos, true);
                 Notification.toAll(Component.translatable("arena.message.ctf.flag_dropped", flagTeam.getColoredName()).withStyle(ChatFormatting.YELLOW));
                 ArenaUtils.playSoundForEveryone(level, SoundEvents.BEACON_ACTIVATE, SoundSource.AMBIENT);
-
                 sendToAll();
             }
         } catch (IndexOutOfBoundsException e) {
@@ -179,32 +185,41 @@ public class CaptureTheFlag extends TeamGamemode {
         }
     }
 
-    public void scoreGem(ServerPlayer player, BlockPos pos, ItemStack gem) {
-        ServerLevel level = player.serverLevel();
-        ArenaTeam pedestalTeam = level.getBlockState(pos).getValue(PedestalBlock.GEM_COLOR);
-        ArenaTeam gemTeam = ArenaTeam.getFromStack(gem);
-        ArenaTeam playerTeam = getPlayerTeam(player);
-        if (pedestalTeam == playerTeam && playerTeam != gemTeam) {
-            if (!level.getBlockState(pos).getValue(PedestalBlock.HAS_GEM)) {
-                player.displayClientMessage(Component.translatable("arena.message.pedestal_invalid").withStyle(ChatFormatting.DARK_RED), true);
-                return;
-            }
-            int pedestalIndex = gem.getOrDefault(ArenaDataComponents.PEDESTAL_INDEX, -1);
-            if (pedestalIndex >= 0) {
-                try {
-                    BlockPos oldPedestal = getPedestal(gemTeam, pedestalIndex);
-                    if (oldPedestal != null) {
-                        PedestalBlock.setHasGem(level, oldPedestal, true);
-                        pedestalValueMap.put(oldPedestal, true);
-                        incrementScore(playerTeam);
-                        gem.shrink(1);
-                        Notification.toAll(Component.translatable("arena.message.ctf.flag_scored", pedestalTeam.getColoredName()).withStyle(ChatFormatting.GREEN));
-                        ArenaUtils.playSoundForEveryone(level, SoundEvents.ENDER_EYE_DEATH, SoundSource.AMBIENT);
-                        sendToAll();
-                    }
-                } catch (IndexOutOfBoundsException e) {
-                    EntropyArena.LOGGER.error("Error scoring with gem", e);
+    public void scoreAllGems(ServerPlayer player, BlockPos pos) {
+        LoadoutSerializerRegistry.forEachStack(player, (serializer, slot, stack) -> {
+            ArenaTeam gemTeam = stack.get(ArenaDataComponents.TEAM);
+            if (stack.getItem() instanceof TeamGemItem && gemTeam != null) {
+                if (gemTeam == getPlayerTeam(player)) {
+                    returnGem(player, stack);
+                } else {
+                    scoreGem(player, pos, stack, gemTeam);
                 }
+            }
+        });
+    }
+
+    public void scoreGem(ServerPlayer player, BlockPos pos, ItemStack gem, ArenaTeam gemTeam) {
+        ServerLevel level = player.serverLevel();
+        ArenaTeam playerTeam = getPlayerTeam(player);
+        if (!level.getBlockState(pos).getValue(PedestalBlock.HAS_GEM)) {
+            player.displayClientMessage(Component.translatable("arena.message.pedestal_invalid").withStyle(ChatFormatting.DARK_RED), true);
+            return;
+        }
+        int pedestalIndex = gem.getOrDefault(ArenaDataComponents.PEDESTAL_INDEX, -1);
+        if (pedestalIndex >= 0) {
+            try {
+                BlockPos oldPedestal = getPedestal(gemTeam, pedestalIndex);
+                if (oldPedestal != null) {
+                    PedestalBlock.setHasGem(level, oldPedestal, true);
+                    pedestalValueMap.put(oldPedestal, true);
+                    incrementScore(playerTeam);
+                    gem.shrink(1);
+                    Notification.toAll(Component.translatable("arena.message.ctf.flag_scored", playerTeam.getColoredName()).withStyle(ChatFormatting.GREEN));
+                    ArenaUtils.playSoundForEveryone(level, SoundEvents.ENDER_EYE_DEATH, SoundSource.AMBIENT);
+                    sendToAll();
+                }
+            } catch (IndexOutOfBoundsException e) {
+                EntropyArena.LOGGER.error("Error scoring with gem", e);
             }
         }
     }

@@ -49,13 +49,7 @@ public class PedestalBlock extends Block {
                 ArenaData data = ArenaData.get(level);
                 if (data.inGame() && data.currentGamemode instanceof CaptureTheFlag ctf) {
                     if (stack.getItem() instanceof TeamGemItem) {
-                        if (stackColor == state.getValue(GEM_COLOR)) {
-                            if (!state.getValue(HAS_GEM)) {
-                                ctf.returnGem(player, pos, stack);
-                            }
-                        } else {
-                            ctf.scoreGem(player, pos, stack);
-                        }
+                        ctf.onClickPedestal(player, pos, state.getValue(HAS_GEM), state.getValue(GEM_COLOR), stack, stackColor);
                     }
                 } else {
                     level.setBlock(pos, state.setValue(GEM_COLOR, stackColor), UPDATE_FLAGS);
@@ -70,9 +64,7 @@ public class PedestalBlock extends Block {
         if (l instanceof ServerLevel level && p instanceof ServerPlayer player) {
             ArenaData data = ArenaData.get(level);
             if (data.inGame() && data.currentGamemode instanceof CaptureTheFlag ctf) {
-                if (state.getValue(HAS_GEM)) {
-                    ctf.takeGem(player, pos);
-                }
+                ctf.onClickPedestal(player, pos, state.getValue(HAS_GEM), state.getValue(GEM_COLOR), ItemStack.EMPTY, null);
             }
         }
         return super.useWithoutItem(state, l, pos, p, hitResult);

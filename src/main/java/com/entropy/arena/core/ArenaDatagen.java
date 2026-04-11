@@ -131,6 +131,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang(MODID + ".configuration.hideEnemyNametags", "Hide Enemy Nametags");
         REGISTRATE.addRawLang(MODID + ".configuration.respawnDelay", "Respawn Delay");
         REGISTRATE.addRawLang(MODID + ".configuration.giveSaturation", "Give Saturation");
+        REGISTRATE.addRawLang(MODID + ".configuration.returnAllGems", "Return All Gems");
 
         REGISTRATE.addRawLang("arena.hud.interval", "Interval: %s");
         REGISTRATE.addRawLang("arena.hud.timer", "Timer: %s");

@@ -44,6 +44,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -92,7 +93,7 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
                 player.drop(stack, true, false);
             }
         }
-        player.getInventory().clearContent();
+        LoadoutSerializerRegistry.clearAll(player);
         return false;
     }
 
@@ -141,6 +142,14 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
 
     public ItemStack getItemFromList(ServerPlayer player, ItemList list) {
         return list.get(player.serverLevel().registryAccess(), 0);
+    }
+
+    public List<String> getValidLoadouts(ServerPlayer player) {
+        return ArenaData.get(player.serverLevel()).loadouts.entrySet().stream().filter(entry -> entry.getValue().getItemLists(player.serverLevel()).stream().allMatch(this::isValidItemList)).map(Map.Entry::getKey).toList();
+    }
+
+    public boolean isValidItemList(ItemList list) {
+        return list.isRandom();
     }
 
     public void onJoin(ServerPlayer player) {

@@ -2,6 +2,7 @@ package com.entropy.arena.core.blocks;
 
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.ArenaTeam;
+import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.gamemodes.CaptureTheFlag;
 import com.entropy.arena.core.items.TeamGemItem;
 import net.minecraft.core.BlockPos;
@@ -49,7 +50,9 @@ public class PedestalBlock extends Block {
                 if (data.inGame() && data.currentGamemode instanceof CaptureTheFlag ctf) {
                     if (stack.getItem() instanceof TeamGemItem) {
                         if (stackColor == state.getValue(GEM_COLOR)) {
-                            if (!state.getValue(HAS_GEM)) ctf.returnGem(player, pos, stack);
+                            if (!state.getValue(HAS_GEM)) {
+                                ctf.returnGem(player, pos, stack);
+                            }
                         } else {
                             ctf.scoreGem(player, pos, stack);
                         }

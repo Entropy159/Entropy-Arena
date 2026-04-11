@@ -22,6 +22,7 @@
   "arena.gamemode.entropyarena.domination": "Domination",
   "arena.gamemode.entropyarena.free_for_all": "Free for All",
   "arena.gamemode.entropyarena.king_of_the_hill": "King of the Hill",
+  "arena.gamemode.entropyarena.team_deathmatch": "Team Deathmatch",
   "arena.gamemode.entropyarena.wave_survival": "Wave Survival",
   "arena.hud.interval": "Interval: %s",
   "arena.hud.score_value": "Score: %s",

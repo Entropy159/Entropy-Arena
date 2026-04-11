@@ -149,6 +149,7 @@ public class CaptureTheFlag extends TeamGamemode {
                     if (pedestalPosition != null && !level.getBlockState(pedestalPosition).getValue(PedestalBlock.HAS_GEM)) {
                         PedestalBlock.setHasGem(level, pedestalPosition, true);
                         pedestalValueMap.put(pedestalPosition, true);
+                        gem.shrink(1);
                         Notification.toAll(Component.translatable("arena.message.ctf.flag_returned", pedestalTeam.getColoredName()));
                         ArenaUtils.playSoundForEveryone(level, SoundEvents.BEACON_ACTIVATE, SoundSource.AMBIENT);
                         sendToAll();

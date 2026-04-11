@@ -57,7 +57,7 @@ public class ArenaRenderingUtils {
 
     public static float sineFromZeroToOne(float scale, DeltaTracker tracker) {
         if (client.level == null) return 0;
-        float time = client.level.getGameTime() + tracker.getGameTimeDeltaPartialTick(false);
+        float time = client.level.getGameTime() + tracker.getGameTimeDeltaPartialTick(true);
         float scaledTime = time / scale;
         return (float) (Math.sin(scaledTime) + 1) / 2;
     }

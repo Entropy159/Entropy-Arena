@@ -1,12 +1,15 @@
 package com.entropy.arena.api;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -25,6 +28,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ArenaUtils {
+    public static final StreamCodec<ByteBuf, Vec3i> VEC3I_STREAM_CODEC = StreamCodec.of((buf, vec3i) -> {
+        buf.writeInt(vec3i.getX());
+        buf.writeInt(vec3i.getY());
+        buf.writeInt(vec3i.getZ());
+    }, buf -> new Vec3i(buf.readInt(), buf.readInt(), buf.readInt()));
+
     public static <T> ListTag listToTag(List<T> list, Function<T, Tag> valueFunction) {
         ListTag tag = new ListTag();
         list.forEach(obj -> tag.add(valueFunction.apply(obj)));

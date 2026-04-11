@@ -52,7 +52,7 @@ public class ArenaData extends SavedData {
     @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         tag.put("mapList", mapList.saveToTag());
-        tag.put("loadouts", ArenaUtils.mapToTag(loadouts, s -> s, Loadout::getCompound));
+        tag.put("loadouts", ArenaUtils.mapToTag(loadouts, s -> s, Loadout::toTag));
         tag.put("loadoutSelections", ArenaUtils.mapToTag(loadoutSelections, UUID::toString, StringTag::valueOf));
         tag.put("itemLists", ArenaUtils.mapToTag(itemLists, s -> s, itemList -> itemList.toTag(registries)));
         if (lobbyPos != null) tag.putLong("lobbyPos", lobbyPos.asLong());

@@ -8,6 +8,7 @@ import com.entropy.arena.api.events.MatchEndEvent;
 import com.entropy.arena.api.events.MatchStartEvent;
 import com.entropy.arena.api.events.TeleportToLobbyEvent;
 import com.entropy.arena.api.loadout.Loadout;
+import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.api.map.ArenaMapInfo;
 import com.entropy.arena.core.config.ServerConfig;
@@ -91,7 +92,7 @@ public class ArenaLogic {
         ArenaUtils.teleportToPos(player, data.lobbyPos);
         player.setGameMode(GameType.ADVENTURE);
         player.setGlowingTag(false);
-        player.getInventory().clearContent();
+        LoadoutSerializerRegistry.clearAll(player);
         player.setHealth(player.getMaxHealth());
         level.getScoreboard().removePlayerFromTeam(player.getScoreboardName());
         NeoForge.EVENT_BUS.post(new TeleportToLobbyEvent.Post(player));

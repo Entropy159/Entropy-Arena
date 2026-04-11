@@ -191,7 +191,11 @@ public class ArenaMap {
 
     public ArenaMapInfo getInfo() {
         ArenaGamemode gamemode = getNewGamemode();
-        return new ArenaMapInfo(name, screenshot, gamemode == null ? EntropyArena.id("none") : gamemode.getRegistryID());
+        return new ArenaMapInfo(name, screenshot, gamemode == null ? EntropyArena.id("none") : gamemode.getRegistryID(), getSize());
+    }
+
+    public Vec3i getSize() {
+        return corner2.subtract(corner1).offset(1, 1, 1);
     }
 
     public Vec3 getCenter() {
@@ -261,7 +265,8 @@ public class ArenaMap {
                         }
                         level.setChunkForced(pos.x, pos.z, false);
                         active.remove(pos);
-                        level.players().forEach(player -> player.displayClientMessage(Component.translatable("arena.message.chunk_load_progress", currentChunk.getAndIncrement(), totalChunks), true));
+                        int chunkIndex = currentChunk.getAndIncrement();
+                        level.players().forEach(player -> player.displayClientMessage(Component.translatable("arena.message.chunk_load_progress", chunkIndex, totalChunks), true));
                         if (queue.isEmpty() && active.isEmpty()) {
                             after.run();
                         }

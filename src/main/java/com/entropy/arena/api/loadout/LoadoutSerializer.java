@@ -17,4 +17,8 @@ public abstract class LoadoutSerializer {
     public abstract void setStack(ServerPlayer player, int slot, ItemStack stack);
 
     public abstract void forEachStack(ServerPlayer player, BiConsumer<Integer, ItemStack> consumer);
+
+    public void clear(ServerPlayer player) {
+        forEachStack(player, (slot, stack) -> setStack(player, slot, ItemStack.EMPTY));
+    }
 }

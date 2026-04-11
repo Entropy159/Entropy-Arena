@@ -33,4 +33,8 @@ public class LoadoutSerializerRegistry {
     public static void forEachStack(ServerPlayer player, TriConsumer<LoadoutSerializer, Integer, ItemStack> consumer) {
         forEach((name, serializer) -> serializer.forEachStack(player, (slot, stack) -> consumer.accept(serializer, slot, stack)));
     }
+
+    public static void clearAll(ServerPlayer player) {
+        forEach((name, serializer) -> serializer.clear(player));
+    }
 }

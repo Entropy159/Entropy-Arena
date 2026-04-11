@@ -104,6 +104,7 @@
   "entropyarena.configuration.notificationFadeoutDuration": "Notification Fade Out Duration",
   "entropyarena.configuration.recapSeconds": "Recap Seconds",
   "entropyarena.configuration.respawnDelay": "Respawn Delay",
+  "entropyarena.configuration.returnAllGems": "Return All Gems",
   "entropyarena.configuration.useChatForNotifications": "Use Chat For Notifications",
   "entropyarena:music/arena/alone_not_lost": "Alone Not Lost",
   "entropyarena:music/arena/edge_of_the_world": "Edge Of The World",

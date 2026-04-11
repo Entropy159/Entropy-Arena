@@ -3,6 +3,8 @@ package com.entropy.arena.api.loadout;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,7 +37,12 @@ public class Loadout {
     }
 
     public CompoundTag toTag() {
-        return gear;
+        CompoundTag tag = new CompoundTag();
+        tag.put("gear", gear);
+        ListTag itemListsTag = new ListTag();
+        itemLists.forEach(list -> itemListsTag.addTag(0, StringTag.valueOf(list)));
+        tag.put("itemLists", itemListsTag);
+        return tag;
     }
 
     public List<ItemList> getItemLists(ServerLevel level) {

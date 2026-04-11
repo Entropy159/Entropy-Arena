@@ -1,9 +1,15 @@
 package com.entropy.arena.core;
 
+import com.entropy.arena.api.events.IgnoreAdventureModeEvent;
+import com.entropy.arena.api.events.LoadoutComponentEvent;
 import com.entropy.arena.api.events.ShouldBlockBeInfiniteEvent;
 import com.entropy.arena.core.blocks.TeamBlock;
+import com.entropy.arena.core.registry.ArenaTags;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.BlockItem;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
@@ -11,6 +17,8 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
+
+import java.util.List;
 
 @EventBusSubscriber
 public class ArenaEvents {
@@ -68,6 +76,25 @@ public class ArenaEvents {
     public static void infiniteTeamBlocks(ShouldBlockBeInfiniteEvent event) {
         if (event.getBlock() instanceof TeamBlock) {
             event.setInfinite(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void adventureModeBypass(IgnoreAdventureModeEvent event) {
+        if (event.isPlacing() && event.getHeldItem().getItem() instanceof BlockItem bi && bi.getBlock() instanceof TeamBlock) {
+            event.setBypass(!event.getState().is(ArenaTags.TEAM_BLOCK_INVALID));
+        }
+        if (!event.isPlacing() && event.getState().getBlock() instanceof TeamBlock) {
+            event.setBypass(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void allowComponents(LoadoutComponentEvent event) {
+        List<DataComponentType<?>> allowedComponents = List.of(DataComponents.UNBREAKABLE, DataComponents.ENCHANTMENTS);
+
+        if (allowedComponents.contains(event.getComponent().type())) {
+            event.setAllowed(true);
         }
     }
 }

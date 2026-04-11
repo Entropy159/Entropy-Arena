@@ -137,7 +137,7 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
     }
 
     public boolean isComponentAllowed(TypedDataComponent<?> component, ItemStack stack) {
-        return !NeoForge.EVENT_BUS.post(new LoadoutComponentEvent(component, stack)).isCanceled();
+        return NeoForge.EVENT_BUS.post(new LoadoutComponentEvent(component, stack)).isAllowed();
     }
 
     public ItemStack getItemFromList(ServerPlayer player, ItemList list) {

@@ -1,12 +1,12 @@
 package com.entropy.arena.core.mixin.ignoreAdventureMode;
 
-import com.entropy.arena.api.block.IgnoresAdventureMode;
+import com.entropy.arena.api.events.IgnoreAdventureModeEvent;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+import net.neoforged.neoforge.common.NeoForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,11 +18,13 @@ public abstract class ItemStackMixin {
 
     @ModifyReturnValue(method = "canPlaceOnBlockInAdventureMode", at = @At("RETURN"))
     private boolean allowPlacingTeamBlocks(boolean original, @Local(argsOnly = true) BlockInWorld block) {
-        return original || (getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof IgnoresAdventureMode ignores && ignores.shouldIgnorePlace(block.getPos(), block.getState()));
+        IgnoreAdventureModeEvent event = NeoForge.EVENT_BUS.post(new IgnoreAdventureModeEvent(null, block.getPos(), block.getState(), (ItemStack) (Object) this, true));
+        return original || event.shouldBypass();
     }
 
     @ModifyReturnValue(method = "canBreakBlockInAdventureMode", at = @At("RETURN"))
     private boolean allowBreakingTeamBlocks(boolean original, @Local(argsOnly = true) BlockInWorld block) {
-        return original || (block.getState().getBlock() instanceof IgnoresAdventureMode ignores && ignores.shouldIgnoreBreak(block.getPos(), block.getState()));
+        IgnoreAdventureModeEvent event = NeoForge.EVENT_BUS.post(new IgnoreAdventureModeEvent(null, block.getPos(), block.getState(), (ItemStack) (Object) this, false));
+        return original || event.shouldBypass();
     }
 }

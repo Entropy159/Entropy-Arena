@@ -139,6 +139,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.hud.score_value", "Score: %s");
 
         REGISTRATE.addRawLang("arena.screen.voting", "Voting");
+        REGISTRATE.addRawLang("arena.screen.loadout", "Loadouts");
 
         REGISTRATE.addRawLang("arena.tooltip.item_list", "From Item List: %s");
 

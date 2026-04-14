@@ -16,6 +16,7 @@ public class ClientData {
     public static ArenaGamemode currentGamemode;
 
     public static ArrayList<ArenaMapInfo> votableMaps = new ArrayList<>();
+    public static ArrayList<String> loadouts = new ArrayList<>();
     public static ArrayList<Notification> notifications = new ArrayList<>();
     public static ArrayList<Component> scoreList = new ArrayList<>();
 }

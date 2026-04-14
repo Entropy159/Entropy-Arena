@@ -10,8 +10,6 @@ import com.entropy.arena.core.EntropyArena;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -43,7 +41,6 @@ public class ArenaData extends SavedData {
         ArenaData data = new ArenaData();
         data.mapList.loadFromTag(tag.getCompound("mapList"));
         data.loadouts = ArenaUtils.tagToHashMap(tag.getCompound("loadouts"), s -> s, t -> new Loadout((CompoundTag) t));
-        data.loadoutSelections = ArenaUtils.tagToHashMap(tag.getCompound("loadoutSelections"), UUID::fromString, Tag::getAsString);
         data.itemLists = ArenaUtils.tagToHashMap(tag.getCompound("itemLists"), s -> s, t -> new ItemList((CompoundTag) t, provider));
         if (tag.contains("lobbyPos")) data.lobbyPos = BlockPos.of(tag.getLong("lobbyPos"));
         return data;
@@ -53,7 +50,6 @@ public class ArenaData extends SavedData {
     public @NotNull CompoundTag save(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         tag.put("mapList", mapList.saveToTag());
         tag.put("loadouts", ArenaUtils.mapToTag(loadouts, s -> s, Loadout::toTag));
-        tag.put("loadoutSelections", ArenaUtils.mapToTag(loadoutSelections, UUID::toString, StringTag::valueOf));
         tag.put("itemLists", ArenaUtils.mapToTag(itemLists, s -> s, itemList -> itemList.toTag(registries)));
         if (lobbyPos != null) tag.putLong("lobbyPos", lobbyPos.asLong());
         return tag;

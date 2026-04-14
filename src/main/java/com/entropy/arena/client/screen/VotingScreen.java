@@ -103,6 +103,11 @@ public class VotingScreen extends Screen {
         ClientData.votableMaps.forEach(info -> info.screenshot().clear());
     }
 
+    @Override
+    protected void renderBlurredBackground(float partialTick) {
+
+    }
+
     private record TypeButton(int x, int y, String text) {
         private static final int PADDING = 2;
 

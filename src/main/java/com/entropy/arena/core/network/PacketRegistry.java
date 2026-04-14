@@ -2,6 +2,7 @@ package com.entropy.arena.core.network;
 
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
 import com.entropy.arena.core.network.toClient.*;
+import com.entropy.arena.core.network.toServer.LoadoutSelectPacket;
 import com.entropy.arena.core.network.toServer.MapVotePacket;
 import com.entropy.arena.core.network.toServer.ScreenshotPacket;
 import com.entropy.arena.core.network.toServer.TypeVotePacket;
@@ -23,10 +24,12 @@ public class PacketRegistry {
         registrar.playToClient(NotificationPacket.TYPE, NotificationPacket.STREAM_CODEC, NotificationPacket::handle);
         registrar.playToClient(ScoresPacket.TYPE, ScoresPacket.STREAM_CODEC, ScoresPacket::handle);
         registrar.playToClient(GameInfoPacket.TYPE, GameInfoPacket.STREAM_CODEC, GameInfoPacket::handle);
+        registrar.playToClient(LoadoutsPacket.TYPE, LoadoutsPacket.STREAM_CODEC, LoadoutsPacket::handle);
 
         registrar.playToServer(ScreenshotPacket.TYPE, ScreenshotPacket.STREAM_CODEC, ScreenshotPacket::handle);
         registrar.playToServer(MapVotePacket.TYPE, MapVotePacket.STREAM_CODEC, MapVotePacket::handle);
         registrar.playToServer(TypeVotePacket.TYPE, TypeVotePacket.STREAM_CODEC, TypeVotePacket::handle);
+        registrar.playToServer(LoadoutSelectPacket.TYPE, LoadoutSelectPacket.STREAM_CODEC, LoadoutSelectPacket::handle);
 
         GamemodeRegistry.forEach(gamemode -> gamemode.registerPacket(registrar));
     }

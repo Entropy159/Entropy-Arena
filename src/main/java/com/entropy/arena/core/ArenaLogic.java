@@ -101,6 +101,7 @@ public class ArenaLogic {
     public void onMatchEnd() {
         NeoForge.EVENT_BUS.post(new MatchEndEvent.Pre(level));
         Notification.toAll(Component.translatable("arena.message.game_over").withStyle(ChatFormatting.RED));
+        data.loadoutSelections.clear();
         PacketDistributor.sendToAllPlayers(new ScoresPacket(List.of()));
         sendAllToLobby();
         if (data.currentGamemode != null) {
@@ -140,7 +141,6 @@ public class ArenaLogic {
 
     public void onMatchStart() {
         NeoForge.EVENT_BUS.post(new MatchStartEvent.Pre(level));
-        data.lobby = false;
         data.isTimed = votedForTimedMap();
         data.currentMap = votedMap();
         data.mapVotes.clear();
@@ -152,10 +152,14 @@ public class ArenaLogic {
         }
         data.currentGamemode = data.currentMap.getNewGamemode();
         Notification.toAll(Component.translatable("arena.message.game_start").withStyle(ChatFormatting.GREEN));
+        Map<String, Loadout> validLoadouts = getValidLoadouts();
+        if (validLoadouts.size() > 1)
+            PacketDistributor.sendToAllPlayers(new LoadoutsPacket(validLoadouts.keySet().stream().toList()));
         data.currentMap.backup(level, data.currentGamemode.getPropertiesToLookFor(), this::afterMapLoad);
     }
 
     private void afterMapLoad() {
+        data.lobby = false;
         data.currentMap.load(level);
         Notification.toAll(Component.translatable("arena.message.map_info", data.currentMap.getName()).withStyle(ChatFormatting.YELLOW).append(data.currentGamemode.getName()));
         if (data.isTimed) {
@@ -195,6 +199,12 @@ public class ArenaLogic {
         ArenaUtils.playSoundForPlayer(level, player, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.AMBIENT);
     }
 
+    public void selectLoadout(ServerPlayer player, String loadout) {
+        data.setLoadoutChoice(player, loadout);
+        giveStarterGear(player);
+        Notification.toPlayer(Component.translatable("arena.message.selected_loadout", loadout).withStyle(ChatFormatting.GREEN), player);
+    }
+
     public void onLevelTick() {
         if (!data.running) {
             return;
@@ -210,17 +220,14 @@ public class ArenaLogic {
                     if (data.lobby) {
                         EntropyArena.LOGGER.info("Starting game!");
                         onMatchStart();
-                    } else {
-                        EntropyArena.LOGGER.info("Ending game!");
-                        onMatchEnd();
                     }
                 }
             }
         }
         if (data.inGame()) {
             data.currentGamemode.onLevelTick(level);
-            if (!data.isTimed && data.currentMap.shouldScoreEndGame(data.currentGamemode.getHighestScore())) {
-                EntropyArena.LOGGER.info("Ending game due to winning score {}", data.currentGamemode.getHighestScore());
+            if (data.currentGamemode.shouldWin(level, data.isTimed, data.timer, data.currentMap.getTargetScore())) {
+                EntropyArena.LOGGER.info("Ending game!");
                 onMatchEnd();
             }
         }
@@ -278,18 +285,24 @@ public class ArenaLogic {
                     player.teleportTo(data.currentMap.getCenter().x, data.currentMap.getCenter().y, data.currentMap.getCenter().z);
             }
             data.currentGamemode.onRespawn(player);
-            giveStarterGear(player);
+            if (data.loadoutSelections.containsKey(player.getUUID()) || data.loadouts.size() < 2)
+                giveStarterGear(player);
         }
     }
 
     public void giveStarterGear(ServerPlayer player) {
-        Loadout loadout = data.loadouts.get(data.loadoutSelections.getOrDefault(player.getUUID(), data.loadouts.keySet().stream().collect(Collectors.collectingAndThen(Collectors.toList(), l -> {
+        Map<String, Loadout> validLoadouts = getValidLoadouts();
+        Loadout loadout = validLoadouts.get(data.loadoutSelections.getOrDefault(player.getUUID(), validLoadouts.keySet().stream().collect(Collectors.collectingAndThen(Collectors.toList(), l -> {
             Collections.shuffle(l);
             return l;
         })).getFirst()));
         loadout.giveToPlayer(player);
         data.currentGamemode.onGiveLoadout(player, loadout);
         NeoForge.EVENT_BUS.post(new GiveLoadoutEvent(player, loadout));
+    }
+
+    public Map<String, Loadout> getValidLoadouts() {
+        return data.loadouts.entrySet().stream().filter(entry -> data.currentGamemode.isValidLoadout(level, entry.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public void onJoin(ServerPlayer player) {

@@ -29,7 +29,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -44,7 +43,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -86,13 +84,11 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
      * @return Whether to prevent the player from dying or not
      */
     public boolean onDeath(ServerPlayer player, DamageSource source) {
-        Inventory inventory = player.getInventory();
-        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-            ItemStack stack = inventory.getItem(slot);
+        LoadoutSerializerRegistry.forEachStack(player, (serializer, slot, stack) -> {
             if (stack.getOrDefault(ArenaDataComponents.SHOULD_DROP_ON_DEATH, false) || shouldDropOnDeath().test(stack)) {
                 player.drop(stack, true, false);
             }
-        }
+        });
         LoadoutSerializerRegistry.clearAll(player);
         return false;
     }
@@ -144,12 +140,16 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
         return list.get(player.serverLevel().registryAccess(), 0);
     }
 
-    public List<String> getValidLoadouts(ServerPlayer player) {
-        return ArenaData.get(player.serverLevel()).loadouts.entrySet().stream().filter(entry -> entry.getValue().getItemLists(player.serverLevel()).stream().allMatch(this::isValidItemList)).map(Map.Entry::getKey).toList();
+    public boolean isValidLoadout(ServerLevel level, Loadout loadout) {
+        return loadout.getItemLists(level).stream().allMatch(this::isValidItemList);
     }
 
     public boolean isValidItemList(ItemList list) {
         return list.isRandom();
+    }
+
+    public boolean shouldWin(ServerLevel level, boolean timed, int timer, int targetScore) {
+        return timed ? timer == 0 : getHighestScore() >= targetScore;
     }
 
     public void onJoin(ServerPlayer player) {

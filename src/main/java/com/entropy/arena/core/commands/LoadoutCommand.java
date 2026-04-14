@@ -10,32 +10,25 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 
-import static net.minecraft.commands.Commands.*;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 
 public class LoadoutCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(literal("loadout")
-                .requires(CommandSourceStack::isPlayer)
-                .then(literal("select").then(argument("name", StringArgumentType.string())
-                        .suggests(LOADOUT_SUGGESTIONS)
-                        .executes(LoadoutCommand::selectLoadout)))
+                .requires(ctx -> ctx.isPlayer() && ctx.hasPermission(3))
                 .then(literal("add")
-                        .requires(ctx -> ctx.hasPermission(3))
                         .then(argument("name", StringArgumentType.string())
                                 .executes(LoadoutCommand::addLoadout)))
                 .then(literal("give")
-                        .requires(ctx -> ctx.hasPermission(3))
                         .then(argument("name", StringArgumentType.string())
                                 .suggests(LOADOUT_SUGGESTIONS)
                                 .executes(LoadoutCommand::giveLoadout)))
                 .then(literal("remove")
-                        .requires(ctx -> ctx.hasPermission(3))
                         .then(argument("name", StringArgumentType.string())
                                 .suggests(LOADOUT_SUGGESTIONS)
                                 .executes(LoadoutCommand::removeLoadout)))
                 .then(literal("update")
-                        .requires(ctx -> ctx.hasPermission(3))
-                        .requires(CommandSourceStack::isPlayer)
                         .then(argument("name", StringArgumentType.string())
                                 .suggests(LOADOUT_SUGGESTIONS)
                                 .executes(LoadoutCommand::updateLoadout)))
@@ -103,18 +96,6 @@ public class LoadoutCommand {
         }
         data.loadouts.keySet().forEach(name -> ctx.getSource().sendSuccess(() -> Component.literal(name).withStyle(ChatFormatting.GREEN), false));
         return 1;
-    }
-
-    private static int selectLoadout(CommandContext<CommandSourceStack> ctx) {
-        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
-        String name = StringArgumentType.getString(ctx, "name");
-        if (data.loadouts.containsKey(name) && ctx.getSource().getPlayer() != null) {
-            data.setLoadoutChoice(ctx.getSource().getPlayer(), name);
-            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.selected_loadout", name).withStyle(ChatFormatting.GREEN), true);
-            return 1;
-        }
-        ctx.getSource().sendFailure(Component.translatable("arena.error.loadout_not_found", name));
-        return 0;
     }
 
     private static final SuggestionProvider<CommandSourceStack> LOADOUT_SUGGESTIONS = (ctx, builder) -> {

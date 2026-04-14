@@ -29,8 +29,8 @@ public record ArenaMapInfo(String name, MapScreenshot screenshot, ResourceLocati
 
     public ScreenLocation render(GuiGraphics graphics, int x, int y, int width, int mouseX, int mouseY) {
         Minecraft client = Minecraft.getInstance();
-        ArenaGamemode mode = GamemodeRegistry.getGamemode(gamemode);
         Font font = client.font;
+        ArenaGamemode mode = GamemodeRegistry.getGamemode(gamemode);
         int lineHeight = client.font.lineHeight + TEXT_PADDING;
         int imageHeight = (int) (width * screenshot.aspectRatio);
         int totalHeight = imageHeight + lineHeight * 3 + TEXT_PADDING;

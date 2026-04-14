@@ -1,9 +1,11 @@
 package com.entropy.arena.core;
 
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.events.IgnoreAdventureModeEvent;
 import com.entropy.arena.api.events.LoadoutComponentEvent;
 import com.entropy.arena.api.events.ShouldBlockBeInfiniteEvent;
 import com.entropy.arena.core.blocks.TeamBlock;
+import com.entropy.arena.core.gamemodes.CaptureTheFlag;
 import com.entropy.arena.core.registry.ArenaTags;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -12,7 +14,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.BlockItem;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
@@ -95,6 +99,15 @@ public class ArenaEvents {
 
         if (allowedComponents.contains(event.getComponent().type())) {
             event.setAllowed(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void itemPickup(ItemEntityPickupEvent.Pre event) {
+        if (event.getPlayer() instanceof ServerPlayer player && ArenaData.get(player.serverLevel()).currentGamemode instanceof CaptureTheFlag ctf) {
+            if (ctf.isTeamGem(event.getItemEntity()) && ctf.playerHasGem(player)) {
+                event.setCanPickup(TriState.FALSE);
+            }
         }
     }
 }

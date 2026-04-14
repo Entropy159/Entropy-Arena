@@ -53,9 +53,10 @@ public class CaptureTheFlag extends TeamGamemode {
         EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.flag_returned", "Team %s's flag has been returned");
         EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.flag_scored", "Team %s has scored");
         EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.flag_dropped", "Team %s's flag has dropped out of the map");
-        EntropyArena.REGISTRATE.addRawLang("arena.message.pedestal_invalid", "You cannot score on a pedestal that's been taken from");
+        EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.pedestal_invalid", "You cannot score on a pedestal that's been taken from");
 
-        EntropyArena.REGISTRATE.addRawLang("arena.error.not_enough_pedestals", "Not enough pedestals");
+        EntropyArena.REGISTRATE.addRawLang("arena.error.ctf.not_enough_pedestals", "Not enough pedestals");
+        EntropyArena.REGISTRATE.addRawLang("arena.error.ctf.only_one_flag", "You can only have one flag at a time");
     }
 
     @Override
@@ -77,11 +78,11 @@ public class CaptureTheFlag extends TeamGamemode {
         }
     }
 
-    private boolean isTeamGem(Entity entity) {
+    public boolean isTeamGem(Entity entity) {
         return entity instanceof ItemEntity itemEntity && itemEntity.getItem().getItem() instanceof TeamGemItem;
     }
 
-    private boolean playerHasGem(ServerPlayer player) {
+    public boolean playerHasGem(ServerPlayer player) {
         return player.getInventory().hasAnyMatching(stack -> stack.getItem() instanceof TeamGemItem);
     }
 
@@ -111,7 +112,7 @@ public class CaptureTheFlag extends TeamGamemode {
         Component failureMessage = super.validateMap(level, arenaMap);
         if (failureMessage != null) return failureMessage;
         if (pedestalPositions.size() > arenaMap.getSpawns(level).size())
-            return Component.translatable("arena.error.not_enough_pedestals");
+            return Component.translatable("arena.error.ctf.not_enough_pedestals");
         return null;
     }
 
@@ -124,7 +125,11 @@ public class CaptureTheFlag extends TeamGamemode {
         if (!hasGem && playerTeam == blockTeam && blockTeam == stackTeam) {
             returnGem(player, stack);
         } else if (hasGem && playerTeam != blockTeam) {
-            takeGem(player, pos, blockTeam);
+            if (!playerHasGem(player)) {
+                takeGem(player, pos, blockTeam);
+            } else {
+                player.displayClientMessage(Component.translatable("arena.error.ctf.only_one_flag"), true);
+            }
         } else if (ServerConfig.RETURN_ALL_GEMS.get() && playerTeam == blockTeam) {
             scoreAllGems(player, pos);
         } else if (playerTeam == blockTeam && stackTeam != playerTeam) {
@@ -202,7 +207,7 @@ public class CaptureTheFlag extends TeamGamemode {
         ServerLevel level = player.serverLevel();
         ArenaTeam playerTeam = getPlayerTeam(player);
         if (!level.getBlockState(pos).getValue(PedestalBlock.HAS_GEM)) {
-            player.displayClientMessage(Component.translatable("arena.message.pedestal_invalid").withStyle(ChatFormatting.DARK_RED), true);
+            player.displayClientMessage(Component.translatable("arena.message.ctf.pedestal_invalid").withStyle(ChatFormatting.DARK_RED), true);
             return;
         }
         int pedestalIndex = gem.getOrDefault(ArenaDataComponents.PEDESTAL_INDEX, -1);

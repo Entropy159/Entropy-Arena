@@ -220,10 +220,6 @@ public class ArenaMap {
         return targetScoreOverride > 0 ? targetScoreOverride : ServerConfig.DEFAULT_TARGET_SCORE.get();
     }
 
-    public boolean shouldScoreEndGame(int score) {
-        return score >= getTargetScore();
-    }
-
     private static class Backup {
         private final File backupFolder;
         private final BlockPos corner1;

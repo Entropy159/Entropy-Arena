@@ -1,8 +1,7 @@
 package com.entropy.arena.core.blocks;
 
-import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.ArenaTeam;
-import com.entropy.arena.core.EntropyArena;
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.core.gamemodes.CaptureTheFlag;
 import com.entropy.arena.core.items.TeamGemItem;
 import net.minecraft.core.BlockPos;

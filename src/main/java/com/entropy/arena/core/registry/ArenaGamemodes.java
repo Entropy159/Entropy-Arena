@@ -9,6 +9,7 @@ public class ArenaGamemodes {
         GamemodeRegistry.registerGamemode(Domination::new);
         GamemodeRegistry.registerGamemode(FreeForAll::new);
         GamemodeRegistry.registerGamemode(KingOfTheHill::new);
+        GamemodeRegistry.registerGamemode(Progression::new);
         GamemodeRegistry.registerGamemode(TeamDeathmatch::new);
         GamemodeRegistry.registerGamemode(WaveSurvival::new);
     }

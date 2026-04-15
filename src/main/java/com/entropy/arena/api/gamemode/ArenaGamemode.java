@@ -15,6 +15,7 @@ import com.entropy.arena.core.blocks.PedestalBlock;
 import com.entropy.arena.core.blocks.SpawnpointBlock;
 import com.entropy.arena.core.blocks.TeamBlock;
 import com.entropy.arena.core.registry.ArenaDataComponents;
+import com.tterrag.registrate.Registrate;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
@@ -65,7 +66,11 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
     }
 
     public void generateLang() {
-        EntropyArena.REGISTRATE.addRawLang("arena.gamemode." + getRegistryID().toLanguageKey(), name);
+        getRegistrate().addRawLang("arena.gamemode." + getRegistryID().toLanguageKey(), name);
+    }
+
+    public Registrate getRegistrate() {
+        return EntropyArena.REGISTRATE;
     }
 
     public void onLevelTick(ServerLevel level) {
@@ -139,11 +144,11 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
     }
 
     public ItemStack getItemFromList(ServerPlayer player, ItemList list) {
-        return list.get(player.serverLevel().registryAccess(), 0);
+        return list.get(0);
     }
 
     public boolean isValidLoadout(ServerLevel level, Loadout loadout) {
-        return loadout.getItemLists(level).stream().allMatch(this::isValidItemList);
+        return loadout.getItemLists(level).stream().anyMatch(this::isValidItemList) || loadout.getItemLists(level).isEmpty();
     }
 
     public boolean isValidItemList(ItemList list) {

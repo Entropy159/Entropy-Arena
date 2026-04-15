@@ -1,11 +1,10 @@
 package com.entropy.arena.api.loadout;
 
-import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -21,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class ItemList {
     private final ArrayList<ItemStack> stacks = new ArrayList<>();
@@ -62,16 +60,19 @@ public class ItemList {
         return tag;
     }
 
-    public ItemStack get(RegistryAccess registries, int index) {
+    public ItemStack get(int index) {
         if (tagKey != null) {
-            AtomicReference<ItemStack> stack = new AtomicReference<>(ItemStack.EMPTY);
-            registries.registry(Registries.ITEM).orElseThrow().getTag(tagKey).ifPresentOrElse(tag -> {
-                List<Holder<Item>> items = tag.stream().toList();
-                stack.set(new ItemStack(items.get(new Random().nextInt(items.size()))));
-            }, () -> EntropyArena.LOGGER.error("No items found for tag {}!", tagKey));
-            return stack.get();
+            List<Holder<Item>> items = BuiltInRegistries.ITEM.getOrCreateTag(tagKey).stream().toList();
+            return new ItemStack(items.get(new Random().nextInt(items.size())));
         }
         return stacks.get(isRandom ? new Random().nextInt(stacks.size()) : index).copy();
+    }
+
+    public int size() {
+        if (tagKey != null) {
+            return BuiltInRegistries.ITEM.getOrCreateTag(tagKey).size();
+        }
+        return stacks.size();
     }
 
     public boolean isRandom() {
@@ -95,8 +96,8 @@ public class ItemList {
         }
     }
 
-    public ItemStack getItem(RegistryAccess registries, String name) {
-        ItemStack stack = get(registries, 0);
+    public ItemStack getItem(String name) {
+        ItemStack stack = get(0);
         if (stack.isEmpty()) {
             return ItemStack.EMPTY;
         }

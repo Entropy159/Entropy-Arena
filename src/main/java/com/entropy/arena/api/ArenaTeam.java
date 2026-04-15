@@ -1,6 +1,7 @@
 package com.entropy.arena.api;
 
 import com.entropy.arena.core.config.ServerConfig;
+import com.entropy.arena.core.registry.ArenaBlocks;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
@@ -49,6 +50,11 @@ public enum ArenaTeam implements StringRepresentable {
     public static @Nullable ArenaTeam getFromStack(@NotNull ItemStack stack) {
         if (stack.has(ArenaDataComponents.TEAM)) {
             return stack.get(ArenaDataComponents.TEAM);
+        }
+        for (ArenaTeam team : values()) {
+            if (ArenaBlocks.TEAM_BLOCKS.get(team).isIn(stack)) {
+                return team;
+            }
         }
         DyeColor dye = DyeColor.getColor(stack);
         return dye == null ? null : fromDye(dye);

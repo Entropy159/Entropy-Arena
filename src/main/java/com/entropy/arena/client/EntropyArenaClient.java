@@ -4,6 +4,8 @@ import com.entropy.arena.api.Notification;
 import com.entropy.arena.api.client.ArenaRenderingUtils;
 import com.entropy.arena.api.client.ScreenAnchorPoint;
 import com.entropy.arena.api.events.ModifyGlowColorEvent;
+import com.entropy.arena.client.screen.LoadoutScreen;
+import com.entropy.arena.client.screen.VotingScreen;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.api.map.MapScreenshot;
 import com.entropy.arena.core.network.toServer.ScreenshotPacket;
@@ -167,5 +169,22 @@ public class EntropyArenaClient {
 
             return icon;
         }
+    }
+
+    public static void takeScreenshot(String mapName) {
+        client.options.hideGui = true;
+        pendingScreenshot = mapName;
+    }
+
+    public static void openVotingScreen() {
+        client.setScreen(new VotingScreen());
+    }
+
+    public static void openLoadoutScreen() {
+        client.setScreen(new LoadoutScreen());
+    }
+
+    public static void sendChatMessage(Component message) {
+        if (client.player != null) client.player.sendSystemMessage(message);
     }
 }

@@ -1,10 +1,9 @@
 package com.entropy.arena.core.network.toClient;
 
 import com.entropy.arena.api.client.ClientData;
-import com.entropy.arena.client.screen.LoadoutScreen;
+import com.entropy.arena.client.EntropyArenaClient;
 import com.entropy.arena.core.EntropyArena;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -25,6 +24,6 @@ public record LoadoutsPacket(List<String> loadouts) implements CustomPacketPaylo
 
     public void handle(IPayloadContext ctx) {
         ClientData.loadouts = new ArrayList<>(loadouts);
-        Minecraft.getInstance().setScreen(new LoadoutScreen());
+        EntropyArenaClient.openLoadoutScreen();
     }
 }

@@ -2,6 +2,7 @@ package com.entropy.arena.core.network.toClient;
 
 import com.entropy.arena.api.Notification;
 import com.entropy.arena.api.client.ClientData;
+import com.entropy.arena.client.EntropyArenaClient;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.config.ClientConfig;
 import io.netty.buffer.ByteBuf;
@@ -26,8 +27,8 @@ public record NotificationPacket(Component message) implements CustomPacketPaylo
     public void handle(IPayloadContext ctx) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level != null) {
-            if (ClientConfig.CHAT_INSTEAD_OF_NOTIFICATION.get() && Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().player.sendSystemMessage(message);
+            if (ClientConfig.CHAT_INSTEAD_OF_NOTIFICATION.get()) {
+                EntropyArenaClient.sendChatMessage(message);
             } else {
                 ClientData.notifications.add(new Notification(message, level.getGameTime()));
                 EntropyArena.LOGGER.info("[Notification] {}", message.getString());

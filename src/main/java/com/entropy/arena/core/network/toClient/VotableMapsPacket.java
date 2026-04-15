@@ -1,11 +1,10 @@
 package com.entropy.arena.core.network.toClient;
 
 import com.entropy.arena.api.client.ClientData;
-import com.entropy.arena.client.screen.VotingScreen;
-import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.api.map.ArenaMapInfo;
+import com.entropy.arena.client.EntropyArenaClient;
+import com.entropy.arena.core.EntropyArena;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -26,6 +25,6 @@ public record VotableMapsPacket(List<ArenaMapInfo> maps) implements CustomPacket
 
     public void handle(IPayloadContext ctx) {
         ClientData.votableMaps = new ArrayList<>(maps);
-        Minecraft.getInstance().setScreen(new VotingScreen());
+        EntropyArenaClient.openVotingScreen();
     }
 }

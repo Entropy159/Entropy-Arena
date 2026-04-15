@@ -29,7 +29,7 @@ import static net.minecraft.commands.Commands.literal;
 public class ArenaCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(literal("arena")
-                .requires(ctx -> ctx.hasPermission(3))
+                .requires(ctx -> ctx.hasPermission(2))
                 .then(literal("start")
                         .executes(ArenaCommand::start))
                 .then(literal("stop")

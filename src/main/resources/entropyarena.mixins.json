@@ -18,6 +18,7 @@
     "ClientEntityMixin",
     "ClientLevelMixin",
     "GameRendererMixin",
+    "LivingEntityRendererMixin",
     "MusicManagerMixin",
     "ignoreAdventureMode.ShowOutlineMixin"
   ],

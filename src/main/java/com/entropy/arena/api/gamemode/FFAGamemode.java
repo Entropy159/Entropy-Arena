@@ -121,4 +121,9 @@ public abstract class FFAGamemode extends ArenaGamemode {
         super.encodeData(buffer);
         scoreMap = SCORE_MAP_CODEC.decode(buffer);
     }
+
+    @Override
+    public boolean shouldShowNametag(Player other) {
+        return false;
+    }
 }

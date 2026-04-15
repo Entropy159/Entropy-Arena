@@ -29,6 +29,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -116,6 +117,7 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
         ItemList list = data.itemLists.get(stack.get(ArenaDataComponents.ITEM_LIST));
         if (list != null) {
             ItemStack newStack = getItemFromList(player, list);
+            newStack.setCount(stack.getCount());
             boolean shouldRecurse = newStack.has(ArenaDataComponents.ITEM_LIST) && recursionCount < 10;
             DataComponentPatch.Builder builder = DataComponentPatch.builder();
             stack.getComponents().forEach(typed -> {
@@ -197,6 +199,11 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
 
     @OnlyIn(Dist.CLIENT)
     public void onClientRender(GuiGraphics graphics, DeltaTracker tracker) {
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public boolean shouldShowNametag(Player other) {
+        return true;
     }
 
     public void sendToAll() {

@@ -312,7 +312,8 @@ public class ArenaMap {
                         }
                         level.setChunkForced(pos.x, pos.z, false);
                         active.remove(pos);
-                        level.players().forEach(player -> player.displayClientMessage(Component.translatable("arena.message.chunk_reset_progress", currentChunk.getAndIncrement(), totalChunks), true));
+                        int chunkIndex = currentChunk.getAndIncrement();
+                        level.players().forEach(player -> player.displayClientMessage(Component.translatable("arena.message.chunk_reset_progress", chunkIndex, totalChunks), true));
                         if (!backupFolder.toPath().resolve(pos.toLong() + ".nbt").toFile().delete()) {
                             EntropyArena.LOGGER.error("Failed to delete map backup file {}!", pos);
                         }

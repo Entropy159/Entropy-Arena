@@ -72,6 +72,10 @@ public class CaptureTheFlag extends TeamGamemode {
         super.onEntityTick(level, entity);
         if (isTeamGem(entity)) {
             entity.setGlowingTag(true);
+            if (entity instanceof ItemEntity itemEntity && ServerConfig.FLAG_EXPIRATION_SECONDS.get() > 0 && itemEntity.getAge() > ServerConfig.FLAG_EXPIRATION_SECONDS.get() * 20) {
+                resetGem(level, itemEntity.getItem());
+                entity.remove(Entity.RemovalReason.DISCARDED);
+            }
         }
         if (entity instanceof ServerPlayer player) {
             player.setGlowingTag(playerHasGem(player));

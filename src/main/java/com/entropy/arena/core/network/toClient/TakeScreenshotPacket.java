@@ -1,9 +1,8 @@
 package com.entropy.arena.core.network.toClient;
 
-import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.client.EntropyArenaClient;
+import com.entropy.arena.core.EntropyArena;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -20,7 +19,6 @@ public record TakeScreenshotPacket(String mapName) implements CustomPacketPayloa
     }
 
     public void handle(IPayloadContext ctx) {
-        Minecraft.getInstance().options.hideGui = true;
-        EntropyArenaClient.pendingScreenshot = mapName;
+        EntropyArenaClient.takeScreenshot(mapName);
     }
 }

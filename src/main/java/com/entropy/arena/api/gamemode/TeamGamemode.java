@@ -50,7 +50,9 @@ public abstract class TeamGamemode extends ArenaGamemode {
         ArrayList<ArenaTeam> validTeams = data.currentMap.getTeams(level);
         validTeams.forEach(team -> setScore(team, 0));
         int index = 0;
-        for (ServerPlayer player : level.players()) {
+        ArrayList<ServerPlayer> players = new ArrayList<>(level.players());
+        Collections.shuffle(players);
+        for (ServerPlayer player : players) {
             ArenaTeam team = validTeams.get(index);
             team.setThisTeam(player);
             setPlayerTeam(player, team);

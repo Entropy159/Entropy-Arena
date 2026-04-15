@@ -11,6 +11,8 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,6 +24,7 @@ public class MapScreenshot {
     private final String mapName;
     private final byte[] data;
     private ResourceLocation textureId;
+    @OnlyIn(Dist.CLIENT)
     private DynamicTexture texture;
     public float aspectRatio = 1;
 
@@ -46,6 +49,7 @@ public class MapScreenshot {
         return data.length > 0;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static MapScreenshot takeScreenshot(String mapName) {
         try (NativeImage screenshot = Screenshot.takeScreenshot(Minecraft.getInstance().getMainRenderTarget())) {
             int newWidth = Math.min(MapScreenshot.screenshotWidth, screenshot.getWidth());
@@ -64,6 +68,7 @@ public class MapScreenshot {
         return dst;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void render(GuiGraphics graphics, int x, int y, int width) {
         if (textureId != null) {
             int height = (int) (width * aspectRatio);
@@ -73,6 +78,7 @@ public class MapScreenshot {
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     private void bindTexture() {
         try (ByteArrayInputStream input = new ByteArrayInputStream(data)) {
             RenderSystem.recordRenderCall(() -> {
@@ -93,6 +99,7 @@ public class MapScreenshot {
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void clear() {
         if (texture != null) {
             texture.close();

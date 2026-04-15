@@ -1,7 +1,9 @@
 package com.entropy.arena.core.blocks;
 
 import com.entropy.arena.api.ArenaTeam;
+import com.entropy.arena.api.data.ArenaData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -31,7 +33,7 @@ public class SpawnpointBlock extends Block {
     @Override
     protected @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hitResult) {
         ArenaTeam color = ArenaTeam.getFromStack(stack);
-        if (color != null) {
+        if (color != null && level instanceof ServerLevel l && !ArenaData.get(l).inGame()) {
             level.setBlock(pos, state.setValue(SPAWN_COLOR, color), Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);

@@ -8,11 +8,12 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.awt.*;
@@ -27,6 +28,7 @@ public record ArenaMapInfo(String name, MapScreenshot screenshot, ResourceLocati
     public static final Color FRAME_COLOR = Color.LIGHT_GRAY;
     public static final Color FRAME_SELECTED_COLOR = Color.WHITE;
 
+    @OnlyIn(Dist.CLIENT)
     public ScreenLocation render(GuiGraphics graphics, int x, int y, int width, int mouseX, int mouseY) {
         Minecraft client = Minecraft.getInstance();
         Font font = client.font;
@@ -39,7 +41,8 @@ public record ArenaMapInfo(String name, MapScreenshot screenshot, ResourceLocati
         ScreenLocation location = new ScreenLocation(name, x, y, width, totalHeight);
         screenshot.render(graphics, x + FRAME_PADDING, y + FRAME_PADDING, width - FRAME_PADDING * 2);
         graphics.drawCenteredString(font, name, centerX, textStartY, NAME_COLOR.getRGB());
-        if (mode != null) graphics.drawCenteredString(font, mode.getName(), centerX, textStartY + lineHeight, GAMEMODE_COLOR.getRGB());
+        if (mode != null)
+            graphics.drawCenteredString(font, mode.getName(), centerX, textStartY + lineHeight, GAMEMODE_COLOR.getRGB());
         graphics.drawCenteredString(font, "%sx%sx%s".formatted(size.getX(), size.getY(), size.getZ()), centerX, textStartY + lineHeight * 2, SIZE_COLOR.getRGB());
         graphics.renderOutline(x, y, width, totalHeight, location.isWithinBounds(mouseX, mouseY) ? FRAME_SELECTED_COLOR.getRGB() : FRAME_COLOR.getRGB());
         return location;

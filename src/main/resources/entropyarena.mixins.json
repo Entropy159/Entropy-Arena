@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "BlockItemMixin",
+    "ItemEntityMixin",
     "ignoreAdventureMode.CommonHooksMixin",
     "ignoreAdventureMode.ItemStackMixin",
     "ignoreAdventureMode.PlayerMixin"

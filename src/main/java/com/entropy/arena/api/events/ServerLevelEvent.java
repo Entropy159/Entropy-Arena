@@ -6,10 +6,10 @@ import net.neoforged.bus.api.Event;
 /**
  * An abstract parent class for an event with a ServerLevel. Cannot be used directly, create a subclass instead.
  */
-public abstract class ArenaEvent extends Event {
+public abstract class ServerLevelEvent extends Event {
     private final ServerLevel level;
 
-    public ArenaEvent(ServerLevel level) {
+    public ServerLevelEvent(ServerLevel level) {
         this.level = level;
     }
 

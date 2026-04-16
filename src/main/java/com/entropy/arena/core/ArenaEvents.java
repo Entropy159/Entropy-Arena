@@ -2,10 +2,12 @@ package com.entropy.arena.core;
 
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.events.IgnoreAdventureModeEvent;
+import com.entropy.arena.api.events.ItemEntityExplosionEvent;
 import com.entropy.arena.api.events.LoadoutComponentEvent;
 import com.entropy.arena.api.events.ShouldBlockBeInfiniteEvent;
 import com.entropy.arena.core.blocks.TeamBlock;
 import com.entropy.arena.core.gamemodes.CaptureTheFlag;
+import com.entropy.arena.core.items.TeamGemItem;
 import com.entropy.arena.core.registry.ArenaTags;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -108,6 +110,13 @@ public class ArenaEvents {
             if (ctf.isTeamGem(event.getItemEntity()) && ctf.playerHasGem(player)) {
                 event.setCanPickup(TriState.FALSE);
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void dontExplodeFlags(ItemEntityExplosionEvent event) {
+        if (event.getEntity().getItem().getItem() instanceof TeamGemItem) {
+            event.setImmune(TriState.TRUE);
         }
     }
 }

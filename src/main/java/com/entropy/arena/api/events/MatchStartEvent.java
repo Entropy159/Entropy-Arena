@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 /**
  * See subclasses for more information.
  */
-public abstract class MatchStartEvent extends ArenaEvent {
+public abstract class MatchStartEvent extends ServerLevelEvent {
     public MatchStartEvent(ServerLevel level) {
         super(level);
     }

@@ -9,7 +9,6 @@ import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.loadout.LoadoutSerializer;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.api.map.ArenaMap;
-import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.CapturePointBlock;
 import com.entropy.arena.core.blocks.PedestalBlock;
 import com.entropy.arena.core.blocks.SpawnpointBlock;
@@ -49,29 +48,22 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 public abstract class ArenaGamemode implements CustomPacketPayload {
-    private final ResourceLocation id;
-    private final String name;
-
-    public ArenaGamemode(ResourceLocation id, String name) {
-        this.id = id;
-        this.name = name;
+    public ArenaGamemode() {
     }
 
     public Component getName() {
         return Component.translatable("arena.gamemode." + getRegistryID().toLanguageKey());
     }
 
-    public ResourceLocation getRegistryID() {
-        return id;
+    public abstract ResourceLocation getRegistryID();
+
+    public abstract void generateLang();
+
+    public void setNameTranslation(String englishName) {
+        getRegistrate().addRawLang("arena.gamemode." + getRegistryID().toLanguageKey(), englishName);
     }
 
-    public void generateLang() {
-        getRegistrate().addRawLang("arena.gamemode." + getRegistryID().toLanguageKey(), name);
-    }
-
-    public Registrate getRegistrate() {
-        return EntropyArena.REGISTRATE;
-    }
+    public abstract Registrate getRegistrate();
 
     public void onLevelTick(ServerLevel level) {
 

@@ -6,8 +6,9 @@ import com.entropy.arena.api.client.ArenaRenderingUtils;
 import com.entropy.arena.api.client.ScreenAnchorPoint;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.CoOpGamemode;
-import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.api.map.ArenaMap;
+import com.entropy.arena.core.EntropyArena;
+import com.tterrag.registrate.Registrate;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
@@ -16,6 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -41,8 +43,22 @@ public class WaveSurvival extends CoOpGamemode {
     private int mobCount = 0;
     private boolean isInterval = true;
 
-    public WaveSurvival() {
-        super(EntropyArena.id("wave_survival"), "Wave Survival");
+    @Override
+    public void generateLang() {
+        setNameTranslation("Wave Survival");
+        EntropyArena.REGISTRATE.addRawLang("arena.message.waves.interval", "Interval: %s");
+        EntropyArena.REGISTRATE.addRawLang("arena.message.waves.mob_count", "Mobs: %s/%s");
+        EntropyArena.REGISTRATE.addRawLang("arena.message.waves.survived_wave", "Survived wave %s");
+    }
+
+    @Override
+    public ResourceLocation getRegistryID() {
+        return EntropyArena.id("wave_survival");
+    }
+
+    @Override
+    public Registrate getRegistrate() {
+        return EntropyArena.REGISTRATE;
     }
 
     @Override
@@ -106,14 +122,6 @@ public class WaveSurvival extends CoOpGamemode {
 
     public void calculateMobCount(ServerLevel level, AABB mapArea) {
         mobCount = level.getEntities(EntityTypeTest.forClass(Mob.class), mapArea, entity -> MOBS.contains(entity.getType())).size();
-    }
-
-    @Override
-    public void generateLang() {
-        super.generateLang();
-        EntropyArena.REGISTRATE.addRawLang("arena.message.waves.interval", "Interval: %s");
-        EntropyArena.REGISTRATE.addRawLang("arena.message.waves.mob_count", "Mobs: %s/%s");
-        EntropyArena.REGISTRATE.addRawLang("arena.message.waves.survived_wave", "Survived wave %s");
     }
 
     @Override

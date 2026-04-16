@@ -9,7 +9,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -22,10 +21,6 @@ import java.util.List;
 
 public abstract class CoOpGamemode extends ArenaGamemode {
     private int collectiveScore = 0;
-
-    public CoOpGamemode(ResourceLocation id, String name) {
-        super(id, name);
-    }
 
     @Override
     public int getHighestScore() {
@@ -47,7 +42,9 @@ public abstract class CoOpGamemode extends ArenaGamemode {
     public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
         Component failureMessage = super.validateMap(level, arenaMap);
         if (failureMessage != null) return failureMessage;
-        if (!arenaMap.getSpawns(level).containsKey(ArenaTeam.NONE)) return Component.translatable("arena.error.no_spawns");
+        if (!arenaMap.getSpawns(level).containsKey(ArenaTeam.NONE)) {
+            return Component.translatable("arena.error.no_spawns");
+        }
         return null;
     }
 

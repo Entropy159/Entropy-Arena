@@ -8,12 +8,14 @@ import com.entropy.arena.api.gamemode.TeamGamemode;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.CapturePointBlock;
 import com.entropy.arena.api.map.ArenaMap;
+import com.tterrag.registrate.Registrate;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,8 +28,19 @@ public class Domination extends TeamGamemode implements HasCapturePoints<TeamCap
 
     private List<TeamCapturePoint> capturePoints = new ArrayList<>();
 
-    public Domination() {
-        super(EntropyArena.id("domination"), "Domination");
+    @Override
+    public void generateLang() {
+        setNameTranslation("Domination");
+    }
+
+    @Override
+    public ResourceLocation getRegistryID() {
+        return EntropyArena.id("domination");
+    }
+
+    @Override
+    public Registrate getRegistrate() {
+        return EntropyArena.REGISTRATE;
     }
 
     @Override

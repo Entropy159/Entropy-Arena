@@ -5,14 +5,27 @@ import com.entropy.arena.api.loadout.ItemList;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.core.ArenaLogic;
 import com.entropy.arena.core.EntropyArena;
+import com.tterrag.registrate.Registrate;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.ItemStack;
 
 public class Progression extends FFAGamemode {
-    public Progression() {
-        super(EntropyArena.id("progression"), "Progression");
+    @Override
+    public void generateLang() {
+        setNameTranslation("Progression");
+    }
+
+    @Override
+    public ResourceLocation getRegistryID() {
+        return EntropyArena.id("progression");
+    }
+
+    @Override
+    public Registrate getRegistrate() {
+        return EntropyArena.REGISTRATE;
     }
 
     @Override

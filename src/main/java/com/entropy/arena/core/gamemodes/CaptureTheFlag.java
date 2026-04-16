@@ -14,6 +14,7 @@ import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.items.TeamGemItem;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.entropy.arena.core.registry.ArenaItems;
+import com.tterrag.registrate.Registrate;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
@@ -22,6 +23,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -42,13 +44,9 @@ public class CaptureTheFlag extends TeamGamemode {
     private HashMap<ArenaTeam, ArrayList<BlockPos>> pedestalPositions = new HashMap<>();
     private HashMap<BlockPos, Boolean> pedestalValueMap = new HashMap<>();
 
-    public CaptureTheFlag() {
-        super(EntropyArena.id("capture_the_flag"), "Capture the Flag");
-    }
-
     @Override
     public void generateLang() {
-        super.generateLang();
+        setNameTranslation("Capture the Flag");
         EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.flag_taken", "Team %s's flag has been taken by team %s");
         EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.flag_returned", "Team %s's flag has been returned");
         EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.flag_scored", "Team %s has scored");
@@ -57,6 +55,16 @@ public class CaptureTheFlag extends TeamGamemode {
 
         EntropyArena.REGISTRATE.addRawLang("arena.error.ctf.not_enough_pedestals", "Not enough pedestals");
         EntropyArena.REGISTRATE.addRawLang("arena.error.ctf.only_one_flag", "You can only have one flag at a time");
+    }
+
+    @Override
+    public ResourceLocation getRegistryID() {
+        return EntropyArena.id("capture_the_flag");
+    }
+
+    @Override
+    public Registrate getRegistrate() {
+        return EntropyArena.REGISTRATE;
     }
 
     @Override

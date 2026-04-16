@@ -3,16 +3,18 @@ package com.entropy.arena.core.gamemodes;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.FFAGamemode;
 import com.entropy.arena.api.gamemode.HasCapturePoints;
+import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.CapturePointBlock;
 import com.entropy.arena.core.capturePoint.KOTHCapturePoint;
-import com.entropy.arena.api.map.ArenaMap;
+import com.tterrag.registrate.Registrate;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -28,15 +30,21 @@ public class KingOfTheHill extends FFAGamemode implements HasCapturePoints<KOTHC
 
     private KOTHCapturePoint capturePoint;
 
-    public KingOfTheHill() {
-        super(EntropyArena.id("king_of_the_hill"), "King of the Hill");
+    @Override
+    public void generateLang() {
+        setNameTranslation("King of the Hill");
+        EntropyArena.REGISTRATE.addRawLang("arena.message.koth.new_king", "%s has taken the hill");
+        EntropyArena.REGISTRATE.addRawLang("arena.message.koth.hill_lost", "%s has lost the hill");
     }
 
     @Override
-    public void generateLang() {
-        super.generateLang();
-        EntropyArena.REGISTRATE.addRawLang("arena.message.koth.new_king", "%s has taken the hill");
-        EntropyArena.REGISTRATE.addRawLang("arena.message.koth.hill_lost", "%s has lost the hill");
+    public ResourceLocation getRegistryID() {
+        return EntropyArena.id("king_of_the_hill");
+    }
+
+    @Override
+    public Registrate getRegistrate() {
+        return EntropyArena.REGISTRATE;
     }
 
     @Override

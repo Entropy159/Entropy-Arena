@@ -15,7 +15,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
@@ -33,10 +32,6 @@ public abstract class TeamGamemode extends ArenaGamemode {
 
     private HashMap<ArenaTeam, Integer> scoreMap = new HashMap<>();
     private HashMap<UUID, ArenaTeam> teamMap = new HashMap<>();
-
-    public TeamGamemode(ResourceLocation id, String name) {
-        super(id, name);
-    }
 
     @Override
     public int getHighestScore() {

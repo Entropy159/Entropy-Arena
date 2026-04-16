@@ -11,7 +11,6 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -23,10 +22,6 @@ import java.util.*;
 public abstract class FFAGamemode extends ArenaGamemode {
     private static final StreamCodec<ByteBuf, HashMap<UUID, Integer>> SCORE_MAP_CODEC = ByteBufCodecs.map(HashMap::new, UUIDUtil.STREAM_CODEC, ByteBufCodecs.INT);
     public HashMap<UUID, Integer> scoreMap = new HashMap<>();
-
-    public FFAGamemode(ResourceLocation id, String name) {
-        super(id, name);
-    }
 
     @Override
     public int getHighestScore() {

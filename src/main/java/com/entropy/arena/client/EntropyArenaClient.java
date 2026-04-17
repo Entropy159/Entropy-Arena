@@ -4,13 +4,16 @@ import com.entropy.arena.api.Notification;
 import com.entropy.arena.api.client.ArenaRenderingUtils;
 import com.entropy.arena.api.client.ScreenAnchorPoint;
 import com.entropy.arena.api.events.ModifyGlowColorEvent;
+import com.entropy.arena.api.map.MapScreenshot;
 import com.entropy.arena.client.screen.LoadoutScreen;
 import com.entropy.arena.client.screen.VotingScreen;
 import com.entropy.arena.core.EntropyArena;
-import com.entropy.arena.api.map.MapScreenshot;
+import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.network.toServer.ScreenshotPacket;
 import com.entropy.arena.core.registry.ArenaDataComponents;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -23,9 +26,12 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.common.util.Lazy;
+import net.neoforged.neoforge.event.entity.EntityInvulnerabilityCheckEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
@@ -50,14 +56,44 @@ public class EntropyArenaClient {
     public static String pendingScreenshot;
     private static boolean nextFrameTakeScreenshot = false;
 
+    public static final Lazy<KeyMapping> MAP_VOTING = Lazy.of(() -> new KeyMapping("key.map_voting", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, "key.categories." + EntropyArena.MODID));
+    public static final Lazy<KeyMapping> LOADOUTS = Lazy.of(() -> new KeyMapping("key.loadouts", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_L, "key.categories." + EntropyArena.MODID));
+
     public EntropyArenaClient(ModContainer container) {
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+    }
+
+    @SubscribeEvent
+    public static void keybinds(RegisterKeyMappingsEvent event) {
+        event.register(MAP_VOTING.get());
+        event.register(LOADOUTS.get());
+    }
+
+    @SubscribeEvent
+    public static void postRenderTick(ClientTickEvent.Post event) {
+        while (MAP_VOTING.get().consumeClick()) {
+            if (inLobby && running) {
+                openVotingScreen();
+            }
+        }
+        while (LOADOUTS.get().consumeClick()) {
+            if (!inLobby && running) {
+                openLoadoutScreen();
+            }
+        }
     }
 
     @SubscribeEvent
     public static void modifyTooltips(ItemTooltipEvent event) {
         if (event.getItemStack().has(ArenaDataComponents.ITEM_LIST)) {
             event.getToolTip().add(Component.translatable("arena.tooltip.item_list", event.getItemStack().get(ArenaDataComponents.ITEM_LIST)));
+        }
+    }
+
+    @SubscribeEvent
+    public static void spawnProtection(EntityInvulnerabilityCheckEvent event) {
+        if (client.level != null && running && (inLobby || client.level.getGameTime() <= lastRespawn + ServerConfig.SPAWN_PROTECTION.get() * 20L)) {
+            event.setInvulnerable(true);
         }
     }
 

@@ -74,6 +74,16 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
     }
 
     /**
+     * This method is called after a player is damaged.
+     *
+     * @param player The player being damaged
+     * @param source The damage source
+     */
+    public void onPlayerHurt(ServerPlayer player, DamageSource source) {
+
+    }
+
+    /**
      * This method is called when the player dies. It drops items that either have
      * the SHOULD_DROP_ON_DEATH data component, or returns true from shouldDropOnDeath()
      *

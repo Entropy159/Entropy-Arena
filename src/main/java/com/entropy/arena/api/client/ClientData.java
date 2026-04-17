@@ -13,6 +13,7 @@ public class ClientData {
     public static int timer = 0;
     public static int targetScore = 0;
     public static String currentMap;
+    public static long lastRespawn = 0;
     public static ArenaGamemode currentGamemode;
 
     public static ArrayList<ArenaMapInfo> votableMaps = new ArrayList<>();

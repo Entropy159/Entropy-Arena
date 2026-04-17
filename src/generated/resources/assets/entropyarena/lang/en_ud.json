@@ -109,6 +109,7 @@
   "entropyarena.configuration.recapSeconds": "spuoɔǝS dɐɔǝᴚ",
   "entropyarena.configuration.respawnDelay": "ʎɐןǝᗡ uʍɐdsǝᴚ",
   "entropyarena.configuration.returnAllGems": "sɯǝ⅁ ןןⱯ uɹnʇǝᴚ",
+  "entropyarena.configuration.spawnProtection": "uoıʇɔǝʇoɹԀ uʍɐdS",
   "entropyarena.configuration.useChatForNotifications": "suoıʇɐɔıɟıʇoN ɹoℲ ʇɐɥƆ ǝs∩",
   "entropyarena:music/arena/alone_not_lost": "ʇsoꞀ ʇoN ǝuoןⱯ",
   "entropyarena:music/arena/edge_of_the_world": "pןɹoM ǝɥ⟘ ɟO ǝbpƎ",
@@ -120,5 +121,7 @@
   "entropyarena:music/lobby/safe_way": "ʎɐM ǝɟɐS",
   "item.entropyarena.team_gem": "ɯǝ⅁ ɯɐǝ⟘",
   "key.categories.entropyarena": "ɐuǝɹⱯ ʎdoɹʇuƎ",
+  "key.loadouts": "sʇnopɐoꞀ",
+  "key.map_voting": "buıʇoΛ dɐW",
   "key.next_music": "ɔısnW ʇxǝN"
 }

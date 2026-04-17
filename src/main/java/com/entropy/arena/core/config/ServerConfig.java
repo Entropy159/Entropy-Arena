@@ -16,6 +16,8 @@ public class ServerConfig {
     public static final ModConfigSpec.BooleanValue GIVE_SATURATION = BUILDER.define("giveSaturation", true);
     public static final ModConfigSpec.BooleanValue RETURN_ALL_GEMS = BUILDER.define("returnAllGems", true);
     public static final ModConfigSpec.IntValue FLAG_EXPIRATION_SECONDS = BUILDER.defineInRange("flagExpirationSeconds", 60, 0, 600);
+    public static final ModConfigSpec.BooleanValue INFINITE_BLOCKS = BUILDER.define("infiniteBlocks", true);
+    public static final ModConfigSpec.IntValue SPAWN_PROTECTION = BUILDER.defineInRange("spawnProtection", 5, 0, 15);
 
     public static final ModConfigSpec SPEC = BUILDER.build();
 }

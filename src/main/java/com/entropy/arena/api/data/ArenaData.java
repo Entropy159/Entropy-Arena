@@ -36,6 +36,7 @@ public class ArenaData extends SavedData {
     public final HashMap<UUID, Boolean> typeVotes = new HashMap<>();
     public final ArrayList<String> votableMaps = new ArrayList<>();
     public final HashMap<UUID, Long> respawnTimes = new HashMap<>();
+    public final HashMap<UUID, Long> spawnProtection = new HashMap<>();
 
     public static ArenaData load(CompoundTag tag, HolderLookup.Provider provider) {
         ArenaData data = new ArenaData();
@@ -61,10 +62,11 @@ public class ArenaData extends SavedData {
         return data;
     }
 
-    public void setLoadoutChoice(ServerPlayer player, String name) {
+    public String setLoadoutChoice(ServerPlayer player, String name) {
         if (loadouts.containsKey(name)) {
-            loadoutSelections.put(player.getUUID(), name);
+            return loadoutSelections.put(player.getUUID(), name);
         }
+        return null;
     }
 
     public boolean inGame() {

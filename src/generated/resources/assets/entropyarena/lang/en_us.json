@@ -109,6 +109,7 @@
   "entropyarena.configuration.recapSeconds": "Recap Seconds",
   "entropyarena.configuration.respawnDelay": "Respawn Delay",
   "entropyarena.configuration.returnAllGems": "Return All Gems",
+  "entropyarena.configuration.spawnProtection": "Spawn Protection",
   "entropyarena.configuration.useChatForNotifications": "Use Chat For Notifications",
   "entropyarena:music/arena/alone_not_lost": "Alone Not Lost",
   "entropyarena:music/arena/edge_of_the_world": "Edge Of The World",
@@ -120,5 +121,7 @@
   "entropyarena:music/lobby/safe_way": "Safe Way",
   "item.entropyarena.team_gem": "Team Gem",
   "key.categories.entropyarena": "Entropy Arena",
+  "key.loadouts": "Loadouts",
+  "key.map_voting": "Map Voting",
   "key.next_music": "Next Music"
 }

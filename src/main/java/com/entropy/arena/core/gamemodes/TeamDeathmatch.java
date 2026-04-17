@@ -25,7 +25,7 @@ public class TeamDeathmatch extends TeamGamemode {
 
     @Override
     public boolean onDeath(ServerPlayer player, DamageSource source) {
-        if (source.getEntity() instanceof ServerPlayer killer) {
+        if (source.getEntity() instanceof ServerPlayer killer && getPlayerTeam(player) != getPlayerTeam(killer)) {
             incrementScore(getPlayerTeam(killer));
         }
         return super.onDeath(player, source);

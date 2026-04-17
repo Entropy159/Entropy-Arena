@@ -200,8 +200,9 @@ public class ArenaLogic {
     }
 
     public void selectLoadout(ServerPlayer player, String loadout) {
-        data.setLoadoutChoice(player, loadout);
-        giveStarterGear(player);
+        if (data.setLoadoutChoice(player, loadout) == null) {
+            giveStarterGear(player);
+        }
         Notification.toPlayer(Component.translatable("arena.message.selected_loadout", loadout).withStyle(ChatFormatting.GREEN), player);
     }
 
@@ -276,6 +277,8 @@ public class ArenaLogic {
         if (data.running && data.lobby && data.lobbyPos != null) {
             ArenaUtils.teleportToPos(player, data.lobbyPos);
         } else if (data.inGame()) {
+            data.spawnProtection.put(player.getUUID(), level.getGameTime());
+            PacketDistributor.sendToPlayer(player, new RespawnPacket(level.getGameTime()));
             ArrayList<BlockPos> spawns = data.currentGamemode.getValidSpawns(player, data.currentMap);
             if (!spawns.isEmpty()) {
                 ArenaUtils.teleportToPos(player, spawns.get(new Random().nextInt(spawns.size())));
@@ -291,14 +294,16 @@ public class ArenaLogic {
     }
 
     public void giveStarterGear(ServerPlayer player) {
-        Map<String, Loadout> validLoadouts = getValidLoadouts();
-        Loadout loadout = validLoadouts.get(data.loadoutSelections.getOrDefault(player.getUUID(), validLoadouts.keySet().stream().collect(Collectors.collectingAndThen(Collectors.toList(), l -> {
-            Collections.shuffle(l);
-            return l;
-        })).getFirst()));
-        loadout.giveToPlayer(player);
-        data.currentGamemode.onGiveLoadout(player, loadout);
-        NeoForge.EVENT_BUS.post(new GiveLoadoutEvent(player, loadout));
+        if (data.running && !data.lobby) {
+            Map<String, Loadout> validLoadouts = getValidLoadouts();
+            Loadout loadout = validLoadouts.get(data.loadoutSelections.getOrDefault(player.getUUID(), validLoadouts.keySet().stream().collect(Collectors.collectingAndThen(Collectors.toList(), l -> {
+                Collections.shuffle(l);
+                return l;
+            })).getFirst()));
+            loadout.giveToPlayer(player);
+            data.currentGamemode.onGiveLoadout(player, loadout);
+            NeoForge.EVENT_BUS.post(new GiveLoadoutEvent(player, loadout));
+        }
     }
 
     public Map<String, Loadout> getValidLoadouts() {
@@ -328,5 +333,9 @@ public class ArenaLogic {
             });
         }
         INSTANCE_MAP.remove(level.dimension());
+    }
+
+    public boolean isSpawnProtected(ServerPlayer player) {
+        return data.running && (data.lobby || data.spawnProtection.getOrDefault(player.getUUID(), 0L) + ServerConfig.SPAWN_PROTECTION.get() * 20L >= level.getGameTime());
     }
 }

@@ -6,6 +6,7 @@ import com.entropy.arena.api.events.ItemEntityExplosionEvent;
 import com.entropy.arena.api.events.LoadoutComponentEvent;
 import com.entropy.arena.api.events.ShouldBlockBeInfiniteEvent;
 import com.entropy.arena.core.blocks.TeamBlock;
+import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.gamemodes.CaptureTheFlag;
 import com.entropy.arena.core.items.TeamGemItem;
 import com.entropy.arena.core.registry.ArenaTags;
@@ -17,6 +18,8 @@ import net.minecraft.world.item.BlockItem;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.event.entity.EntityInvulnerabilityCheckEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -53,6 +56,22 @@ public class ArenaEvents {
     }
 
     @SubscribeEvent
+    public static void spawnProtection(EntityInvulnerabilityCheckEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            if (ArenaLogic.get(player.serverLevel()).isSpawnProtected(player)) {
+                event.setInvulnerable(true);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onHurt(LivingDamageEvent.Post event) {
+        if (event.getEntity() instanceof ServerPlayer player && ArenaData.get(player.serverLevel()).currentGamemode != null) {
+            ArenaData.get(player.serverLevel()).currentGamemode.onPlayerHurt(player, event.getSource());
+        }
+    }
+
+    @SubscribeEvent
     public static void onRespawn(PlayerEvent.PlayerRespawnEvent event) {
         if (event.getEntity().level() instanceof ServerLevel level && event.getEntity() instanceof ServerPlayer player) {
             ArenaLogic.get(level).onRespawn(player);
@@ -80,7 +99,7 @@ public class ArenaEvents {
 
     @SubscribeEvent
     public static void infiniteTeamBlocks(ShouldBlockBeInfiniteEvent event) {
-        if (event.getBlock() instanceof TeamBlock) {
+        if (event.getBlock() instanceof TeamBlock && ServerConfig.INFINITE_BLOCKS.get()) {
             event.setInfinite(true);
         }
     }

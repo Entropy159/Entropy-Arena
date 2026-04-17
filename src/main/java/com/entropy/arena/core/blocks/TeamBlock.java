@@ -1,7 +1,7 @@
 package com.entropy.arena.core.blocks;
 
 import com.entropy.arena.api.ArenaTeam;
-import com.entropy.arena.core.config.CommonConfig;
+import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.registry.ArenaBlocks;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -19,10 +19,10 @@ public class TeamBlock extends Block {
 
     @Override
     protected @NotNull List<ItemStack> getDrops(@NotNull BlockState state, LootParams.@NotNull Builder params) {
-        return CommonConfig.INFINITE_BLOCKS.get() ? List.of() : super.getDrops(state, params);
+        return ServerConfig.INFINITE_BLOCKS.get() ? List.of() : super.getDrops(state, params);
     }
 
     public static ItemStack getStack(ArenaTeam team) {
-        return new ItemStack(ArenaBlocks.TEAM_BLOCKS.get(team), CommonConfig.INFINITE_BLOCKS.get() ? 1 : 64);
+        return new ItemStack(ArenaBlocks.TEAM_BLOCKS.get(team), ServerConfig.INFINITE_BLOCKS.get() ? 1 : 64);
     }
 }

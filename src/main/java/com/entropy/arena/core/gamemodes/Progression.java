@@ -7,7 +7,6 @@ import com.entropy.arena.core.ArenaLogic;
 import com.entropy.arena.core.EntropyArena;
 import com.tterrag.registrate.Registrate;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.ItemStack;
@@ -50,8 +49,8 @@ public class Progression extends FFAGamemode {
     }
 
     @Override
-    public boolean isValidLoadout(ServerLevel level, Loadout loadout) {
-        return super.isValidLoadout(level, loadout) && !loadout.getItemLists(level).isEmpty();
+    public boolean isValidLoadout(ServerPlayer player, Loadout loadout) {
+        return super.isValidLoadout(player, loadout) && !loadout.getItemLists(player.serverLevel()).isEmpty();
     }
 
     @Override

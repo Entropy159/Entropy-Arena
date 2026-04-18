@@ -5,6 +5,7 @@
   "mixins": [
     "BlockItemMixin",
     "ItemEntityMixin",
+    "PlayerMixin",
     "ignoreAdventureMode.CommonHooksMixin",
     "ignoreAdventureMode.ItemStackMixin",
     "ignoreAdventureMode.PlayerMixin"
@@ -21,6 +22,7 @@
     "GameRendererMixin",
     "LivingEntityRendererMixin",
     "MusicManagerMixin",
+    "PlayerRendererMixin",
     "ignoreAdventureMode.ShowOutlineMixin"
   ],
   "server": [

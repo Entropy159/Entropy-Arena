@@ -104,6 +104,8 @@ public class EntropyArenaClient {
 
             ArenaRenderingUtils.onRenderStart();
 
+            if (client.options.hideGui) return;
+
             if (running) {
                 ArenaRenderingUtils.renderText(graphics, getTimerText(), ScreenAnchorPoint.TOP_LEFT);
                 renderScores(graphics);

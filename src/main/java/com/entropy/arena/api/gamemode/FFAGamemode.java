@@ -62,7 +62,10 @@ public abstract class FFAGamemode extends ArenaGamemode {
 
     @Override
     public ArrayList<BlockPos> getValidSpawns(ServerPlayer player, ArenaMap map) {
-        return map.getSpawns(player.serverLevel()).getOrDefault(ArenaTeam.NONE, new ArrayList<>());
+        return map.getSpawns(player.serverLevel()).values().stream().reduce((one, two) -> {
+            one.addAll(two);
+            return one;
+        }).orElse(new ArrayList<>());
     }
 
     @Override

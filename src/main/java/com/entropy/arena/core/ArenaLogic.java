@@ -154,9 +154,6 @@ public class ArenaLogic {
         }
         data.currentGamemode = data.currentMap.getNewGamemode();
         Notification.toAll(Component.translatable("arena.message.game_start").withStyle(ChatFormatting.GREEN));
-        Map<String, Loadout> validLoadouts = getValidLoadouts();
-        if (validLoadouts.size() > 1)
-            PacketDistributor.sendToAllPlayers(new LoadoutsPacket(validLoadouts.keySet().stream().toList()));
         data.currentMap.backup(level, data.currentGamemode.getPropertiesToLookFor(), this::afterMapLoad);
     }
 
@@ -169,7 +166,13 @@ public class ArenaLogic {
         }
         PacketDistributor.sendToAllPlayers(GameInfoPacket.fromData(data));
         data.currentGamemode.onMatchStart(level);
-        level.players().forEach(this::onRespawn);
+        level.players().forEach(player -> {
+            Map<String, Loadout> validLoadouts = getValidLoadouts(player);
+            if (validLoadouts.size() > 1) {
+                PacketDistributor.sendToPlayer(player, new LoadoutsPacket(validLoadouts.keySet().stream().toList()));
+            }
+            onRespawn(player);
+        });
         PacketDistributor.sendToAllPlayers(RunningPacket.fromData(data));
         PacketDistributor.sendToAllPlayers(new ScoresPacket(data.currentGamemode.getScoreText(level)));
         ArenaUtils.playSoundForEveryone(level, SoundEvents.NOTE_BLOCK_PLING.value(), SoundSource.AMBIENT);
@@ -294,14 +297,14 @@ public class ArenaLogic {
                     player.teleportTo(data.currentMap.getCenter().x, data.currentMap.getCenter().y, data.currentMap.getCenter().z);
             }
             data.currentGamemode.onRespawn(player);
-            if (data.loadoutSelections.containsKey(player.getUUID()) || data.loadouts.size() < 2)
+            if (data.loadoutSelections.containsKey(player.getUUID()) || getValidLoadouts(player).size() < 2)
                 giveStarterGear(player);
         }
     }
 
     public void giveStarterGear(ServerPlayer player) {
         if (data.running && !data.lobby) {
-            Map<String, Loadout> validLoadouts = getValidLoadouts();
+            Map<String, Loadout> validLoadouts = getValidLoadouts(player);
             Loadout loadout = validLoadouts.get(data.loadoutSelections.getOrDefault(player.getUUID(), validLoadouts.keySet().stream().collect(Collectors.collectingAndThen(Collectors.toList(), l -> {
                 Collections.shuffle(l);
                 return l;
@@ -312,8 +315,8 @@ public class ArenaLogic {
         }
     }
 
-    public Map<String, Loadout> getValidLoadouts() {
-        return data.loadouts.entrySet().stream().filter(entry -> data.currentGamemode.isValidLoadout(level, entry.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    public Map<String, Loadout> getValidLoadouts(ServerPlayer player) {
+        return data.loadouts.entrySet().stream().filter(entry -> data.currentGamemode.isValidLoadout(player, entry.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public void onJoin(ServerPlayer player) {

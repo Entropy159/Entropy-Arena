@@ -86,7 +86,7 @@ public abstract class TeamGamemode extends ArenaGamemode {
 
     @Override
     public ArrayList<BlockPos> getValidSpawns(ServerPlayer player, ArenaMap map) {
-        return map.getSpawns(player.serverLevel()).getOrDefault(teamMap.getOrDefault(player.getUUID(), ArenaTeam.NONE), new ArrayList<>());
+        return map.getSpawns(player.serverLevel()).getOrDefault(getPlayerTeam(player), new ArrayList<>());
     }
 
     @Override

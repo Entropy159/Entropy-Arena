@@ -1,4 +1,4 @@
-// 1.21.1	2026-04-17T20:46:50.3534485	Registrate Provider for entropyarena [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
+// 1.21.1	2026-04-17T22:20:53.5243138	Registrate Provider for entropyarena [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
 1b1cbef319a0e8fac3c20982620a7e4d6ba60f3d assets/entropyarena/blockstates/blue_team_block.json
 7cf7a15e8c355f50f60c708614077684ef40ca4b assets/entropyarena/blockstates/capture_point.json
 450f7b43d8ac226e965a2d823969aee1f81a7b36 assets/entropyarena/blockstates/cyan_team_block.json
@@ -12,8 +12,8 @@ b76fd4953bf97beac3dc7e418dedb9acaabd5502 assets/entropyarena/blockstates/pink_te
 4570d4a8df30d6ae37286d42afafce90f0ce5bf3 assets/entropyarena/blockstates/red_team_block.json
 0e8f4310478aeaf257863359bc52bfb79bb54c2b assets/entropyarena/blockstates/spawnpoint.json
 530ffd26e436d6b2792fd678447932b315f4dba3 assets/entropyarena/blockstates/yellow_team_block.json
-82bce291d37d2fd125519abd5ae3ea7c2bff9733 assets/entropyarena/lang/en_ud.json
-a2e27785f0bef5bdea3a3c4c646f90e13c29411f assets/entropyarena/lang/en_us.json
+3705132318e4b8cb5f17d967843d7561f10cac47 assets/entropyarena/lang/en_ud.json
+92883c6fca032745be049d4f41af42be287faf35 assets/entropyarena/lang/en_us.json
 4c5ada60ff5f7747f7a63d46f9cb4a1eeb0844b7 assets/entropyarena/models/block/blue_team_block.json
 d117ecd82abe1d3e039c618baf6bf85124c2b151 assets/entropyarena/models/block/capture_point.json
 4c5ada60ff5f7747f7a63d46f9cb4a1eeb0844b7 assets/entropyarena/models/block/cyan_team_block.json
@@ -31,6 +31,7 @@ c44903c5f496edda51f876a821faaf8aaa426627 assets/entropyarena/models/block/pedest
 3fd39e0ef7a3d9ad6e9434c91133892583c60c07 assets/entropyarena/models/item/blue_team_block.json
 f323ace8443ea49f4fb00c2bbae3f5b07271c82e assets/entropyarena/models/item/capture_point.json
 518e28ae4fa3c5b2b3c1aa0d9e970812e03f6fa0 assets/entropyarena/models/item/cyan_team_block.json
+2d8de683a851859c074f117551fb277968c763af assets/entropyarena/models/item/disguise_item.json
 4282c31bd163ead7eb87dc038162ba0cadeb3a98 assets/entropyarena/models/item/green_team_block.json
 757b9521c00d35e2f22ab7ec6577a622fe58cb04 assets/entropyarena/models/item/kill_barrier.json
 d32303360400c98e05edb200f7e9087216788406 assets/entropyarena/models/item/none_team_block.json

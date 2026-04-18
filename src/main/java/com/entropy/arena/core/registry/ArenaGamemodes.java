@@ -6,6 +6,7 @@ import com.entropy.arena.core.gamemodes.*;
 public class ArenaGamemodes {
     public static void init() {
         GamemodeRegistry.registerGamemode(CaptureTheFlag::new);
+        GamemodeRegistry.registerGamemode(Disguise::new);
         GamemodeRegistry.registerGamemode(Domination::new);
         GamemodeRegistry.registerGamemode(FreeForAll::new);
         GamemodeRegistry.registerGamemode(KingOfTheHill::new);

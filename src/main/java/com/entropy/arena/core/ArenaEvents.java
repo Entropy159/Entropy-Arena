@@ -8,6 +8,7 @@ import com.entropy.arena.api.events.ShouldBlockBeInfiniteEvent;
 import com.entropy.arena.core.blocks.TeamBlock;
 import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.gamemodes.CaptureTheFlag;
+import com.entropy.arena.core.items.DisguiseItem;
 import com.entropy.arena.core.items.TeamGemItem;
 import com.entropy.arena.core.registry.ArenaTags;
 import net.minecraft.core.component.DataComponentType;
@@ -106,11 +107,18 @@ public class ArenaEvents {
 
     @SubscribeEvent
     public static void adventureModeBypass(IgnoreAdventureModeEvent event) {
-        if (event.isPlacing() && event.getHeldItem().getItem() instanceof BlockItem bi && bi.getBlock() instanceof TeamBlock) {
-            event.setBypass(!event.getState().is(ArenaTags.TEAM_BLOCK_INVALID));
+        if (event.isPlacing()) {
+            if (event.getHeldItem().getItem() instanceof BlockItem bi && bi.getBlock() instanceof TeamBlock) {
+                event.setBypass(!event.getState().is(ArenaTags.TEAM_BLOCK_INVALID));
+            }
+            if (event.getHeldItem().getItem() instanceof DisguiseItem) {
+                event.setBypass(true);
+            }
         }
-        if (!event.isPlacing() && event.getState().getBlock() instanceof TeamBlock) {
-            event.setBypass(true);
+        if (!event.isPlacing()) {
+            if (event.getState().getBlock() instanceof TeamBlock) {
+                event.setBypass(true);
+            }
         }
     }
 

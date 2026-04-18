@@ -13,6 +13,7 @@ import com.entropy.arena.core.blocks.CapturePointBlock;
 import com.entropy.arena.core.blocks.PedestalBlock;
 import com.entropy.arena.core.blocks.SpawnpointBlock;
 import com.entropy.arena.core.blocks.TeamBlock;
+import com.entropy.arena.core.items.DisguiseItem;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.tterrag.registrate.Registrate;
 import io.netty.buffer.ByteBuf;
@@ -149,8 +150,8 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
         return list.get(0);
     }
 
-    public boolean isValidLoadout(ServerLevel level, Loadout loadout) {
-        return loadout.getItemLists(level).stream().anyMatch(this::isValidItemList) || loadout.getItemLists(level).isEmpty();
+    public boolean isValidLoadout(ServerPlayer player, Loadout loadout) {
+        return !loadout.contains(player.serverLevel(), stack -> stack.getItem() instanceof DisguiseItem) && (loadout.getItemLists(player.serverLevel()).stream().anyMatch(this::isValidItemList) || loadout.getItemLists(player.serverLevel()).isEmpty());
     }
 
     public boolean isValidItemList(ItemList list) {

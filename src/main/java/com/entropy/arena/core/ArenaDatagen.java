@@ -67,7 +67,7 @@ public class ArenaDatagen {
                 File[] files = arenaFolder.listFiles(f -> !f.isDirectory() && f.getName().endsWith(".ogg"));
                 if (files != null) {
                     for (File music : files) {
-                        arena.with(sound(EntropyArena.id("music/arena/" + music.getName().replaceAll(".ogg", "")), SoundDefinition.SoundType.SOUND).stream());
+                        arena.with(sound(EntropyArena.id("music/arena/" + music.getName().replaceAll(".ogg", ""))).stream().volume(0.5));
                     }
                 }
             }
@@ -79,7 +79,7 @@ public class ArenaDatagen {
                 File[] files = lobbyFolder.listFiles(f -> !f.isDirectory() && f.getName().endsWith(".ogg"));
                 if (files != null) {
                     for (File music : files) {
-                        lobby.with(sound(EntropyArena.id("music/lobby/" + music.getName().replaceAll(".ogg", "")), SoundDefinition.SoundType.SOUND).stream());
+                        lobby.with(sound(EntropyArena.id("music/lobby/" + music.getName().replaceAll(".ogg", ""))).stream().volume(0.5));
                     }
                 }
             }
@@ -208,5 +208,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.error.item_list_already_exists", "Item list %s already exists");
         REGISTRATE.addRawLang("arena.error.item_list_not_found", "Item list %s not found");
         REGISTRATE.addRawLang("arena.error.no_inventory_at_pos", "No block with inventory at %s");
+        REGISTRATE.addRawLang("arena.error.no_ordered_item_lists", "No ordered item lists found");
+        REGISTRATE.addRawLang("arena.error.no_random_item_lists", "No ordered item lists found");
     }
 }

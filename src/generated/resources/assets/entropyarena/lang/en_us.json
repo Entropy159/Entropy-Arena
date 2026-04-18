@@ -15,6 +15,8 @@
   "arena.error.no_loadouts": "No loadouts found",
   "arena.error.no_lobby": "No lobby position found",
   "arena.error.no_maps": "No maps found",
+  "arena.error.no_ordered_item_lists": "No ordered item lists found",
+  "arena.error.no_random_item_lists": "No ordered item lists found",
   "arena.error.no_spawns": "No valid spawns found",
   "arena.error.not_enough_teams": "Not enough team spawns found",
   "arena.error.team_not_found": "Team %s not found",

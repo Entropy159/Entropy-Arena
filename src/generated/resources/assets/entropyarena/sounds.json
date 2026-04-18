@@ -3,23 +3,28 @@
     "sounds": [
       {
         "name": "entropyarena:music/arena/alone_not_lost",
-        "stream": true
+        "stream": true,
+        "volume": 0.5
       },
       {
         "name": "entropyarena:music/arena/edge_of_the_world",
-        "stream": true
+        "stream": true,
+        "volume": 0.5
       },
       {
         "name": "entropyarena:music/arena/heart_in_lights",
-        "stream": true
+        "stream": true,
+        "volume": 0.5
       },
       {
         "name": "entropyarena:music/arena/street_lights",
-        "stream": true
+        "stream": true,
+        "volume": 0.5
       },
       {
         "name": "entropyarena:music/arena/the_path_untrodden",
-        "stream": true
+        "stream": true,
+        "volume": 0.5
       }
     ]
   },
@@ -27,15 +32,18 @@
     "sounds": [
       {
         "name": "entropyarena:music/lobby/always_on_the_way",
-        "stream": true
+        "stream": true,
+        "volume": 0.5
       },
       {
         "name": "entropyarena:music/lobby/broken_computer_effect",
-        "stream": true
+        "stream": true,
+        "volume": 0.5
       },
       {
         "name": "entropyarena:music/lobby/safe_way",
-        "stream": true
+        "stream": true,
+        "volume": 0.5
       }
     ]
   }

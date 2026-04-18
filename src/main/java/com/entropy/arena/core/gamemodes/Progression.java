@@ -1,15 +1,20 @@
 package com.entropy.arena.core.gamemodes;
 
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.FFAGamemode;
 import com.entropy.arena.api.loadout.ItemList;
 import com.entropy.arena.api.loadout.Loadout;
+import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.core.ArenaLogic;
 import com.entropy.arena.core.EntropyArena;
 import com.tterrag.registrate.Registrate;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 public class Progression extends FFAGamemode {
     @Override
@@ -35,6 +40,14 @@ public class Progression extends FFAGamemode {
             ArenaLogic.get(player.serverLevel()).giveStarterGear(player);
         }
         return super.onDeath(player, source);
+    }
+
+    @Override
+    public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
+        if (ArenaData.get(level).loadouts.values().stream().noneMatch(loadout -> loadout.getItemLists(level).stream().anyMatch(this::isValidItemList))) {
+            return Component.translatable("arena.error.no_ordered_item_lists");
+        }
+        return super.validateMap(level, arenaMap);
     }
 
     @Override

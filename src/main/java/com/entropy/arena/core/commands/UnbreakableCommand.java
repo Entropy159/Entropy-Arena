@@ -16,10 +16,10 @@ public class UnbreakableCommand {
                 ItemStack stack = ctx.getSource().getPlayer().getMainHandItem();
                 if (stack.has(DataComponents.UNBREAKABLE)) {
                     stack.remove(DataComponents.UNBREAKABLE);
-                    ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.added_unbreakable"), false);
+                    ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.removed_unbreakable"), false);
                 } else {
                     stack.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
-                    ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.removed_unbreakable"), false);
+                    ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.added_unbreakable"), false);
                 }
             }
             return 1;

@@ -186,8 +186,8 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.gave_item_list", "Gave item list %s");
         REGISTRATE.addRawLang("arena.message.chunk_load_progress", "Loaded chunk %s/%s");
         REGISTRATE.addRawLang("arena.message.chunk_reset_progress", "Reset chunk %s/%s");
-        REGISTRATE.addRawLang("arena.message.added_unbreakable", "Make item unbreakable");
-        REGISTRATE.addRawLang("arena.message.removed_unbreakable", "Make item breakable");
+        REGISTRATE.addRawLang("arena.message.added_unbreakable", "Made item unbreakable");
+        REGISTRATE.addRawLang("arena.message.removed_unbreakable", "Made item breakable");
 
         REGISTRATE.addRawLang("arena.error.already_running", "Game is already running");
         REGISTRATE.addRawLang("arena.error.no_lobby", "No lobby position found");

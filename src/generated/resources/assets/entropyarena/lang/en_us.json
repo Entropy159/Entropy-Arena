@@ -106,6 +106,7 @@
   "entropyarena.configuration.hideEnemyNametags": "Hide Enemy Nametags",
   "entropyarena.configuration.infiniteBlocks": "Infinite Blocks",
   "entropyarena.configuration.intervalSeconds": "Interval Seconds",
+  "entropyarena.configuration.maxHealth": "Max Health",
   "entropyarena.configuration.notificationFadeoutDelay": "Notification Fade Out Delay",
   "entropyarena.configuration.notificationFadeoutDuration": "Notification Fade Out Duration",
   "entropyarena.configuration.recapSeconds": "Recap Seconds",

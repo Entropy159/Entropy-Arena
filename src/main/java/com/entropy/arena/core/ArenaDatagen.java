@@ -136,6 +136,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang(MODID + ".configuration.returnAllGems", "Return All Gems");
         REGISTRATE.addRawLang(MODID + ".configuration.flagExpirationSeconds", "Flag Expiration Seconds");
         REGISTRATE.addRawLang(MODID + ".configuration.spawnProtection", "Spawn Protection");
+        REGISTRATE.addRawLang(MODID + ".configuration.maxHealth", "Max Health");
 
         REGISTRATE.addRawLang("arena.hud.interval", "Interval: %s");
         REGISTRATE.addRawLang("arena.hud.timer", "Timer: %s");

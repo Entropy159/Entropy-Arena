@@ -23,6 +23,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.NeoForge;
@@ -273,6 +275,10 @@ public class ArenaLogic {
     public void onRespawn(ServerPlayer player) {
         data.respawnTimes.remove(player.getUUID());
         player.setGameMode(GameType.ADVENTURE);
+        AttributeInstance attribute = player.getAttributes().getInstance(Attributes.MAX_HEALTH);
+        if (attribute != null) {
+            attribute.setBaseValue(ServerConfig.MAX_HEALTH.get());
+        }
         player.setHealth(player.getMaxHealth());
         if (data.running && data.lobby && data.lobbyPos != null) {
             ArenaUtils.teleportToPos(player, data.lobbyPos);

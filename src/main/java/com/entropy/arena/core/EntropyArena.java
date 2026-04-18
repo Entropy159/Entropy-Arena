@@ -3,6 +3,7 @@ package com.entropy.arena.core;
 import com.entropy.arena.core.commands.ArenaCommand;
 import com.entropy.arena.core.commands.ItemListCommand;
 import com.entropy.arena.core.commands.LoadoutCommand;
+import com.entropy.arena.core.commands.UnbreakableCommand;
 import com.entropy.arena.core.config.ClientConfig;
 import com.entropy.arena.core.config.CommonConfig;
 import com.entropy.arena.core.config.ServerConfig;
@@ -50,6 +51,7 @@ public class EntropyArena {
         ArenaCommand.register(dispatcher);
         LoadoutCommand.register(dispatcher);
         ItemListCommand.register(dispatcher);
+        UnbreakableCommand.register(dispatcher);
     }
 
     public static ResourceLocation id(String path) {

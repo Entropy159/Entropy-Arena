@@ -142,6 +142,8 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.hud.timer", "Timer: %s");
         REGISTRATE.addRawLang("arena.hud.target_score", "Target score: %s");
         REGISTRATE.addRawLang("arena.hud.score_value", "Score: %s");
+        REGISTRATE.addRawLang("arena.hud.timed", "Timed");
+        REGISTRATE.addRawLang("arena.hud.score", "Score");
 
         REGISTRATE.addRawLang("arena.screen.voting", "Voting");
         REGISTRATE.addRawLang("arena.screen.loadout", "Loadouts");

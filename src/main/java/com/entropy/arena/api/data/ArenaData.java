@@ -1,6 +1,7 @@
 package com.entropy.arena.api.data;
 
 import com.entropy.arena.api.ArenaUtils;
+import com.entropy.arena.api.ArenaGameType;
 import com.entropy.arena.api.gamemode.ArenaGamemode;
 import com.entropy.arena.api.loadout.ItemList;
 import com.entropy.arena.api.loadout.Loadout;
@@ -24,7 +25,7 @@ public class ArenaData extends SavedData {
     public boolean running = false;
     public boolean lobby = true;
     public int timer = 0;
-    public boolean isTimed = true;
+    public ArenaGameType gameType = ArenaGameType.TIMED;
     public @Nullable BlockPos lobbyPos;
     public ArenaMap currentMap;
     public MapList mapList = new MapList();
@@ -33,7 +34,7 @@ public class ArenaData extends SavedData {
     public HashMap<UUID, String> loadoutSelections = new HashMap<>();
     public HashMap<String, ItemList> itemLists = new HashMap<>();
     public final HashMap<UUID, String> mapVotes = new HashMap<>();
-    public final HashMap<UUID, Boolean> typeVotes = new HashMap<>();
+    public final HashMap<UUID, ArenaGameType> typeVotes = new HashMap<>();
     public final ArrayList<String> votableMaps = new ArrayList<>();
     public final HashMap<UUID, Long> respawnTimes = new HashMap<>();
     public final HashMap<UUID, Long> spawnProtection = new HashMap<>();

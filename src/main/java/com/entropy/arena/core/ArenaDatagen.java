@@ -142,8 +142,10 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.hud.timer", "Timer: %s");
         REGISTRATE.addRawLang("arena.hud.target_score", "Target score: %s");
         REGISTRATE.addRawLang("arena.hud.score_value", "Score: %s");
-        REGISTRATE.addRawLang("arena.hud.timed", "Timed");
-        REGISTRATE.addRawLang("arena.hud.score", "Score");
+        REGISTRATE.addRawLang("arena.hud.votes", "Votes: %s");
+
+        REGISTRATE.addRawLang("arena.type.timed", "Timed");
+        REGISTRATE.addRawLang("arena.type.score", "Score");
 
         REGISTRATE.addRawLang("arena.screen.voting", "Voting");
         REGISTRATE.addRawLang("arena.screen.loadout", "Loadouts");
@@ -161,8 +163,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.game_over", "Game over");
         REGISTRATE.addRawLang("arena.message.game_start", "Game starting");
         REGISTRATE.addRawLang("arena.message.voted_for_map", "Voted for map %s");
-        REGISTRATE.addRawLang("arena.message.voted_for_timed", "Voted for timed match");
-        REGISTRATE.addRawLang("arena.message.voted_for_score", "Voted for score match");
+        REGISTRATE.addRawLang("arena.message.voted_for_type", "Voted for %s match");
         REGISTRATE.addRawLang("arena.message.enable", "Starting Entropy Arena");
         REGISTRATE.addRawLang("arena.message.map_info", "Map: %s - gamemode: ");
         REGISTRATE.addRawLang("arena.message.switch_team", "You are on team %s");

@@ -26,7 +26,7 @@ public class MapScreenshot {
     private ResourceLocation textureId;
     @OnlyIn(Dist.CLIENT)
     private DynamicTexture texture;
-    public float aspectRatio = 1;
+    private float aspectRatio = 1;
 
     public MapScreenshot(String mapName) {
         this(mapName, new byte[0]);
@@ -75,6 +75,17 @@ public class MapScreenshot {
             graphics.blit(textureId, x, y, 0, 0, width, height, width, height);
         } else {
             bindTexture();
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public float getAspectRatio() {
+        try (ByteArrayInputStream input = new ByteArrayInputStream(data)) {
+            try (NativeImage image = NativeImage.read(input)) {
+                return (float) image.getHeight() / image.getWidth();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

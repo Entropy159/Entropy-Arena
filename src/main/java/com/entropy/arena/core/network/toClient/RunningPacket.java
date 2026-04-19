@@ -33,6 +33,6 @@ public record RunningPacket(boolean running, boolean lobby, int targetScore) imp
     }
 
     public static RunningPacket fromData(ArenaData data) {
-        return new RunningPacket(data.running, data.lobby, data.currentMap == null ? 0 : (data.isTimed ? 0 : data.currentMap.getTargetScore()));
+        return new RunningPacket(data.running, data.lobby, data.currentMap == null ? 0 : (data.gameType.isTimed() ? 0 : data.currentMap.getTargetScore()));
     }
 }

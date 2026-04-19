@@ -73,7 +73,7 @@ public class EntropyArenaClient {
     public static void postRenderTick(ClientTickEvent.Post event) {
         while (MAP_VOTING.get().consumeClick()) {
             if (inLobby && running) {
-                openVotingScreen();
+                openVotingScreen(true);
             }
         }
         while (LOADOUTS.get().consumeClick()) {
@@ -214,8 +214,15 @@ public class EntropyArenaClient {
         pendingScreenshot = mapName;
     }
 
-    public static void openVotingScreen() {
-        client.setScreen(new VotingScreen());
+    public static void openVotingScreen(boolean shouldForce) {
+        if (shouldForce) {
+            if (client.screen instanceof VotingScreen old) {
+                old.onClose();
+            }
+            client.setScreen(new VotingScreen());
+        } else if (client.screen instanceof VotingScreen screen) {
+            screen.refresh();
+        }
     }
 
     public static void openLoadoutScreen() {

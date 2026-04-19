@@ -1,5 +1,6 @@
 package com.entropy.arena.client.screen;
 
+import com.entropy.arena.api.ArenaGameType;
 import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.map.ArenaMapInfo;
 import com.entropy.arena.core.ArenaLogic;
@@ -23,19 +24,26 @@ public class VotingScreen extends Screen {
         int buttonWidth = 75;
         int buttonHeight = font.lineHeight + 8;
         int buttonPadding = 5;
-        addRenderableWidget(new Button.Builder(Component.translatable("arena.hud.timed"), button -> {
-            PacketDistributor.sendToServer(new TypeVotePacket(true));
-        }).size(buttonWidth, buttonHeight).pos(width / 2 - buttonPadding - buttonWidth, height * 2 / 3).build());
-        addRenderableWidget(new Button.Builder(Component.translatable("arena.hud.score"), button -> {
-            PacketDistributor.sendToServer(new TypeVotePacket(false));
-        }).size(buttonWidth, buttonHeight).pos(width / 2 + buttonPadding, height * 2 / 3).build());
+        int y = height * 3 / 4;
+        int index = 0;
+        int total = ArenaGameType.values().length;
+        int totalWidth = total * (buttonWidth + buttonPadding) - buttonPadding;
+        for (ArenaGameType type : ArenaGameType.values()) {
+            int x = (width - totalWidth) / 2 + (buttonWidth + buttonPadding) * index;
+            addRenderableWidget(new Button.Builder(type.getVotesComponent(ClientData.typeVotes.getOrDefault(type, 0)), button -> PacketDistributor.sendToServer(new TypeVotePacket(type))).size(buttonWidth, buttonHeight).pos(x, y).build());
+            index++;
+        }
 
         int totalMaps = ClientData.votableMaps.size();
         int currentMap = 1;
         for (ArenaMapInfo mapInfo : ClientData.votableMaps) {
-            addRenderableWidget(mapInfo.getWidget(getMapX(currentMap, totalMaps), height / 4, getMapWidth()));
+            addRenderableWidget(mapInfo.getWidget(getMapX(currentMap, totalMaps), height / 5, getMapWidth()));
             currentMap++;
         }
+    }
+
+    public void refresh() {
+        rebuildWidgets();
     }
 
     @Override

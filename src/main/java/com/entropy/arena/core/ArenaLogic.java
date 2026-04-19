@@ -1,5 +1,6 @@
 package com.entropy.arena.core;
 
+import com.entropy.arena.api.ArenaGameType;
 import com.entropy.arena.api.ArenaUtils;
 import com.entropy.arena.api.Notification;
 import com.entropy.arena.api.data.ArenaData;
@@ -10,7 +11,6 @@ import com.entropy.arena.api.events.TeleportToLobbyEvent;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.api.map.ArenaMap;
-import com.entropy.arena.api.map.ArenaMapInfo;
 import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.network.toClient.*;
 import net.minecraft.ChatFormatting;
@@ -129,21 +129,19 @@ public class ArenaLogic {
     private void startMapVote() {
         data.mapVotes.clear();
         ArrayList<ArenaMap> maps = data.mapList.getMaps();
-        ArrayList<ArenaMapInfo> mapInfos = new ArrayList<>();
         int mapCount = Math.min(MAPS_FOR_VOTING, maps.size());
         for (int i = 0; i < mapCount; i++) {
             int mapIndex = new Random().nextInt(maps.size());
             ArenaMap map = maps.get(mapIndex);
             maps.remove(map);
             data.votableMaps.add(map.getName());
-            mapInfos.add(map.getInfo());
         }
-        PacketDistributor.sendToAllPlayers(new VotableMapsPacket(mapInfos));
+        sendMapVotes(true);
     }
 
     public void onMatchStart() {
         NeoForge.EVENT_BUS.post(new MatchStartEvent.Pre(level));
-        data.isTimed = votedForTimedMap();
+        data.gameType = getVotedGameType();
         data.currentMap = votedMap();
         data.mapVotes.clear();
         if (data.currentMap == null) {
@@ -161,22 +159,26 @@ public class ArenaLogic {
         data.lobby = false;
         data.currentMap.load(level);
         Notification.toAll(Component.translatable("arena.message.map_info", data.currentMap.getName()).withStyle(ChatFormatting.YELLOW).append(data.currentGamemode.getName()));
-        if (data.isTimed) {
+        if (data.gameType == ArenaGameType.TIMED) {
             data.timer = data.currentMap.getTimer();
         }
         PacketDistributor.sendToAllPlayers(GameInfoPacket.fromData(data));
         data.currentGamemode.onMatchStart(level);
         level.players().forEach(player -> {
-            Map<String, Loadout> validLoadouts = getValidLoadouts(player);
-            if (validLoadouts.size() > 1) {
-                PacketDistributor.sendToPlayer(player, new LoadoutsPacket(validLoadouts.keySet().stream().toList()));
-            }
+            sendValidLoadouts(player);
             onRespawn(player);
         });
         PacketDistributor.sendToAllPlayers(RunningPacket.fromData(data));
         PacketDistributor.sendToAllPlayers(new ScoresPacket(data.currentGamemode.getScoreText(level)));
         ArenaUtils.playSoundForEveryone(level, SoundEvents.NOTE_BLOCK_PLING.value(), SoundSource.AMBIENT);
         NeoForge.EVENT_BUS.post(new MatchStartEvent.Post(level));
+    }
+
+    public void sendValidLoadouts(ServerPlayer player) {
+        Map<String, Loadout> validLoadouts = getValidLoadouts(player);
+        if (validLoadouts.size() > 1) {
+            PacketDistributor.sendToPlayer(player, new LoadoutsPacket(validLoadouts.keySet().stream().toList()));
+        }
     }
 
     private ArenaMap votedMap() {
@@ -186,22 +188,29 @@ public class ArenaLogic {
         return selectedOptional.orElse(null);
     }
 
-    private boolean votedForTimedMap() {
-        long votesForTimed = data.typeVotes.values().stream().filter(b -> b).count();
-        long votesForScore = data.typeVotes.values().stream().filter(b -> !b).count();
-        return votesForTimed >= votesForScore;
+    private ArenaGameType getVotedGameType() {
+        if (data.typeVotes.isEmpty()) {
+            return ArenaGameType.TIMED;
+        }
+        return data.typeVotes.values().stream().sorted(Comparator.comparingLong(type -> data.typeVotes.values().stream().filter(type::equals).count())).toList().getLast();
     }
 
     public void voteForMap(ServerPlayer player, String mapName) {
         data.mapVotes.put(player.getUUID(), mapName);
         Notification.toPlayer(Component.translatable("arena.message.voted_for_map", mapName).withStyle(ChatFormatting.GREEN), player);
         ArenaUtils.playSoundForPlayer(level, player, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.AMBIENT);
+        sendMapVotes(false);
     }
 
-    public void voteForType(ServerPlayer player, boolean isTimed) {
-        data.typeVotes.put(player.getUUID(), isTimed);
-        Notification.toPlayer(Component.translatable(isTimed ? "arena.message.voted_for_timed" : "arena.message.voted_for_score").withStyle(ChatFormatting.GREEN), player);
+    public void voteForType(ServerPlayer player, ArenaGameType type) {
+        data.typeVotes.put(player.getUUID(), type);
+        Notification.toPlayer(type.getVotedComponent().withStyle(ChatFormatting.GREEN), player);
         ArenaUtils.playSoundForPlayer(level, player, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.AMBIENT);
+        sendMapVotes(false);
+    }
+
+    private void sendMapVotes(boolean force) {
+        PacketDistributor.sendToAllPlayers(new VotableMapsPacket(data.votableMaps.stream().map(name -> data.mapList.getMap(name).getInfo((int) data.mapVotes.values().stream().filter(name::equals).count())).toList(), data.typeVotes.values().stream().collect(Collectors.toMap(type -> type, type -> (int) data.typeVotes.values().stream().filter(type::equals).count())), force));
     }
 
     public void selectLoadout(ServerPlayer player, String loadout) {
@@ -215,7 +224,7 @@ public class ArenaLogic {
         if (!data.running) {
             return;
         }
-        if ((data.isTimed || data.lobby) && level.getGameTime() % 20 == 0 && !level.players().isEmpty()) {
+        if ((data.gameType == ArenaGameType.TIMED || data.lobby) && level.getGameTime() % 20 == 0 && !level.players().isEmpty()) {
             if (data.timer > 0) {
                 data.timer--;
                 PacketDistributor.sendToAllPlayers(new TimerPacket(data.timer));
@@ -232,7 +241,7 @@ public class ArenaLogic {
         }
         if (data.inGame()) {
             data.currentGamemode.onLevelTick(level);
-            if (data.currentGamemode.shouldWin(level, data.isTimed, data.timer, data.currentMap.getTargetScore())) {
+            if (data.currentGamemode.shouldWin(level, data.gameType.isTimed(), data.timer, data.currentMap.getTargetScore())) {
                 EntropyArena.LOGGER.info("Ending game!");
                 onMatchEnd();
             }
@@ -323,6 +332,7 @@ public class ArenaLogic {
         if (data.inGame()) {
             PacketDistributor.sendToPlayer(player, GameInfoPacket.fromData(data));
             PacketDistributor.sendToPlayer(player, new ScoresPacket(data.currentGamemode.getScoreText(level)));
+            sendValidLoadouts(player);
             data.currentGamemode.onJoin(player);
             onRespawn(player);
         }

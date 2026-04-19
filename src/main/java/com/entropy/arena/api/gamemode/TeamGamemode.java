@@ -2,6 +2,8 @@ package com.entropy.arena.api.gamemode;
 
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.Notification;
+import com.entropy.arena.api.client.ArenaRenderingUtils;
+import com.entropy.arena.api.client.ScreenAnchorPoint;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
@@ -9,6 +11,9 @@ import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.core.network.toClient.ScoresPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponents;
@@ -21,6 +26,8 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.component.DyedItemColor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
@@ -162,10 +169,19 @@ public abstract class TeamGamemode extends ArenaGamemode {
 
     @Override
     public int modifyEntityColor(Entity entity, int color) {
-        if (entity instanceof ServerPlayer player) {
-            return teamMap.getOrDefault(player.getUUID(), ArenaTeam.NONE).getColor();
+        if (entity instanceof Player player) {
+            return getPlayerTeam(player).getColor();
         }
         return super.modifyEntityColor(entity, color);
+    }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void onClientRender(GuiGraphics graphics, DeltaTracker tracker) {
+        super.onClientRender(graphics, tracker);
+        if (Minecraft.getInstance().player != null) {
+            ArenaRenderingUtils.renderText(graphics, getPlayerTeam(Minecraft.getInstance().player).getColoredName(), ScreenAnchorPoint.BOTTOM_LEFT);
+        }
     }
 
     public void encodeData(ByteBuf buffer) {

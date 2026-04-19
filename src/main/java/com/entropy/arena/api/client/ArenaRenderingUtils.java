@@ -1,5 +1,6 @@
 package com.entropy.arena.api.client;
 
+import com.entropy.arena.core.config.ClientConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -64,7 +65,17 @@ public class ArenaRenderingUtils {
 
     public static void renderImageAtWorldPos(GuiGraphics graphics, ResourceLocation location, Vec3 worldPos, int size, int color) {
         Vec3 screenPos = worldToScreen(worldPos);
-        if (screenPos.z < 1) renderImageWithDefaultPath(graphics, location, (int) screenPos.x, (int) screenPos.y, size, color);
+        if (screenPos.z < 1 && isOutsideScreenCenter(screenPos.x, screenPos.y))
+            renderImageWithDefaultPath(graphics, location, (int) screenPos.x, (int) screenPos.y, size, color);
+    }
+
+    public static boolean isOutsideScreenCenter(double x, double y) {
+        Vec3 pos = new Vec3(x, y, 0);
+        Vec3 center = new Vec3(client.getWindow().getGuiScaledWidth() / 2d, client.getWindow().getGuiScaledHeight() / 2d, 0);
+        double centerRadius = ClientConfig.SCREEN_CENTER_NO_ICONS.getAsDouble();
+        double centerRadiusX = centerRadius * client.getWindow().getGuiScaledWidth() / 2;
+        double centerRadiusY = centerRadius * client.getWindow().getGuiScaledHeight() / 2;
+        return !pos.closerThan(center, centerRadiusX, centerRadiusY);
     }
 
     public static void renderImageWithDefaultPath(GuiGraphics graphics, ResourceLocation location, int x, int y, int size, int color) {

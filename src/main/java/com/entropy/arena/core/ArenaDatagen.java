@@ -123,6 +123,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang(MODID + ".configuration.useChatForNotifications", "Use Chat For Notifications");
         REGISTRATE.addRawLang(MODID + ".configuration.notificationFadeoutDelay", "Notification Fade Out Delay");
         REGISTRATE.addRawLang(MODID + ".configuration.notificationFadeoutDuration", "Notification Fade Out Duration");
+        REGISTRATE.addRawLang(MODID + ".configuration.screenCenterNoIcons", "Screen Center No Icons");
 
         REGISTRATE.addRawLang(MODID + ".configuration.concurrentChunkLoads", "Concurrent Chunk Loads");
         REGISTRATE.addRawLang(MODID + ".configuration.intervalSeconds", "Interval Seconds");

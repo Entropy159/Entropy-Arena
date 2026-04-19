@@ -117,6 +117,7 @@
   "entropyarena.configuration.recapSeconds": "Recap Seconds",
   "entropyarena.configuration.respawnDelay": "Respawn Delay",
   "entropyarena.configuration.returnAllGems": "Return All Gems",
+  "entropyarena.configuration.screenCenterNoIcons": "Screen Center No Icons",
   "entropyarena.configuration.spawnProtection": "Spawn Protection",
   "entropyarena.configuration.useChatForNotifications": "Use Chat For Notifications",
   "entropyarena:music/arena/alone_not_lost": "Alone Not Lost",

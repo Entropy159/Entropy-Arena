@@ -8,6 +8,7 @@ public class ClientConfig {
     public static final ModConfigSpec.DoubleValue NOTIFICATION_FADEOUT_DELAY = BUILDER.defineInRange("notificationFadeoutDelay", 5d, 1, 30);
     public static final ModConfigSpec.DoubleValue NOTIFICATION_FADEOUT_DURATION = BUILDER.defineInRange("notificationFadeoutDuration", 1d, 0, 5);
     public static final ModConfigSpec.BooleanValue CHAT_INSTEAD_OF_NOTIFICATION = BUILDER.define("useChatForNotifications", true);
+    public static final ModConfigSpec.DoubleValue SCREEN_CENTER_NO_ICONS = BUILDER.defineInRange("screenCenterNoIcons", 0.2, 0, 1);
 
     public static final ModConfigSpec SPEC = BUILDER.build();
 }

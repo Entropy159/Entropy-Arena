@@ -16,10 +16,12 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 public class Loadout {
+    private boolean enabled = true;
     private final CompoundTag gear;
     private final List<String> itemLists;
 
     public Loadout(CompoundTag tag) {
+        enabled = !tag.contains("enabled") || tag.getBoolean("enabled");
         gear = tag.getCompound("gear");
         itemLists = tag.getList("itemLists", Tag.TAG_STRING).stream().map(Tag::getAsString).toList();
     }
@@ -40,6 +42,7 @@ public class Loadout {
 
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
+        tag.putBoolean("enabled", enabled);
         tag.put("gear", gear);
         ListTag itemListsTag = new ListTag();
         itemLists.forEach(list -> itemListsTag.addTag(0, StringTag.valueOf(list)));
@@ -53,5 +56,13 @@ public class Loadout {
 
     public boolean contains(ServerLevel level, Predicate<ItemStack> filter) {
         return LoadoutSerializerRegistry.contains(level, gear, filter);
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

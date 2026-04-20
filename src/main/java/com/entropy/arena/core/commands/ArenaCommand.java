@@ -53,22 +53,30 @@ public class ArenaCommand {
                                                                 .executes(ArenaCommand::createMap))))))
                         .then(literal("remove")
                                 .then(argument("name", StringArgumentType.string())
-                                        .suggests(MAP_SUGGESTIONS)
+                                        .suggests(ALL_MAP_SUGGESTIONS)
                                         .executes(ArenaCommand::removeMap)))
                         .then(literal("update")
                                 .then(argument("name", StringArgumentType.string())
-                                        .suggests(MAP_SUGGESTIONS)
+                                        .suggests(ALL_MAP_SUGGESTIONS)
                                         .executes(ArenaCommand::updateMap)))
                         .then(literal("overrides")
                                 .then(argument("name", StringArgumentType.string())
-                                        .suggests(MAP_SUGGESTIONS)
+                                        .suggests(ALL_MAP_SUGGESTIONS)
                                         .then(argument("timer", IntegerArgumentType.integer(0, 1800))
                                                 .then(argument("score", IntegerArgumentType.integer(0, 1000))
                                                         .executes(ArenaCommand::updateMapOverrides)))))
                         .then(literal("load")
                                 .then(argument("name", StringArgumentType.string())
-                                        .suggests(MAP_SUGGESTIONS)
+                                        .suggests(ALL_MAP_SUGGESTIONS)
                                         .executes(ArenaCommand::loadMap)))
+                        .then(literal("enable")
+                                .then(argument("name", StringArgumentType.string())
+                                        .suggests(DISABLED_MAP_SUGGESTIONS)
+                                        .executes(ctx -> setMapEnabled(ctx, true))))
+                        .then(literal("disable")
+                                .then(argument("name", StringArgumentType.string())
+                                        .suggests(ENABLED_MAP_SUGGESTIONS)
+                                        .executes(ctx -> setMapEnabled(ctx, false))))
                         .then(literal("list")
                                 .executes(ArenaCommand::listMaps))));
     }
@@ -171,6 +179,19 @@ public class ArenaCommand {
         return 0;
     }
 
+    private static int setMapEnabled(CommandContext<CommandSourceStack> ctx, boolean enabled) {
+        String name = StringArgumentType.getString(ctx, "name");
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        ArenaMap map = data.mapList.getMap(name);
+        if (map != null) {
+            map.setEnabled(enabled);
+            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.%s_map".formatted(enabled ? "enabled" : "disabled"), name).withStyle(ChatFormatting.GREEN), true);
+            return 1;
+        }
+        ctx.getSource().sendFailure(Component.translatable("arena.error.map_not_found", name).withStyle(ChatFormatting.DARK_RED));
+        return 0;
+    }
+
     private static int listMaps(CommandContext<CommandSourceStack> ctx) {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         if (data.mapList.mapListIsEmpty()) {
@@ -200,9 +221,25 @@ public class ArenaCommand {
         return 0;
     }
 
-    private static final SuggestionProvider<CommandSourceStack> MAP_SUGGESTIONS = (ctx, builder) -> {
+    private static final SuggestionProvider<CommandSourceStack> ALL_MAP_SUGGESTIONS = (ctx, builder) -> {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         data.mapList.forEachMap(map -> builder.suggest("\"" + map.getName() + "\""));
+        return builder.buildFuture();
+    };
+
+    private static final SuggestionProvider<CommandSourceStack> ENABLED_MAP_SUGGESTIONS = (ctx, builder) -> {
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        data.mapList.getEnabledMaps().forEach(map -> builder.suggest("\"" + map.getName() + "\""));
+        return builder.buildFuture();
+    };
+
+    private static final SuggestionProvider<CommandSourceStack> DISABLED_MAP_SUGGESTIONS = (ctx, builder) -> {
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        data.mapList.forEachMap(map -> {
+            if (!map.isEnabled()) {
+                builder.suggest("\"" + map.getName() + "\"");
+            }
+        });
         return builder.buildFuture();
     };
 

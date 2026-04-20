@@ -32,6 +32,14 @@ public class LoadoutCommand {
                         .then(argument("name", StringArgumentType.string())
                                 .suggests(LOADOUT_SUGGESTIONS)
                                 .executes(LoadoutCommand::updateLoadout)))
+                .then(literal("enable")
+                        .then(argument("name", StringArgumentType.string())
+                                .suggests(ENABLED_LOADOUT_SUGGESTIONS)
+                                .executes(ctx -> setEnabled(ctx, true))))
+                .then(literal("disable")
+                        .then(argument("name", StringArgumentType.string())
+                                .suggests(DISABLED_LOADOUT_SUGGESTIONS)
+                                .executes(ctx -> setEnabled(ctx, false))))
                 .then(literal("list")
                         .executes(LoadoutCommand::listLoadouts)));
     }
@@ -88,6 +96,18 @@ public class LoadoutCommand {
         return 0;
     }
 
+    private static int setEnabled(CommandContext<CommandSourceStack> ctx, boolean enable) {
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        String name = StringArgumentType.getString(ctx, "name");
+        if (data.loadouts.containsKey(name)) {
+            data.loadouts.get(name).setEnabled(enable);
+            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.%s_loadout".formatted(enable ? "enabled" : "disabled"), name).withStyle(ChatFormatting.GREEN), true);
+            return 1;
+        }
+        ctx.getSource().sendFailure(Component.translatable("arena.error.loadout_not_found", name));
+        return 0;
+    }
+
     private static int listLoadouts(CommandContext<CommandSourceStack> ctx) {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         if (data.loadouts.isEmpty()) {
@@ -101,6 +121,26 @@ public class LoadoutCommand {
     private static final SuggestionProvider<CommandSourceStack> LOADOUT_SUGGESTIONS = (ctx, builder) -> {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         data.loadouts.keySet().forEach(name -> builder.suggest("\"" + name + "\""));
+        return builder.buildFuture();
+    };
+
+    private static final SuggestionProvider<CommandSourceStack> ENABLED_LOADOUT_SUGGESTIONS = (ctx, builder) -> {
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        data.loadouts.forEach((key, value) -> {
+            if (value.isEnabled()) {
+                builder.suggest("\"" + key + "\"");
+            }
+        });
+        return builder.buildFuture();
+    };
+
+    private static final SuggestionProvider<CommandSourceStack> DISABLED_LOADOUT_SUGGESTIONS = (ctx, builder) -> {
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        data.loadouts.forEach((key, value) -> {
+            if (!value.isEnabled()) {
+                builder.suggest("\"" + key + "\"");
+            }
+        });
         return builder.buildFuture();
     };
 }

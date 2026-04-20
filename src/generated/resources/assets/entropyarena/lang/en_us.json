@@ -1,4 +1,6 @@
 {
+  "arena.disabled": "Disabled",
+  "arena.enabled": "Enabled",
   "arena.error.already_running": "Game is already running",
   "arena.error.ctf.not_enough_pedestals": "Not enough pedestals",
   "arena.error.ctf.only_one_flag": "You can only have one flag at a time",
@@ -50,7 +52,11 @@
   "arena.message.ctf.flag_scored": "Team %s has scored",
   "arena.message.ctf.flag_taken": "Team %s's flag has been taken by team %s",
   "arena.message.ctf.pedestal_invalid": "You cannot score on a pedestal that's been taken from",
+  "arena.message.disabled_loadout": "Disabled loadout %s",
+  "arena.message.disabled_map": "Disabled map %s",
   "arena.message.enable": "Starting Entropy Arena",
+  "arena.message.enabled_loadout": "Enabled loadout %s",
+  "arena.message.enabled_map": "Enabled map %s",
   "arena.message.game_over": "Game over",
   "arena.message.game_start": "Game starting",
   "arena.message.game_tied": "Game ended in a tie",

@@ -128,7 +128,7 @@ public class ArenaLogic {
 
     private void startMapVote() {
         data.mapVotes.clear();
-        ArrayList<ArenaMap> maps = data.mapList.getMaps();
+        ArrayList<ArenaMap> maps = data.mapList.getEnabledMaps();
         int mapCount = Math.min(MAPS_FOR_VOTING, maps.size());
         for (int i = 0; i < mapCount; i++) {
             int mapIndex = new Random().nextInt(maps.size());
@@ -184,7 +184,7 @@ public class ArenaLogic {
     private ArenaMap votedMap() {
         HashMap<String, Integer> voteMap = new HashMap<>();
         data.mapVotes.forEach((playerUUID, mapName) -> voteMap.put(mapName, voteMap.getOrDefault(mapName, 0) + 1));
-        Optional<ArenaMap> selectedOptional = data.mapList.getMaps().stream().max(Comparator.comparingInt(m -> voteMap.getOrDefault(m.getName(), 0)));
+        Optional<ArenaMap> selectedOptional = data.mapList.getEnabledMaps().stream().max(Comparator.comparingInt(m -> voteMap.getOrDefault(m.getName(), 0)));
         return selectedOptional.orElse(null);
     }
 
@@ -325,7 +325,7 @@ public class ArenaLogic {
     }
 
     public Map<String, Loadout> getValidLoadouts(ServerPlayer player) {
-        return data.loadouts.entrySet().stream().filter(entry -> data.currentGamemode.isValidLoadout(player, entry.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return data.loadouts.entrySet().stream().filter(entry -> entry.getValue().isEnabled() && data.currentGamemode.isValidLoadout(player, entry.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public void onJoin(ServerPlayer player) {

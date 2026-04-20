@@ -49,7 +49,7 @@ public class MapList {
         return maps.get(name);
     }
 
-    public ArrayList<ArenaMap> getMaps() {
-        return new ArrayList<>(maps.values().stream().toList());
+    public ArrayList<ArenaMap> getEnabledMaps() {
+        return new ArrayList<>(maps.values().stream().filter(ArenaMap::isEnabled).toList());
     }
 }

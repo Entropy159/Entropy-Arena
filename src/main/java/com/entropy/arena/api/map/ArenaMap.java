@@ -41,6 +41,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class ArenaMap {
+    private boolean enabled;
     private final String name;
     private final ResourceLocation gamemodeID;
     private final BlockPos corner1;
@@ -55,11 +56,12 @@ public class ArenaMap {
     private final HashMap<Property<?>, HashMap<Object, ArrayList<BlockPos>>> blockPropertyMap = new HashMap<>();
 
     public ArenaMap(ServerLevel level, String name, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2) {
-        this(name, gamemodeID, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), 0, 0);
+        this(name, true, gamemodeID, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), 0, 0);
     }
 
-    public ArenaMap(String name, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, int timerOverride, int targetScoreOverride) {
+    public ArenaMap(String name, boolean enabled, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, int timerOverride, int targetScoreOverride) {
         this.name = name;
+        this.enabled = enabled;
         this.gamemodeID = gamemodeID;
         this.corner1 = corner1;
         this.corner2 = corner2;
@@ -168,6 +170,7 @@ public class ArenaMap {
 
     public static ArenaMap fromTag(CompoundTag tag) {
         String name = tag.getString("name");
+        boolean enabled = !tag.contains("enabled") || tag.getBoolean("enabled");
         ResourceLocation gamemode = ResourceLocation.tryParse(tag.getString("gamemode"));
         BlockPos corner1 = BlockPos.of(tag.getLong("corner1"));
         BlockPos corner2 = BlockPos.of(tag.getLong("corner2"));
@@ -177,7 +180,7 @@ public class ArenaMap {
         MapScreenshot screenshot = new MapScreenshot(name, tag.getByteArray("screenshot"));
         int timerOverride = tag.getInt("timerOverride");
         int targetScoreOverride = tag.getInt("targetScoreOverride");
-        return new ArenaMap(name, gamemode, corner1, corner2, time, raining, thundering, screenshot, timerOverride, targetScoreOverride);
+        return new ArenaMap(name, enabled, gamemode, corner1, corner2, time, raining, thundering, screenshot, timerOverride, targetScoreOverride);
     }
 
     public String getName() {
@@ -186,7 +189,15 @@ public class ArenaMap {
 
     public Component toComponent() {
         ArenaGamemode gamemode = getNewGamemode();
-        return Component.literal(name).withStyle(ChatFormatting.YELLOW).append(Component.literal(" - from ").withStyle(ChatFormatting.GRAY)).append(Component.literal(corner1.toShortString()).withStyle(ChatFormatting.BLUE)).append(Component.literal(" to ").withStyle(ChatFormatting.GRAY)).append(Component.literal(corner2.toShortString()).withStyle(ChatFormatting.BLUE)).append(Component.literal(", gamemode: ").withStyle(ChatFormatting.GRAY)).append((gamemode == null ? Component.literal("None") : gamemode.getName().copy()).withStyle(ChatFormatting.DARK_AQUA));
+        return Component.literal(name).withStyle(ChatFormatting.YELLOW)
+                .append(Component.literal(" - from ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(corner1.toShortString()).withStyle(ChatFormatting.BLUE))
+                .append(Component.literal(" to ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(corner2.toShortString()).withStyle(ChatFormatting.BLUE))
+                .append(Component.literal(", gamemode: ").withStyle(ChatFormatting.GRAY))
+                .append((gamemode == null ? Component.literal("None") : gamemode.getName().copy()).withStyle(ChatFormatting.DARK_AQUA))
+                .append(Component.literal(", ").withStyle(ChatFormatting.GRAY))
+                .append(Component.translatable("arena." + (enabled ? "enabled" : "disabled")).withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED));
     }
 
     public ArenaMapInfo getInfo(int votes) {
@@ -218,6 +229,14 @@ public class ArenaMap {
 
     public int getTargetScore() {
         return targetScoreOverride > 0 ? targetScoreOverride : ServerConfig.DEFAULT_TARGET_SCORE.get();
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean newValue) {
+        enabled = newValue;
     }
 
     private static class Backup {

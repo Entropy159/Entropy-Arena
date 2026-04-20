@@ -1,4 +1,6 @@
 {
+  "arena.disabled": "pǝןqɐsıᗡ",
+  "arena.enabled": "pǝןqɐuƎ",
   "arena.error.already_running": "buıuunɹ ʎpɐǝɹןɐ sı ǝɯɐ⅁",
   "arena.error.ctf.not_enough_pedestals": "sןɐʇsǝpǝd ɥbnouǝ ʇoN",
   "arena.error.ctf.only_one_flag": "ǝɯıʇ ɐ ʇɐ bɐןɟ ǝuo ǝʌɐɥ ʎןuo uɐɔ noʎ",
@@ -50,7 +52,11 @@
   "arena.message.ctf.flag_scored": "pǝɹoɔs sɐɥ %s ɯɐǝ⟘",
   "arena.message.ctf.flag_taken": "%s ɯɐǝʇ ʎq uǝʞɐʇ uǝǝq sɐɥ bɐןɟ s,%s ɯɐǝ⟘",
   "arena.message.ctf.pedestal_invalid": "ɯoɹɟ uǝʞɐʇ uǝǝq s,ʇɐɥʇ ןɐʇsǝpǝd ɐ uo ǝɹoɔs ʇouuɐɔ noʎ",
+  "arena.message.disabled_loadout": "%s ʇnopɐoן pǝןqɐsıᗡ",
+  "arena.message.disabled_map": "%s dɐɯ pǝןqɐsıᗡ",
   "arena.message.enable": "ɐuǝɹⱯ ʎdoɹʇuƎ buıʇɹɐʇS",
+  "arena.message.enabled_loadout": "%s ʇnopɐoן pǝןqɐuƎ",
+  "arena.message.enabled_map": "%s dɐɯ pǝןqɐuƎ",
   "arena.message.game_over": "ɹǝʌo ǝɯɐ⅁",
   "arena.message.game_start": "buıʇɹɐʇs ǝɯɐ⅁",
   "arena.message.game_tied": "ǝıʇ ɐ uı pǝpuǝ ǝɯɐ⅁",

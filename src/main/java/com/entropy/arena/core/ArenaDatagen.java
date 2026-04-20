@@ -153,6 +153,9 @@ public class ArenaDatagen {
 
         REGISTRATE.addRawLang("arena.tooltip.item_list", "From Item List: %s");
 
+        REGISTRATE.addRawLang("arena.enabled", "Enabled");
+        REGISTRATE.addRawLang("arena.disabled", "Disabled");
+
         REGISTRATE.addRawLang("arena.message.match_start", "Started match");
         REGISTRATE.addRawLang("arena.message.match_stop", "Stopped match");
         REGISTRATE.addRawLang("arena.message.set_lobby_pos", "Set lobby position to %s");
@@ -161,6 +164,8 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.updated_map", "Updated map %s");
         REGISTRATE.addRawLang("arena.message.updated_map_overrides", "Updated map overrides for %s");
         REGISTRATE.addRawLang("arena.message.loaded_map", "Loaded map %s");
+        REGISTRATE.addRawLang("arena.message.enabled_map", "Enabled map %s");
+        REGISTRATE.addRawLang("arena.message.disabled_map", "Disabled map %s");
         REGISTRATE.addRawLang("arena.message.game_over", "Game over");
         REGISTRATE.addRawLang("arena.message.game_start", "Game starting");
         REGISTRATE.addRawLang("arena.message.voted_for_map", "Voted for map %s");
@@ -184,6 +189,8 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.updated_loadout", "Updated loadout %s");
         REGISTRATE.addRawLang("arena.message.selected_loadout", "Selected loadout %s");
         REGISTRATE.addRawLang("arena.message.gave_loadout", "Gave loadout %s");
+        REGISTRATE.addRawLang("arena.message.enabled_loadout", "Enabled loadout %s");
+        REGISTRATE.addRawLang("arena.message.disabled_loadout", "Disabled loadout %s");
         REGISTRATE.addRawLang("arena.message.added_item_list", "Added item list %s");
         REGISTRATE.addRawLang("arena.message.removed_item_list", "Removed item list %s");
         REGISTRATE.addRawLang("arena.message.saved_item_list", "Saved item list %s");

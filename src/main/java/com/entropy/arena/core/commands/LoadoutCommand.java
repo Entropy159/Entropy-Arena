@@ -34,11 +34,11 @@ public class LoadoutCommand {
                                 .executes(LoadoutCommand::updateLoadout)))
                 .then(literal("enable")
                         .then(argument("name", StringArgumentType.string())
-                                .suggests(ENABLED_LOADOUT_SUGGESTIONS)
+                                .suggests(DISABLED_LOADOUT_SUGGESTIONS)
                                 .executes(ctx -> setEnabled(ctx, true))))
                 .then(literal("disable")
                         .then(argument("name", StringArgumentType.string())
-                                .suggests(DISABLED_LOADOUT_SUGGESTIONS)
+                                .suggests(ENABLED_LOADOUT_SUGGESTIONS)
                                 .executes(ctx -> setEnabled(ctx, false))))
                 .then(literal("list")
                         .executes(LoadoutCommand::listLoadouts)));

@@ -144,6 +144,8 @@ public class ArenaLogic {
         data.gameType = getVotedGameType();
         data.currentMap = votedMap();
         data.mapVotes.clear();
+        data.typeVotes.clear();
+        data.votableMaps.clear();
         if (data.currentMap == null) {
             ArenaUtils.broadcastToOps(level.getServer(), null, Component.translatable("arena.error.no_maps"));
             EntropyArena.LOGGER.error("No map found after voting!");

@@ -1,11 +1,12 @@
 package com.entropy.arena.api.data;
 
-import com.entropy.arena.api.ArenaUtils;
 import com.entropy.arena.api.ArenaGameType;
+import com.entropy.arena.api.ArenaUtils;
 import com.entropy.arena.api.gamemode.ArenaGamemode;
 import com.entropy.arena.api.loadout.ItemList;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.map.ArenaMap;
+import com.entropy.arena.api.map.ArenaMapBackup;
 import com.entropy.arena.api.map.MapList;
 import com.entropy.arena.core.EntropyArena;
 import net.minecraft.core.BlockPos;
@@ -22,6 +23,9 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class ArenaData extends SavedData {
+    private final ServerLevel level;
+
+    public ArenaMapBackup.BackupState backupState;
     public boolean running = false;
     public boolean lobby = true;
     public int timer = 0;
@@ -39,8 +43,21 @@ public class ArenaData extends SavedData {
     public final HashMap<UUID, Long> respawnTimes = new HashMap<>();
     public final HashMap<UUID, Long> spawnProtection = new HashMap<>();
 
-    public static ArenaData load(CompoundTag tag, HolderLookup.Provider provider) {
-        ArenaData data = new ArenaData();
+    public ArenaData(ServerLevel level) {
+        this.level = level;
+    }
+
+    public static ArenaData load(ServerLevel level, CompoundTag tag, HolderLookup.Provider provider) {
+        ArenaData data = new ArenaData(level);
+        if (tag.contains("backupState")) {
+            data.backupState = ArenaMapBackup.BackupState.valueOf(tag.getString("backupState"));
+            if (data.backupState == ArenaMapBackup.BackupState.RESTORING || data.backupState == ArenaMapBackup.BackupState.HAS_BACKUP) {
+                data.restoreBackup(() -> {
+                });
+            }
+        } else {
+            data.backupState = ArenaMapBackup.BackupState.NO_BACKUP;
+        }
         data.mapList.loadFromTag(tag.getCompound("mapList"));
         data.loadouts = ArenaUtils.tagToHashMap(tag.getCompound("loadouts"), s -> s, t -> new Loadout((CompoundTag) t));
         data.itemLists = ArenaUtils.tagToHashMap(tag.getCompound("itemLists"), s -> s, t -> new ItemList((CompoundTag) t, provider));
@@ -50,6 +67,7 @@ public class ArenaData extends SavedData {
 
     @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+        tag.putString("backupState", backupState.name());
         tag.put("mapList", mapList.saveToTag());
         tag.put("loadouts", ArenaUtils.mapToTag(loadouts, s -> s, Loadout::toTag));
         tag.put("itemLists", ArenaUtils.mapToTag(itemLists, s -> s, itemList -> itemList.toTag(registries)));
@@ -58,7 +76,7 @@ public class ArenaData extends SavedData {
     }
 
     public static ArenaData get(ServerLevel level) {
-        ArenaData data = level.getDataStorage().computeIfAbsent(new Factory<>(ArenaData::new, ArenaData::load), EntropyArena.MODID);
+        ArenaData data = level.getDataStorage().computeIfAbsent(new Factory<>(() -> new ArenaData(level), (tag, registries) -> ArenaData.load(level, tag, registries)), EntropyArena.MODID);
         data.setDirty();
         return data;
     }
@@ -72,5 +90,21 @@ public class ArenaData extends SavedData {
 
     public boolean inGame() {
         return running && !lobby && currentMap != null && currentGamemode != null;
+    }
+
+    public void backup(Runnable after) {
+        backupState = ArenaMapBackup.BackupState.BACKING_UP;
+        ArenaMapBackup.backup(level, currentMap, currentGamemode.getPropertiesToLookFor(), () -> {
+            backupState = ArenaMapBackup.BackupState.HAS_BACKUP;
+            after.run();
+        });
+    }
+
+    public void restoreBackup(Runnable after) {
+        backupState = ArenaMapBackup.BackupState.RESTORING;
+        ArenaMapBackup.restore(level, () -> {
+            backupState = ArenaMapBackup.BackupState.NO_BACKUP;
+            after.run();
+        });
     }
 }

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class CoOpGamemode extends ArenaGamemode {
-    private int collectiveScore = 0;
+    protected int collectiveScore = 0;
 
     @Override
     public int getHighestScore() {

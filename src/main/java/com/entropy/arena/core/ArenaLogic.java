@@ -11,6 +11,7 @@ import com.entropy.arena.api.events.TeleportToLobbyEvent;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.api.map.ArenaMap;
+import com.entropy.arena.api.map.ArenaMapBackup;
 import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.network.toClient.*;
 import net.minecraft.ChatFormatting;
@@ -65,6 +66,12 @@ public class ArenaLogic {
         if (data.loadouts.isEmpty()) {
             return Component.translatable("arena.error.no_loadouts");
         }
+        if (data.backupState == ArenaMapBackup.BackupState.RESTORING) {
+            return Component.translatable("arena.error.restoring_backup");
+        }
+        if (data.backupState == ArenaMapBackup.BackupState.BACKING_UP) {
+            return Component.translatable("arena.error.backing_up");
+        }
         Notification.toAll(Component.translatable("arena.message.enable").withStyle(ChatFormatting.DARK_GREEN));
         data.timer = ServerConfig.INTERVAL_SECONDS.get();
         data.lobby = true;
@@ -77,7 +84,7 @@ public class ArenaLogic {
         if (data.running) {
             data.running = false;
             data.timer = 0;
-            onMatchEnd();
+            endMatch();
         }
     }
 
@@ -100,7 +107,7 @@ public class ArenaLogic {
         NeoForge.EVENT_BUS.post(new TeleportToLobbyEvent.Post(player));
     }
 
-    public void onMatchEnd() {
+    public void endMatch() {
         NeoForge.EVENT_BUS.post(new MatchEndEvent.Pre(level));
         Notification.toAll(Component.translatable("arena.message.game_over").withStyle(ChatFormatting.RED));
         data.loadoutSelections.clear();
@@ -139,10 +146,10 @@ public class ArenaLogic {
         sendMapVotes(true);
     }
 
-    public void onMatchStart() {
+    public void startMatch() {
         NeoForge.EVENT_BUS.post(new MatchStartEvent.Pre(level));
         data.gameType = getVotedGameType();
-        data.currentMap = votedMap();
+        data.currentMap = getVotedMap();
         data.mapVotes.clear();
         data.typeVotes.clear();
         data.votableMaps.clear();
@@ -154,7 +161,7 @@ public class ArenaLogic {
         }
         data.currentGamemode = data.currentMap.getNewGamemode();
         Notification.toAll(Component.translatable("arena.message.game_start").withStyle(ChatFormatting.GREEN));
-        data.currentMap.backup(level, data.currentGamemode.getPropertiesToLookFor(), this::afterMapLoad);
+        data.backup(this::afterMapLoad);
     }
 
     private void afterMapLoad() {
@@ -183,7 +190,7 @@ public class ArenaLogic {
         }
     }
 
-    private ArenaMap votedMap() {
+    private ArenaMap getVotedMap() {
         HashMap<String, Integer> voteMap = new HashMap<>();
         data.mapVotes.forEach((playerUUID, mapName) -> voteMap.put(mapName, voteMap.getOrDefault(mapName, 0) + 1));
         Optional<ArenaMap> selectedOptional = data.mapList.getEnabledMaps().stream().max(Comparator.comparingInt(m -> voteMap.getOrDefault(m.getName(), 0)));
@@ -236,7 +243,7 @@ public class ArenaLogic {
                 if (data.timer == 0) {
                     if (data.lobby) {
                         EntropyArena.LOGGER.info("Starting game!");
-                        onMatchStart();
+                        startMatch();
                     }
                 }
             }
@@ -245,11 +252,11 @@ public class ArenaLogic {
             data.currentGamemode.onLevelTick(level);
             if (data.currentGamemode.shouldWin(level, data.gameType.isTimed(), data.timer, data.currentMap.getTargetScore())) {
                 EntropyArena.LOGGER.info("Ending game!");
-                onMatchEnd();
+                endMatch();
             }
         }
         if (level.players().isEmpty()) {
-            onMatchEnd();
+            endMatch();
         }
     }
 

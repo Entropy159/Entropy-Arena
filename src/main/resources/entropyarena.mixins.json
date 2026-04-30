@@ -8,7 +8,9 @@
     "PlayerMixin",
     "ignoreAdventureMode.CommonHooksMixin",
     "ignoreAdventureMode.ItemStackMixin",
-    "ignoreAdventureMode.PlayerMixin"
+    "ignoreAdventureMode.PlayerMixin",
+    "team.EntityMixin",
+    "team.PlayerTeamMixin"
   ],
   "injectors": {
     "defaultRequire": 1

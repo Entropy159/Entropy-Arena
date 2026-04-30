@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Domination extends TeamGamemode implements HasCapturePoints<TeamCapturePoint> {
-    private static final StreamCodec<ByteBuf, List<TeamCapturePoint>> CAPTURE_POINTS_CODEC = TeamCapturePoint.STREAM_CODEC.apply(ByteBufCodecs.list());
-    private static final int SCORING_DELAY_TICKS = 100;
+    protected static final StreamCodec<ByteBuf, List<TeamCapturePoint>> CAPTURE_POINTS_CODEC = TeamCapturePoint.STREAM_CODEC.apply(ByteBufCodecs.list());
+    protected static final int SCORING_DELAY_TICKS = 100;
 
-    private List<TeamCapturePoint> capturePoints = new ArrayList<>();
+    protected List<TeamCapturePoint> capturePoints = new ArrayList<>();
 
     @Override
     public void generateLang() {

@@ -5,7 +5,6 @@ import com.entropy.arena.core.registry.ArenaBlocks;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -23,27 +22,25 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.IntFunction;
 
 public enum ArenaTeam implements StringRepresentable {
-    RED(DyeColor.RED, ChatFormatting.DARK_RED, 0xFFFF0000),
-    BLUE(DyeColor.BLUE, ChatFormatting.DARK_BLUE, 0xFF0000FF),
-    YELLOW(DyeColor.YELLOW, ChatFormatting.YELLOW, 0xFFFFFF00),
-    GREEN(DyeColor.GREEN, ChatFormatting.DARK_GREEN, 0xFF00FF00),
-    ORANGE(DyeColor.ORANGE, ChatFormatting.GOLD, 0xFFFF7F00),
-    PURPLE(DyeColor.PURPLE, ChatFormatting.DARK_PURPLE, 0xFF9C00FF),
-    CYAN(DyeColor.CYAN, ChatFormatting.AQUA, 0xFF00FFFF),
-    PINK(DyeColor.PINK, ChatFormatting.LIGHT_PURPLE, 0xFFFF00FF),
-    NONE(DyeColor.WHITE, ChatFormatting.WHITE, 0xFFFFFFFF);
+    RED(DyeColor.RED, 0xFFFF0000),
+    BLUE(DyeColor.BLUE, 0xFF0000FF),
+    YELLOW(DyeColor.YELLOW, 0xFFFFFF00),
+    GREEN(DyeColor.GREEN, 0xFF00FF00),
+    ORANGE(DyeColor.ORANGE, 0xFFFF7F00),
+    PURPLE(DyeColor.PURPLE, 0xFF9C00FF),
+    CYAN(DyeColor.CYAN, 0xFF00FFFF),
+    PINK(DyeColor.PINK, 0xFFFF00FF),
+    NONE(DyeColor.WHITE, 0xFFFFFFFF);
 
     public static final Codec<ArenaTeam> CODEC = StringRepresentable.fromEnum(ArenaTeam::values);
     private static final IntFunction<ArenaTeam> BY_ID = ByIdMap.continuous(ArenaTeam::ordinal, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
     public static final StreamCodec<ByteBuf, ArenaTeam> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, ArenaTeam::ordinal);
 
     private final DyeColor dyeColor;
-    private final ChatFormatting chatFormatting;
     private final int color;
 
-    ArenaTeam(DyeColor dye, ChatFormatting formatting, int hex) {
+    ArenaTeam(DyeColor dye, int hex) {
         dyeColor = dye;
-        chatFormatting = formatting;
         color = hex;
     }
 
@@ -83,7 +80,6 @@ public enum ArenaTeam implements StringRepresentable {
         if (team == null) {
             team = scoreboard.addPlayerTeam(getSerializedName());
         }
-        team.setColor(chatFormatting);
         team.setCollisionRule(Team.CollisionRule.PUSH_OTHER_TEAMS);
         team.setDisplayName(getColoredName());
         team.setSeeFriendlyInvisibles(true);

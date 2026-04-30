@@ -38,11 +38,11 @@ import java.util.HashMap;
 import java.util.function.Predicate;
 
 public class CaptureTheFlag extends TeamGamemode {
-    private static final StreamCodec<ByteBuf, HashMap<ArenaTeam, ArrayList<BlockPos>>> PEDESTAL_MAP_CODEC = ByteBufCodecs.map(HashMap::new, ArenaTeam.STREAM_CODEC, BlockPos.STREAM_CODEC.apply(ByteBufCodecs.collection(ArrayList::new)));
-    private static final StreamCodec<ByteBuf, HashMap<BlockPos, Boolean>> PEDESTAL_VALUE_MAP_CODEC = ByteBufCodecs.map(HashMap::new, BlockPos.STREAM_CODEC, ByteBufCodecs.BOOL);
+    protected static final StreamCodec<ByteBuf, HashMap<ArenaTeam, ArrayList<BlockPos>>> PEDESTAL_MAP_CODEC = ByteBufCodecs.map(HashMap::new, ArenaTeam.STREAM_CODEC, BlockPos.STREAM_CODEC.apply(ByteBufCodecs.collection(ArrayList::new)));
+    protected static final StreamCodec<ByteBuf, HashMap<BlockPos, Boolean>> PEDESTAL_VALUE_MAP_CODEC = ByteBufCodecs.map(HashMap::new, BlockPos.STREAM_CODEC, ByteBufCodecs.BOOL);
 
-    private HashMap<ArenaTeam, ArrayList<BlockPos>> pedestalPositions = new HashMap<>();
-    private HashMap<BlockPos, Boolean> pedestalValueMap = new HashMap<>();
+    protected HashMap<ArenaTeam, ArrayList<BlockPos>> pedestalPositions = new HashMap<>();
+    protected HashMap<BlockPos, Boolean> pedestalValueMap = new HashMap<>();
 
     @Override
     public void generateLang() {
@@ -111,7 +111,7 @@ public class CaptureTheFlag extends TeamGamemode {
         return super.shouldDropOnDeath().or(stack -> stack.getItem() instanceof TeamGemItem);
     }
 
-    private @Nullable BlockPos getPedestal(ArenaTeam team, int index) {
+    protected @Nullable BlockPos getPedestal(ArenaTeam team, int index) {
         ArrayList<BlockPos> pedestals = pedestalPositions.getOrDefault(team, new ArrayList<>());
         if (index >= pedestals.size()) {
             return null;
@@ -128,7 +128,7 @@ public class CaptureTheFlag extends TeamGamemode {
         return null;
     }
 
-    private int getPedestalIndex(ArenaTeam team, BlockPos pos) {
+    protected int getPedestalIndex(ArenaTeam team, BlockPos pos) {
         return pedestalPositions.getOrDefault(team, new ArrayList<>()).indexOf(pos);
     }
 
@@ -247,7 +247,7 @@ public class CaptureTheFlag extends TeamGamemode {
         pedestalPositions.forEach((team, list) -> list.forEach(pos -> renderFlagIcon(team, pos, graphics, tracker)));
     }
 
-    private void renderFlagIcon(ArenaTeam team, BlockPos pos, GuiGraphics graphics, DeltaTracker tracker) {
+    protected void renderFlagIcon(ArenaTeam team, BlockPos pos, GuiGraphics graphics, DeltaTracker tracker) {
         int color = team.getColor();
         if (!pedestalValueMap.get(pos)) {
             color = ArenaUtils.lerpColors(team.getColor(), 0xFF000000, ArenaRenderingUtils.sineFromZeroToOne(6, tracker));

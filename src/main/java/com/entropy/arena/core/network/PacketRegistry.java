@@ -15,7 +15,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 public class PacketRegistry {
     @SubscribeEvent
     public static void registerPackets(final RegisterPayloadHandlersEvent event) {
-        final PayloadRegistrar registrar = event.registrar("1").optional();
+        final PayloadRegistrar registrar = event.registrar("1");
 
         registrar.playToClient(TimerPacket.TYPE, TimerPacket.STREAM_CODEC, TimerPacket::handle);
         registrar.playToClient(RunningPacket.TYPE, RunningPacket.STREAM_CODEC, RunningPacket::handle);

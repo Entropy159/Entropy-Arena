@@ -221,5 +221,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.error.no_inventory_at_pos", "No block with inventory at %s");
         REGISTRATE.addRawLang("arena.error.no_ordered_item_lists", "No ordered item lists found");
         REGISTRATE.addRawLang("arena.error.no_random_item_lists", "No ordered item lists found");
+        REGISTRATE.addRawLang("arena.error.backing_up", "Backing up map");
+        REGISTRATE.addRawLang("arena.error.restoring_backup", "Restoring map backup");
     }
 }

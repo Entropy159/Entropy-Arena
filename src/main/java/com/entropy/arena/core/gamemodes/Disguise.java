@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class Disguise extends TeamGamemode {
-    private static final StreamCodec<ByteBuf, HashMap<UUID, BlockState>> DISGUISE_MAP_CODEC = ByteBufCodecs.map(HashMap::new, UUIDUtil.STREAM_CODEC, ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY));
-    private HashMap<UUID, BlockState> disguiseMap = new HashMap<>();
+    protected static final StreamCodec<ByteBuf, HashMap<UUID, BlockState>> DISGUISE_MAP_CODEC = ByteBufCodecs.map(HashMap::new, UUIDUtil.STREAM_CODEC, ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY));
+    protected HashMap<UUID, BlockState> disguiseMap = new HashMap<>();
 
     @Override
     public ResourceLocation getRegistryID() {

@@ -34,11 +34,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public abstract class TeamGamemode extends ArenaGamemode {
-    private static final StreamCodec<ByteBuf, HashMap<ArenaTeam, Integer>> SCORE_MAP_CODEC = ByteBufCodecs.map(HashMap::new, ArenaTeam.STREAM_CODEC, ByteBufCodecs.INT);
-    private static final StreamCodec<ByteBuf, HashMap<UUID, ArenaTeam>> TEAM_MAP_CODEC = ByteBufCodecs.map(HashMap::new, UUIDUtil.STREAM_CODEC, ArenaTeam.STREAM_CODEC);
+    protected static final StreamCodec<ByteBuf, HashMap<ArenaTeam, Integer>> SCORE_MAP_CODEC = ByteBufCodecs.map(HashMap::new, ArenaTeam.STREAM_CODEC, ByteBufCodecs.INT);
+    protected static final StreamCodec<ByteBuf, HashMap<UUID, ArenaTeam>> TEAM_MAP_CODEC = ByteBufCodecs.map(HashMap::new, UUIDUtil.STREAM_CODEC, ArenaTeam.STREAM_CODEC);
 
-    private HashMap<ArenaTeam, Integer> scoreMap = new HashMap<>();
-    private HashMap<UUID, ArenaTeam> teamMap = new HashMap<>();
+    protected HashMap<ArenaTeam, Integer> scoreMap = new HashMap<>();
+    protected HashMap<UUID, ArenaTeam> teamMap = new HashMap<>();
 
     @Override
     public int getHighestScore() {

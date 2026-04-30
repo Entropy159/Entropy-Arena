@@ -20,8 +20,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public abstract class FFAGamemode extends ArenaGamemode {
-    private static final StreamCodec<ByteBuf, HashMap<UUID, Integer>> SCORE_MAP_CODEC = ByteBufCodecs.map(HashMap::new, UUIDUtil.STREAM_CODEC, ByteBufCodecs.INT);
-    public HashMap<UUID, Integer> scoreMap = new HashMap<>();
+    protected static final StreamCodec<ByteBuf, HashMap<UUID, Integer>> SCORE_MAP_CODEC = ByteBufCodecs.map(HashMap::new, UUIDUtil.STREAM_CODEC, ByteBufCodecs.INT);
+    protected HashMap<UUID, Integer> scoreMap = new HashMap<>();
 
     @Override
     public int getHighestScore() {

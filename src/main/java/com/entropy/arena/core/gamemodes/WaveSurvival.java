@@ -32,16 +32,16 @@ import java.util.List;
 import java.util.Random;
 
 public class WaveSurvival extends CoOpGamemode {
-    private static final StreamCodec<ByteBuf, List<BlockPos>> MOB_SPAWNS_CODEC = BlockPos.STREAM_CODEC.apply(ByteBufCodecs.list());
-    private static final int WAVE_INTERVAL_TICKS = 400;
-    private static final List<EntityType<? extends Entity>> MOBS = List.of(EntityType.ZOMBIE, EntityType.SKELETON, EntityType.CREEPER, EntityType.SPIDER, EntityType.BREEZE, EntityType.BLAZE, EntityType.PIGLIN_BRUTE, EntityType.WITCH, EntityType.WITHER_SKELETON, EntityType.EVOKER, EntityType.VINDICATOR, EntityType.HUSK);
-    private static final ArenaTeam ENEMY_TEAM = ArenaTeam.RED;
+    protected static final StreamCodec<ByteBuf, List<BlockPos>> MOB_SPAWNS_CODEC = BlockPos.STREAM_CODEC.apply(ByteBufCodecs.list());
+    protected static final int WAVE_INTERVAL_TICKS = 400;
+    protected static final List<EntityType<? extends Entity>> MOBS = List.of(EntityType.ZOMBIE, EntityType.SKELETON, EntityType.CREEPER, EntityType.SPIDER, EntityType.BREEZE, EntityType.BLAZE, EntityType.PIGLIN_BRUTE, EntityType.WITCH, EntityType.WITHER_SKELETON, EntityType.EVOKER, EntityType.VINDICATOR, EntityType.HUSK);
+    protected static final ArenaTeam ENEMY_TEAM = ArenaTeam.RED;
 
-    private List<BlockPos> mobSpawns = new ArrayList<>();
-    private int currentWave = 1;
-    private int cooldownTicks = WAVE_INTERVAL_TICKS;
-    private int mobCount = 0;
-    private boolean isInterval = true;
+    protected List<BlockPos> mobSpawns = new ArrayList<>();
+    protected int currentWave = 1;
+    protected int cooldownTicks = WAVE_INTERVAL_TICKS;
+    protected int mobCount = 0;
+    protected boolean isInterval = true;
 
     @Override
     public void generateLang() {

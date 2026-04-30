@@ -24,11 +24,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class KingOfTheHill extends FFAGamemode implements HasCapturePoints<KOTHCapturePoint> {
-    private static final StreamCodec<ByteBuf, KOTHCapturePoint> CAPTURE_POINT_CODEC = KOTHCapturePoint.STREAM_CODEC;
+    protected static final StreamCodec<ByteBuf, KOTHCapturePoint> CAPTURE_POINT_CODEC = KOTHCapturePoint.STREAM_CODEC;
     public static final int KING_COLOR = 0xFFFFD700;
-    private static final int SCORE_DELAY_TICKS = 100;
+    protected static final int SCORE_DELAY_TICKS = 100;
 
-    private KOTHCapturePoint capturePoint;
+    protected KOTHCapturePoint capturePoint;
 
     @Override
     public void generateLang() {

@@ -7,6 +7,16 @@
         "volume": 0.5
       },
       {
+        "name": "entropyarena:music/arena/awake",
+        "stream": true,
+        "volume": 0.5
+      },
+      {
+        "name": "entropyarena:music/arena/cyberpunk_moonlight_sonata",
+        "stream": true,
+        "volume": 0.5
+      },
+      {
         "name": "entropyarena:music/arena/edge_of_the_world",
         "stream": true,
         "volume": 0.5
@@ -17,12 +27,42 @@
         "volume": 0.5
       },
       {
+        "name": "entropyarena:music/arena/hyperflight_racing",
+        "stream": true,
+        "volume": 0.5
+      },
+      {
+        "name": "entropyarena:music/arena/hyper_ultra_racing",
+        "stream": true,
+        "volume": 0.5
+      },
+      {
+        "name": "entropyarena:music/arena/hypnotic_chill",
+        "stream": true,
+        "volume": 0.5
+      },
+      {
         "name": "entropyarena:music/arena/street_lights",
         "stream": true,
         "volume": 0.5
       },
       {
         "name": "entropyarena:music/arena/the_path_untrodden",
+        "stream": true,
+        "volume": 0.5
+      },
+      {
+        "name": "entropyarena:music/arena/through_space",
+        "stream": true,
+        "volume": 0.5
+      },
+      {
+        "name": "entropyarena:music/arena/thrust_sequence",
+        "stream": true,
+        "volume": 0.5
+      },
+      {
+        "name": "entropyarena:music/arena/tower_defense_theme",
         "stream": true,
         "volume": 0.5
       }
@@ -37,6 +77,31 @@
       },
       {
         "name": "entropyarena:music/lobby/broken_computer_effect",
+        "stream": true,
+        "volume": 0.5
+      },
+      {
+        "name": "entropyarena:music/lobby/crystal_cave",
+        "stream": true,
+        "volume": 0.5
+      },
+      {
+        "name": "entropyarena:music/lobby/enchanted_tiki_86",
+        "stream": true,
+        "volume": 0.5
+      },
+      {
+        "name": "entropyarena:music/lobby/loading_screen_loop",
+        "stream": true,
+        "volume": 0.5
+      },
+      {
+        "name": "entropyarena:music/lobby/magic_space",
+        "stream": true,
+        "volume": 0.5
+      },
+      {
+        "name": "entropyarena:music/lobby/mysterious_ambience",
         "stream": true,
         "volume": 0.5
       },

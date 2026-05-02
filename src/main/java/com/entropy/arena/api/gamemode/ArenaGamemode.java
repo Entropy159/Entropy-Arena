@@ -9,6 +9,7 @@ import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.loadout.LoadoutSerializer;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.api.map.ArenaMap;
+import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.CapturePointBlock;
 import com.entropy.arena.core.blocks.PedestalBlock;
 import com.entropy.arena.core.blocks.SpawnpointBlock;

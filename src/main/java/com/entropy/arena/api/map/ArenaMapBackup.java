@@ -86,7 +86,7 @@ public class ArenaMapBackup {
     }
 
     private static File getBackupFolder(ServerLevel level) {
-        File backupFolder = level.getServer().getFile("arena_backup").toFile();
+        File backupFolder = level.getServer().getFile("arena_backup").resolve(level.dimension().location().toLanguageKey()).toFile();
         if (!backupFolder.exists() && !backupFolder.mkdirs()) {
             EntropyArena.LOGGER.error("Failed to create map backup folder!");
         }

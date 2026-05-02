@@ -356,10 +356,6 @@ public class ArenaLogic {
     }
 
     public void onLevelClose() {
-        if (data.currentMap != null) {
-            data.currentMap.reset(level, () -> {
-            });
-        }
         INSTANCE_MAP.remove(level.dimension());
     }
 

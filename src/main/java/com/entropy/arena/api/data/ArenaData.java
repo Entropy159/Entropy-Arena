@@ -25,7 +25,7 @@ import java.util.UUID;
 public class ArenaData extends SavedData {
     private final ServerLevel level;
 
-    public ArenaMapBackup.BackupState backupState;
+    public ArenaMapBackup.BackupState backupState = ArenaMapBackup.BackupState.NO_BACKUP;
     public boolean running = false;
     public boolean lobby = true;
     public int timer = 0;

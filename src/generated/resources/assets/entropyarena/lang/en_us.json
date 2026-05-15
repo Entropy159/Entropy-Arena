@@ -154,5 +154,8 @@
   "key.categories.entropyarena": "Entropy Arena",
   "key.loadouts": "Loadouts",
   "key.map_voting": "Map Voting",
-  "key.next_music": "Next Music"
+  "key.next_music": "Next Music",
+  "stat.entropyarena.matches_finished": "Matches Finished",
+  "stat.entropyarena.matches_played": "Matches Played",
+  "stat.entropyarena.matches_won": "Matches Won"
 }

@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public abstract class CoOpGamemode extends ArenaGamemode {
     protected int collectiveScore = 0;
@@ -31,6 +32,11 @@ public abstract class CoOpGamemode extends ArenaGamemode {
     public void onMatchEnd(ServerLevel level) {
         super.onMatchEnd(level);
         Notification.toAll(Component.translatable("arena.message.collective_winner", collectiveScore).withStyle(ChatFormatting.GREEN));
+    }
+
+    @Override
+    public List<ServerPlayer> getWinners(ServerLevel level) {
+        return level.players();
     }
 
     @Override

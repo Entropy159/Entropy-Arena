@@ -34,6 +34,7 @@ public class EntropyArena {
         ArenaDataComponents.init(bus);
         ArenaGamemodes.init();
         ArenaLoadoutSerializers.init();
+        ArenaStatTypes.init(bus);
 
         container.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         container.registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC);

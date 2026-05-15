@@ -37,27 +37,19 @@ public abstract class FFAGamemode extends ArenaGamemode {
     @Override
     public void onMatchEnd(ServerLevel level) {
         super.onMatchEnd(level);
-        int winningScore = 0;
-        boolean tied = true;
-        ServerPlayer winningPlayer = null;
-        for (ServerPlayer player : level.players()) {
-            int score = scoreMap.getOrDefault(player.getUUID(), 0);
-            if (score > winningScore) {
-                tied = false;
-                winningPlayer = player;
-                winningScore = score;
-            } else if (score == winningScore) {
-                tied = true;
-                winningPlayer = null;
-            }
-        }
-        if (winningScore == 0) {
+        List<ServerPlayer> winners = getWinners(level);
+        if (getHighestScore() == 0) {
             Notification.toAll(Component.translatable("arena.message.nobody_scored").withStyle(ChatFormatting.RED));
-        } else if (tied) {
+        } else if (winners.size() > 1) {
             Notification.toAll(Component.translatable("arena.message.game_tied").withStyle(ChatFormatting.YELLOW));
         } else {
-            Notification.toAll(Component.translatable("arena.message.player_winner", winningPlayer.getDisplayName(), winningScore).withStyle(ChatFormatting.GREEN));
+            Notification.toAll(Component.translatable("arena.message.player_winner", winners.getFirst().getDisplayName(), getHighestScore()).withStyle(ChatFormatting.GREEN));
         }
+    }
+
+    @Override
+    public List<ServerPlayer> getWinners(ServerLevel level) {
+        return level.players().stream().filter(player -> getHighestScore() == getScore(player)).toList();
     }
 
     @Override

@@ -68,27 +68,23 @@ public abstract class TeamGamemode extends ArenaGamemode {
     @Override
     public void onMatchEnd(ServerLevel level) {
         super.onMatchEnd(level);
-        int winningScore = 0;
-        boolean tied = true;
-        ArenaTeam winningTeam = null;
-        for (ArenaTeam team : scoreMap.keySet()) {
-            int score = getScore(team);
-            if (score == winningScore) {
-                tied = true;
-                winningTeam = null;
-            } else if (score > winningScore) {
-                tied = false;
-                winningTeam = team;
-                winningScore = score;
-            }
-        }
-        if (winningScore == 0) {
+        List<ArenaTeam> winners = getWinningTeams();
+        if (getHighestScore() == 0) {
             Notification.toAll(Component.translatable("arena.message.nobody_scored").withStyle(ChatFormatting.RED));
-        } else if (tied) {
+        } else if (winners.size() > 1) {
             Notification.toAll(Component.translatable("arena.message.game_tied").withStyle(ChatFormatting.YELLOW));
         } else {
-            Notification.toAll(Component.translatable("arena.message.team_winner", winningTeam.getColoredName(), winningScore).withStyle(ChatFormatting.GREEN));
+            Notification.toAll(Component.translatable("arena.message.team_winner", winners.getFirst().getColoredName(), getHighestScore()).withStyle(ChatFormatting.GREEN));
         }
+    }
+
+    @Override
+    public List<ServerPlayer> getWinners(ServerLevel level) {
+        return level.players().stream().filter(player -> getWinningTeams().contains(getPlayerTeam(player))).toList();
+    }
+
+    public List<ArenaTeam> getWinningTeams() {
+        return teamMap.values().stream().distinct().filter(team -> getScore(team) == getHighestScore()).toList();
     }
 
     @Override

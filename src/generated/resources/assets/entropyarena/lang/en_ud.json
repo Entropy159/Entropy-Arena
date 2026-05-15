@@ -154,5 +154,8 @@
   "key.categories.entropyarena": "ɐuǝɹⱯ ʎdoɹʇuƎ",
   "key.loadouts": "sʇnopɐoꞀ",
   "key.map_voting": "buıʇoΛ dɐW",
-  "key.next_music": "ɔısnW ʇxǝN"
+  "key.next_music": "ɔısnW ʇxǝN",
+  "stat.entropyarena.matches_finished": "pǝɥsıuıℲ sǝɥɔʇɐW",
+  "stat.entropyarena.matches_played": "pǝʎɐןԀ sǝɥɔʇɐW",
+  "stat.entropyarena.matches_won": "uoM sǝɥɔʇɐW"
 }

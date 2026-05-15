@@ -215,7 +215,8 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.error.too_many_capture_points", "Too many capturep points found, limit is %s");
         REGISTRATE.addRawLang("arena.error.no_loadouts", "No loadouts found");
         REGISTRATE.addRawLang("arena.error.loadout_already_exists", "Loadout %s already exists");
-        REGISTRATE.addRawLang("arena.error.loadout_not_found", "Loadout %s not found");;
+        REGISTRATE.addRawLang("arena.error.loadout_not_found", "Loadout %s not found");
+        ;
         REGISTRATE.addRawLang("arena.error.item_list_already_exists", "Item list %s already exists");
         REGISTRATE.addRawLang("arena.error.item_list_not_found", "Item list %s not found");
         REGISTRATE.addRawLang("arena.error.no_inventory_at_pos", "No block with inventory at %s");

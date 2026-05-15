@@ -9,13 +9,13 @@ import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.loadout.LoadoutSerializer;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.api.map.ArenaMap;
-import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.CapturePointBlock;
 import com.entropy.arena.core.blocks.PedestalBlock;
 import com.entropy.arena.core.blocks.SpawnpointBlock;
 import com.entropy.arena.core.blocks.TeamBlock;
 import com.entropy.arena.core.items.DisguiseItem;
 import com.entropy.arena.core.registry.ArenaDataComponents;
+import com.entropy.arena.core.registry.ArenaStatTypes;
 import com.tterrag.registrate.Registrate;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.DeltaTracker;
@@ -172,11 +172,14 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
     }
 
     public void onMatchEnd(ServerLevel level) {
-
+        level.players().forEach(player -> player.awardStat(ArenaStatTypes.MATCHES_FINISHED.get()));
+        getWinners(level).forEach(player -> player.awardStat(ArenaStatTypes.MATCHES_WON.get()));
     }
 
-    public void onMatchStart(ServerLevel level) {
+    public abstract List<ServerPlayer> getWinners(ServerLevel level);
 
+    public void onMatchStart(ServerLevel level) {
+        level.players().forEach(player -> player.awardStat(ArenaStatTypes.MATCHES_PLAYED.get()));
     }
 
     public ArenaTeam getTeamForBlock(ServerPlayer player) {

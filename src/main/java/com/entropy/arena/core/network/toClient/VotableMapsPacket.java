@@ -2,6 +2,7 @@ package com.entropy.arena.core.network.toClient;
 
 import com.entropy.arena.api.ArenaGameType;
 import com.entropy.arena.api.client.ClientData;
+import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.map.ArenaMapInfo;
 import com.entropy.arena.client.EntropyArenaClient;
 import com.entropy.arena.core.EntropyArena;
@@ -12,6 +13,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,5 +32,13 @@ public record VotableMapsPacket(List<ArenaMapInfo> maps,
         ClientData.votableMaps = maps;
         ClientData.typeVotes = typeVotes;
         EntropyArenaClient.openVotingScreen(force);
+    }
+
+    public static VotableMapsPacket fromData(ArenaData data, boolean force) {
+        List<ArenaMapInfo> votableMaps = new ArrayList<>();
+        data.votableMaps.forEach(name -> votableMaps.add(data.mapList.getMap(name).getInfo((int) data.mapVotes.values().stream().filter(name::equals).count())));
+        Map<ArenaGameType, Integer> typeVotes = new HashMap<>();
+        data.typeVotes.values().forEach(type -> typeVotes.put(type, typeVotes.getOrDefault(type, 0) + 1));
+        return new VotableMapsPacket(votableMaps, typeVotes, force);
     }
 }

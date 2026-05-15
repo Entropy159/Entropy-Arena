@@ -219,7 +219,7 @@ public class ArenaLogic {
     }
 
     private void sendMapVotes(boolean force) {
-        PacketDistributor.sendToAllPlayers(new VotableMapsPacket(data.votableMaps.stream().map(name -> data.mapList.getMap(name).getInfo((int) data.mapVotes.values().stream().filter(name::equals).count())).toList(), data.typeVotes.values().stream().collect(Collectors.toMap(type -> type, type -> (int) data.typeVotes.values().stream().filter(type::equals).count())), force));
+        PacketDistributor.sendToAllPlayers(VotableMapsPacket.fromData(data, force));
     }
 
     public void selectLoadout(ServerPlayer player, String loadout) {

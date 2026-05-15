@@ -65,17 +65,18 @@ public class ArenaRenderingUtils {
 
     public static void renderImageAtWorldPos(GuiGraphics graphics, ResourceLocation location, Vec3 worldPos, int size, int color) {
         Vec3 screenPos = worldToScreen(worldPos);
-        if (screenPos.z < 1 && isOutsideScreenCenter(screenPos.x, screenPos.y))
-            renderImageWithDefaultPath(graphics, location, (int) screenPos.x, (int) screenPos.y, size, color);
+        float alpha = centerTransparency(screenPos.x, screenPos.y) * new Color(color).getAlpha() / 255f;
+        if (screenPos.z < 1)
+            renderImageWithDefaultPath(graphics, location, (int) screenPos.x, (int) screenPos.y, size, (Math.round(alpha * 255) << 24) | (color & 0xFFFFFF));
     }
 
-    public static boolean isOutsideScreenCenter(double x, double y) {
-        Vec3 pos = new Vec3(x, y, 0);
-        Vec3 center = new Vec3(client.getWindow().getGuiScaledWidth() / 2d, client.getWindow().getGuiScaledHeight() / 2d, 0);
+    public static float centerTransparency(double x, double y) {
+        Vec3 pos = new Vec3(x / client.getWindow().getGuiScaledWidth(), y / client.getWindow().getGuiScaledHeight(), 0);
+        Vec3 center = new Vec3(0.5, 0.5, 0);
         double centerRadius = ClientConfig.SCREEN_CENTER_NO_ICONS.getAsDouble();
-        double centerRadiusX = centerRadius * client.getWindow().getGuiScaledWidth() / 2;
-        double centerRadiusY = centerRadius * client.getWindow().getGuiScaledHeight() / 2;
-        return !pos.closerThan(center, centerRadiusX, centerRadiusY);
+        double distance = pos.distanceTo(center);
+        float value = (float) (((distance * 2) - centerRadius) / centerRadius);
+        return Math.clamp(value, 0.5f, 1);
     }
 
     public static void renderImageWithDefaultPath(GuiGraphics graphics, ResourceLocation location, int x, int y, int size, int color) {
@@ -87,7 +88,7 @@ public class ArenaRenderingUtils {
     }
 
     public static void renderImage(GuiGraphics graphics, ResourceLocation location, int x, int y, int width, int height, int color) {
-        Color c = new Color(color);
+        Color c = new Color(color, true);
         RenderSystem.setShaderColor(1, 1, 1, 1);
         client.getTextureManager().bindForSetup(location);
         int x1 = x - width / 2;

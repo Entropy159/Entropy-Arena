@@ -23,6 +23,18 @@ repositories {
         name = "Illusive Soulworks maven"
         url = "https://maven.theillusivec4.top/"
     }
+
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 base {
@@ -103,6 +115,8 @@ dependencies {
     jarJar(group: 'com.tterrag.registrate', name: 'Registrate', version: "[${registrate_version},)")
 
     implementation "top.theillusivec4.curios:curios-neoforge:9.5.1+1.21.1"
+
+    implementation "maven.modrinth:ping-wheel:${ping_wheel_version}"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

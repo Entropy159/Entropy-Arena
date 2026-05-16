@@ -9,6 +9,7 @@
     "ignoreAdventureMode.CommonHooksMixin",
     "ignoreAdventureMode.ItemStackMixin",
     "ignoreAdventureMode.PlayerMixin",
+    "pingwheel.PingViewMixin",
     "team.EntityMixin",
     "team.PlayerTeamMixin"
   ],

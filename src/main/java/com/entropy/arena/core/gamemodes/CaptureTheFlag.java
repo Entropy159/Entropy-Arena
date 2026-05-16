@@ -218,7 +218,7 @@ public class CaptureTheFlag extends TeamGamemode {
     public void scoreGem(ServerPlayer player, BlockPos pos, ItemStack gem, ArenaTeam gemTeam) {
         ServerLevel level = player.serverLevel();
         ArenaTeam playerTeam = getPlayerTeam(player);
-        if (!level.getBlockState(pos).getValue(PedestalBlock.HAS_GEM)) {
+        if (ServerConfig.REQUIRE_GEM_TO_SCORE.get() && !level.getBlockState(pos).getValue(PedestalBlock.HAS_GEM)) {
             player.displayClientMessage(Component.translatable("arena.message.ctf.pedestal_invalid").withStyle(ChatFormatting.DARK_RED), true);
             return;
         }

@@ -123,6 +123,7 @@
   "entropyarena.configuration.notificationFadeoutDelay": "Notification Fade Out Delay",
   "entropyarena.configuration.notificationFadeoutDuration": "Notification Fade Out Duration",
   "entropyarena.configuration.recapSeconds": "Recap Seconds",
+  "entropyarena.configuration.requireGemToScore": "Require Gem to Score",
   "entropyarena.configuration.respawnDelay": "Respawn Delay",
   "entropyarena.configuration.returnAllGems": "Return All Gems",
   "entropyarena.configuration.screenCenterNoIcons": "Screen Center No Icons",

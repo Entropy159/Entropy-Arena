@@ -154,6 +154,14 @@ public abstract class TeamGamemode extends ArenaGamemode {
         }
     }
 
+    public boolean canSwitchToTeam(ServerPlayer player, ArenaTeam team) {
+        HashMap<ArenaTeam, Integer> teamCounts = new HashMap<>();
+        for (ArenaTeam t : teamMap.values()) {
+            teamCounts.put(t, teamCounts.getOrDefault(t, 0) + 1);
+        }
+        return teamCounts.getOrDefault(team, 0) < teamCounts.getOrDefault(getPlayerTeam(player), 0);
+    }
+
     public List<Component> getScoreText(ServerLevel level) {
         return scoreMap.entrySet().stream().sorted(Comparator.comparingInt(e -> -e.getValue())).map(e -> e.getKey().getScoreText(e.getValue())).toList();
     }

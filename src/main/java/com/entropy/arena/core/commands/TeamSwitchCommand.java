@@ -19,12 +19,13 @@ public class TeamSwitchCommand {
         dispatcher.register(literal("switch").requires(ctx -> ctx.isPlayer() && ArenaData.get(ctx.getLevel()).inGame() && ArenaData.get(ctx.getLevel()).currentGamemode instanceof TeamGamemode).then(argument("team", StringArgumentType.word()).suggests(TEAM_SUGGESTIONS).executes(ctx -> {
             if (ctx.getSource().getPlayer() != null) {
                 try {
-                    ArenaTeam team = ArenaTeam.valueOf(StringArgumentType.getString(ctx, "team"));
+                    ArenaTeam team = ArenaTeam.valueOf(StringArgumentType.getString(ctx, "team").toUpperCase());
                     ArenaMap map = ArenaData.get(ctx.getSource().getLevel()).currentMap;
                     if (map != null) {
                         if (map.getTeams(ctx.getSource().getLevel()).contains(team)) {
-                            if (ArenaData.get(ctx.getSource().getLevel()).currentGamemode instanceof TeamGamemode teamGamemode) {
+                            if (ArenaData.get(ctx.getSource().getLevel()).currentGamemode instanceof TeamGamemode teamGamemode && teamGamemode.canSwitchToTeam(ctx.getSource().getPlayer(), team)) {
                                 teamGamemode.setPlayerTeam(ctx.getSource().getPlayer(), team);
+                                teamGamemode.sendToAll();
                                 ArenaLogic.get(ctx.getSource().getLevel()).onRespawn(ctx.getSource().getPlayer());
                                 return 1;
                             }

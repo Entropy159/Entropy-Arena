@@ -61,7 +61,6 @@ public abstract class TeamGamemode extends ArenaGamemode {
         Collections.shuffle(players);
         for (ServerPlayer player : players) {
             ArenaTeam team = validTeams.get(index);
-            team.setThisTeam(player);
             setPlayerTeam(player, team);
             index++;
             if (index >= validTeams.size()) {

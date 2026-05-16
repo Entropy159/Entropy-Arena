@@ -11,11 +11,15 @@ import com.entropy.arena.core.gamemodes.CaptureTheFlag;
 import com.entropy.arena.core.items.DisguiseItem;
 import com.entropy.arena.core.items.TeamGemItem;
 import com.entropy.arena.core.registry.ArenaTags;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.scores.ScoreAccess;
+import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -30,6 +34,7 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 import java.util.List;
+import java.util.Optional;
 
 @EventBusSubscriber
 public class ArenaEvents {
@@ -53,6 +58,19 @@ public class ArenaEvents {
             if (ArenaLogic.get(level).onDeath(player, event.getSource())) {
                 event.setCanceled(true);
                 player.setHealth(player.getMaxHealth());
+
+                Optional.ofNullable(player.getKillCredit()).ifPresent(killer -> {
+                    player.awardStat(Stats.ENTITY_KILLED_BY.get(killer.getType()));
+                    killer.awardKillScore(player, player.deathScore, event.getSource());
+                });
+                player.getCombatTracker().recheckStatus();
+                player.awardStat(Stats.DEATHS);
+                player.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_DEATH));
+                player.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_REST));
+                player.clearFire();
+                player.setTicksFrozen(0);
+                player.setLastDeathLocation(Optional.of(GlobalPos.of(level.dimension(), player.blockPosition())));
+                player.getScoreboard().forAllObjectives(ObjectiveCriteria.DEATH_COUNT, player, ScoreAccess::increment);
             }
         }
     }

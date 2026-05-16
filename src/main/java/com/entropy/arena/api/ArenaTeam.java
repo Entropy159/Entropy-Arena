@@ -30,7 +30,12 @@ public enum ArenaTeam implements StringRepresentable {
     PURPLE(DyeColor.PURPLE, 0xFF9C00FF),
     CYAN(DyeColor.CYAN, 0xFF00FFFF),
     PINK(DyeColor.PINK, 0xFFFF00FF),
-    NONE(DyeColor.WHITE, 0xFFFFFFFF);
+    NONE(DyeColor.WHITE, 0xFFFFFFFF) {
+        @Override
+        public void setThisTeam(ServerPlayer player) {
+            player.serverLevel().getScoreboard().removePlayerFromTeam(player.getScoreboardName());
+        }
+    };
 
     public static final Codec<ArenaTeam> CODEC = StringRepresentable.fromEnum(ArenaTeam::values);
     private static final IntFunction<ArenaTeam> BY_ID = ByIdMap.continuous(ArenaTeam::ordinal, values(), ByIdMap.OutOfBoundsStrategy.ZERO);

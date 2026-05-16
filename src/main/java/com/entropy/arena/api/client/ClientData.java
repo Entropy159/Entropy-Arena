@@ -4,12 +4,14 @@ import com.entropy.arena.api.ArenaGameType;
 import com.entropy.arena.api.Notification;
 import com.entropy.arena.api.gamemode.ArenaGamemode;
 import com.entropy.arena.api.map.ArenaMapInfo;
+import com.entropy.arena.client.PingIcon;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class ClientData {
     public static boolean running = false;
@@ -25,4 +27,5 @@ public class ClientData {
     public static ArrayList<String> loadouts = new ArrayList<>();
     public static ArrayList<Notification> notifications = new ArrayList<>();
     public static ArrayList<Component> scoreList = new ArrayList<>();
+    public static CopyOnWriteArraySet<PingIcon> pings = new CopyOnWriteArraySet<>();
 }

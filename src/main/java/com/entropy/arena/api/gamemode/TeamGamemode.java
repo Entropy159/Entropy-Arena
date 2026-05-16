@@ -25,7 +25,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.neoforged.api.distmarker.Dist;
@@ -179,14 +178,6 @@ public abstract class TeamGamemode extends ArenaGamemode {
     @Override
     public ArenaTeam getTeamForBlock(ServerPlayer player) {
         return getPlayerTeam(player);
-    }
-
-    @Override
-    public int modifyEntityColor(Entity entity, int color) {
-        if (entity instanceof Player player) {
-            return getPlayerTeam(player).getColor();
-        }
-        return super.modifyEntityColor(entity, color);
     }
 
     @Override

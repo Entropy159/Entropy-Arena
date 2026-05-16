@@ -201,11 +201,6 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public int modifyEntityColor(Entity entity, int color) {
-        return color;
-    }
-
-    @OnlyIn(Dist.CLIENT)
     public void onClientRender(GuiGraphics graphics, DeltaTracker tracker) {
     }
 

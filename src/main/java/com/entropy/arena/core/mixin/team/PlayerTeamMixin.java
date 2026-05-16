@@ -31,6 +31,6 @@ public class PlayerTeamMixin {
 
     @ModifyReturnValue(method = "getColor", at = @At("RETURN"))
     private ChatFormatting color(ChatFormatting original) {
-        return ChatFormatting.BLACK;
+        return ChatFormatting.WHITE;
     }
 }

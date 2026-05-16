@@ -63,11 +63,11 @@ public class ArenaRenderingUtils {
         return (float) (Math.sin(scaledTime) + 1) / 2;
     }
 
-    public static void renderImageAtWorldPos(GuiGraphics graphics, ResourceLocation location, Vec3 worldPos, int size, int color) {
+    public static void renderImageAtWorldPos(GuiGraphics graphics, ResourceLocation location, Vec3 worldPos, int size, int color, boolean centerAlpha) {
         Vec3 screenPos = worldToScreen(worldPos);
         float alpha = centerTransparency(screenPos.x, screenPos.y) * new Color(color).getAlpha() / 255f;
         if (screenPos.z < 1)
-            renderImageWithDefaultPath(graphics, location, (int) screenPos.x, (int) screenPos.y, size, (Math.round(alpha * 255) << 24) | (color & 0xFFFFFF));
+            renderImageWithDefaultPath(graphics, location, (int) screenPos.x, (int) screenPos.y, size, centerAlpha ? (Math.round(alpha * 255) << 24) | (color & 0xFFFFFF) : color);
     }
 
     public static float centerTransparency(double x, double y) {

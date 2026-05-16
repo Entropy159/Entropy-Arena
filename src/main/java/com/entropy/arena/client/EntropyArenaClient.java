@@ -3,7 +3,6 @@ package com.entropy.arena.client;
 import com.entropy.arena.api.Notification;
 import com.entropy.arena.api.client.ArenaRenderingUtils;
 import com.entropy.arena.api.client.ScreenAnchorPoint;
-import com.entropy.arena.api.events.ModifyGlowColorEvent;
 import com.entropy.arena.api.map.MapScreenshot;
 import com.entropy.arena.client.screen.LoadoutScreen;
 import com.entropy.arena.client.screen.VotingScreen;
@@ -13,6 +12,7 @@ import com.entropy.arena.core.network.toServer.ScreenshotPacket;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -106,6 +106,8 @@ public class EntropyArenaClient {
 
             if (client.options.hideGui) return;
 
+            renderPings(graphics, tracker);
+
             if (running) {
                 ArenaRenderingUtils.renderText(graphics, getTimerText(), ScreenAnchorPoint.TOP_LEFT);
                 renderScores(graphics);
@@ -118,6 +120,12 @@ public class EntropyArenaClient {
 
             renderNotifications(graphics);
         });
+    }
+
+    private static void renderPings(GuiGraphics graphics, DeltaTracker tracker) {
+        if (client.level == null) return;
+        pings.removeIf(PingIcon::expired);
+        pings.forEach(ping -> ping.render(graphics, tracker));
     }
 
     private static Component getTimerText() {
@@ -138,13 +146,6 @@ public class EntropyArenaClient {
             }
         }
         notifications.removeAll(expired);
-    }
-
-    @SubscribeEvent
-    public static void modifyEntityColor(ModifyGlowColorEvent event) {
-        if (currentGamemode != null) {
-            event.setColor(currentGamemode.modifyEntityColor(event.getEntity(), event.getColor()));
-        }
     }
 
     @SubscribeEvent

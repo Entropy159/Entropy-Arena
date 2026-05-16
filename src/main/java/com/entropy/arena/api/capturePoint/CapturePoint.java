@@ -135,7 +135,7 @@ public abstract class CapturePoint {
 
     @OnlyIn(Dist.CLIENT)
     public void render(GuiGraphics graphics, DeltaTracker tracker) {
-        ArenaRenderingUtils.renderImageAtWorldPos(graphics, getIcon(), getPos().getCenter(), 16, getColor(tracker));
+        ArenaRenderingUtils.renderImageAtWorldPos(graphics, getIcon(), getPos().getCenter(), 16, getColor(tracker), true);
     }
 
     @OnlyIn(Dist.CLIENT)

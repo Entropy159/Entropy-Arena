@@ -114,8 +114,6 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("key.map_voting", "Map Voting");
         REGISTRATE.addRawLang("key.loadouts", "Loadouts");
 
-        REGISTRATE.addRawLang(MODID + ".configuration.infiniteBlocks", "Infinite Blocks");
-
         REGISTRATE.addRawLang(MODID + ".configuration.useChatForNotifications", "Use Chat For Notifications");
         REGISTRATE.addRawLang(MODID + ".configuration.notificationFadeoutDelay", "Notification Fade Out Delay");
         REGISTRATE.addRawLang(MODID + ".configuration.notificationFadeoutDuration", "Notification Fade Out Duration");
@@ -130,11 +128,15 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang(MODID + ".configuration.hideEnemyNametags", "Hide Enemy Nametags");
         REGISTRATE.addRawLang(MODID + ".configuration.respawnDelay", "Respawn Delay");
         REGISTRATE.addRawLang(MODID + ".configuration.giveSaturation", "Give Saturation");
-        REGISTRATE.addRawLang(MODID + ".configuration.returnAllGems", "Return All Gems");
-        REGISTRATE.addRawLang(MODID + ".configuration.flagExpirationSeconds", "Flag Expiration Seconds");
+        REGISTRATE.addRawLang(MODID + ".configuration.infiniteBlocks", "Infinite Blocks");
         REGISTRATE.addRawLang(MODID + ".configuration.spawnProtection", "Spawn Protection");
         REGISTRATE.addRawLang(MODID + ".configuration.maxHealth", "Max Health");
+
         REGISTRATE.addRawLang(MODID + ".configuration.requireGemToScore", "Require Gem to Score");
+        REGISTRATE.addRawLang(MODID + ".configuration.teamSwitchCooldown", "Team Switch Cooldown");
+        REGISTRATE.addRawLang(MODID + ".configuration.glowingForFlag", "Glowing for Flag");
+        REGISTRATE.addRawLang(MODID + ".configuration.returnAllGems", "Return All Gems");
+        REGISTRATE.addRawLang(MODID + ".configuration.flagExpirationSeconds", "Flag Expiration Seconds");
 
         REGISTRATE.addRawLang("arena.hud.interval", "Interval: %s");
         REGISTRATE.addRawLang("arena.hud.timer", "Timer: %s");

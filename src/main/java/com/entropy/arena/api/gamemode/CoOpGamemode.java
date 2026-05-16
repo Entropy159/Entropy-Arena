@@ -12,14 +12,11 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 public abstract class CoOpGamemode extends ArenaGamemode {
     protected int collectiveScore = 0;
@@ -31,6 +28,18 @@ public abstract class CoOpGamemode extends ArenaGamemode {
     @Override
     public int getHighestScore() {
         return collectiveScore;
+    }
+
+    @Override
+    public void onMatchStart(ServerLevel level) {
+        super.onMatchStart(level);
+        level.players().forEach(ArenaTeam.GREEN::setThisTeam);
+    }
+
+    @Override
+    public void onJoin(ServerPlayer player) {
+        super.onJoin(player);
+        ArenaTeam.GREEN.setThisTeam(player);
     }
 
     @Override
@@ -46,7 +55,10 @@ public abstract class CoOpGamemode extends ArenaGamemode {
 
     @Override
     public ArrayList<BlockPos> getValidSpawns(ServerPlayer player, ArenaMap map) {
-        return map.getSpawns(player.serverLevel()).get(ArenaTeam.NONE);
+        ArrayList<BlockPos> list = new ArrayList<>();
+        list.addAll(map.getSpawns(player.serverLevel()).get(ArenaTeam.NONE));
+        list.addAll(map.getSpawns(player.serverLevel()).get(ArenaTeam.GREEN));
+        return list;
     }
 
     @Override
@@ -75,14 +87,6 @@ public abstract class CoOpGamemode extends ArenaGamemode {
     @Override
     public List<Component> getScoreText(ServerLevel level) {
         return List.of(Component.translatable("arena.hud.score_value", getScore()).withStyle(ChatFormatting.GREEN));
-    }
-
-    @Override
-    public int modifyEntityColor(Entity entity, int color) {
-        if (entity instanceof Player) {
-            return 0xFF00FF00;
-        }
-        return super.modifyEntityColor(entity, color);
     }
 
     public void encodeData(ByteBuf buffer) {

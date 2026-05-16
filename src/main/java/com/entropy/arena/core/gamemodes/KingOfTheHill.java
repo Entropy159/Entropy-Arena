@@ -1,10 +1,10 @@
 package com.entropy.arena.core.gamemodes;
 
+import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.FFAGamemode;
 import com.entropy.arena.api.gamemode.HasCapturePoints;
 import com.entropy.arena.api.map.ArenaMap;
-import com.entropy.arena.core.blocks.CapturePointBlock;
 import com.entropy.arena.core.capturePoint.KOTHCapturePoint;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.DeltaTracker;
@@ -16,7 +16,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -46,6 +45,14 @@ public class KingOfTheHill extends FFAGamemode implements HasCapturePoints<KOTHC
     }
 
     @Override
+    public void onEntityTick(ServerLevel level, Entity entity) {
+        super.onEntityTick(level, entity);
+        if (entity instanceof ServerPlayer player) {
+            (capturePoint.getKing() == player.getUUID() ? ArenaTeam.YELLOW : ArenaTeam.NONE).setThisTeam(player);
+        }
+    }
+
+    @Override
     public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
         Component failureMessage = super.validateMap(level, arenaMap);
         if (failureMessage != null) return failureMessage;
@@ -56,23 +63,10 @@ public class KingOfTheHill extends FFAGamemode implements HasCapturePoints<KOTHC
     }
 
     @Override
-    public int modifyEntityColor(Entity entity, int color) {
-        if (getCapturePoint() != null && entity.getUUID().equals(getCapturePoint().getKing())) {
-            return KING_COLOR;
-        }
-        return super.modifyEntityColor(entity, color);
-    }
-
-    @Override
     public void onMatchStart(ServerLevel level) {
         super.onMatchStart(level);
         capturePoint = calculateCapturePoints(level, ArenaData.get(level).currentMap, KOTHCapturePoint::new).getFirst();
-//        removeCapturePointBlocks(data.getLevel());
         sendToAll();
-    }
-
-    private void removeCapturePointBlocks(ServerLevel level) {
-        level.setBlock(capturePoint.getPos(), level.getBlockState(capturePoint.getPos()).setValue(CapturePointBlock.VISIBLE, false), Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
     }
 
     public KOTHCapturePoint getCapturePoint() {

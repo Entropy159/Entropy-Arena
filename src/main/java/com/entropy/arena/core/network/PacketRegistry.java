@@ -26,6 +26,7 @@ public class PacketRegistry {
         registrar.playToClient(GameInfoPacket.TYPE, GameInfoPacket.STREAM_CODEC, GameInfoPacket::handle);
         registrar.playToClient(LoadoutsPacket.TYPE, LoadoutsPacket.STREAM_CODEC, LoadoutsPacket::handle);
         registrar.playToClient(RespawnPacket.TYPE, RespawnPacket.STREAM_CODEC, RespawnPacket::handle);
+        registrar.playToClient(PingPacket.TYPE, PingPacket.STREAM_CODEC, PingPacket::handle);
 
         registrar.playToServer(ScreenshotPacket.TYPE, ScreenshotPacket.STREAM_CODEC, ScreenshotPacket::handle);
         registrar.playToServer(MapVotePacket.TYPE, MapVotePacket.STREAM_CODEC, MapVotePacket::handle);

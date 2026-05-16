@@ -20,7 +20,6 @@
     "requireAnnotations": true
   },
   "client": [
-    "ClientEntityMixin",
     "ClientLevelMixin",
     "GameRendererMixin",
     "LivingEntityRendererMixin",

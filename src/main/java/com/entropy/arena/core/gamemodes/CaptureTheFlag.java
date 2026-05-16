@@ -12,6 +12,7 @@ import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.PedestalBlock;
 import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.items.TeamGemItem;
+import com.entropy.arena.core.network.toClient.PingPacket;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.entropy.arena.core.registry.ArenaItems;
 import io.netty.buffer.ByteBuf;
@@ -30,6 +31,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -59,14 +61,26 @@ public class CaptureTheFlag extends TeamGamemode {
     public void onEntityTick(ServerLevel level, Entity entity) {
         super.onEntityTick(level, entity);
         if (isTeamGem(entity)) {
-            entity.setGlowingTag(true);
+            if (ServerConfig.GLOWING_FOR_FLAG.get()) {
+                entity.setGlowingTag(true);
+            } else if (level.getGameTime() % 100 == 0) {
+                PacketDistributor.sendToAllPlayers(new PingPacket(entity.position(), entity.getTeamColor()));
+            }
             if (entity instanceof ItemEntity itemEntity && ServerConfig.FLAG_EXPIRATION_SECONDS.get() > 0 && itemEntity.getAge() > ServerConfig.FLAG_EXPIRATION_SECONDS.get() * 20) {
                 resetGem(level, itemEntity.getItem());
                 entity.remove(Entity.RemovalReason.DISCARDED);
             }
         }
         if (entity instanceof ServerPlayer player) {
-            player.setGlowingTag(playerHasGem(player));
+            if (ServerConfig.GLOWING_FOR_FLAG.get()) {
+                entity.setGlowingTag(playerHasGem(player));
+            } else if (level.getGameTime() % 100 == 0) {
+                LoadoutSerializerRegistry.forEachStack(player, (serializer, slot, stack) -> {
+                    if (stack.getItem() instanceof TeamGemItem) {
+                        PacketDistributor.sendToAllPlayers(new PingPacket(player.position().lerp(player.getEyePosition(), 0.5), stack.getOrDefault(ArenaDataComponents.TEAM, ArenaTeam.NONE).getColor()));
+                    }
+                });
+            }
         }
     }
 
@@ -76,14 +90,6 @@ public class CaptureTheFlag extends TeamGamemode {
 
     public boolean playerHasGem(ServerPlayer player) {
         return player.getInventory().hasAnyMatching(stack -> stack.getItem() instanceof TeamGemItem);
-    }
-
-    @Override
-    public int modifyEntityColor(Entity entity, int color) {
-        if (entity instanceof ItemEntity itemEntity && itemEntity.getItem().getItem() instanceof TeamGemItem) {
-            return itemEntity.getItem().getOrDefault(ArenaDataComponents.TEAM, ArenaTeam.NONE).getColor();
-        }
-        return super.modifyEntityColor(entity, color);
     }
 
     @Override
@@ -232,7 +238,7 @@ public class CaptureTheFlag extends TeamGamemode {
         if (!pedestalValueMap.get(pos)) {
             color = ArenaUtils.lerpColors(team.getColor(), 0x000000, ArenaRenderingUtils.sineFromZeroToOne(6, tracker));
         }
-        ArenaRenderingUtils.renderImageAtWorldPos(graphics, EntropyArena.id("flag"), pos.getCenter(), 16, color);
+        ArenaRenderingUtils.renderImageAtWorldPos(graphics, EntropyArena.id("flag"), pos.getCenter(), 16, color, true);
     }
 
     @Override

@@ -43,9 +43,8 @@ public class CaptureTheFlag extends TeamGamemode {
     protected HashMap<ArenaTeam, ArrayList<BlockPos>> pedestalPositions = new HashMap<>();
     protected HashMap<BlockPos, Boolean> pedestalValueMap = new HashMap<>();
 
-    @Override
-    public ResourceLocation getRegistryID() {
-        return EntropyArena.id("capture_the_flag");
+    public CaptureTheFlag(ResourceLocation id) {
+        super(id);
     }
 
     @Override

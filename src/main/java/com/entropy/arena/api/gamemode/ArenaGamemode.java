@@ -49,14 +49,19 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 public abstract class ArenaGamemode implements CustomPacketPayload {
-    public ArenaGamemode() {
+    private final ResourceLocation registryID;
+
+    public ArenaGamemode(ResourceLocation id) {
+        registryID = id;
+    }
+
+    public ResourceLocation getRegistryID() {
+        return registryID;
     }
 
     public Component getName() {
-        return Component.translatable("arena.gamemode." + getRegistryID().toLanguageKey());
+        return Component.translatable("arena.gamemode." + registryID.toLanguageKey());
     }
-
-    public abstract ResourceLocation getRegistryID();
 
     public void onLevelTick(ServerLevel level) {
 
@@ -231,7 +236,7 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
 
     public <T extends ArenaGamemode> StreamCodec<ByteBuf, T> getStreamCodec() {
         return StreamCodec.of((buffer, value) -> value.encodeData(buffer), buffer -> {
-            @SuppressWarnings("unchecked") T value = (T) GamemodeRegistry.getGamemode(getRegistryID());
+            @SuppressWarnings("unchecked") T value = (T) GamemodeRegistry.get(registryID);
             Objects.requireNonNull(value).decodeData(buffer);
             return value;
         });
@@ -239,7 +244,7 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
 
     @Override
     public @NotNull Type<ArenaGamemode> type() {
-        return new Type<>(getRegistryID());
+        return new Type<>(registryID);
     }
 
     public void registerPacket(PayloadRegistrar registrar) {

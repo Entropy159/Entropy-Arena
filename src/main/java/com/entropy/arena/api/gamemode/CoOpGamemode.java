@@ -9,6 +9,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -22,6 +23,10 @@ import java.util.function.Predicate;
 
 public abstract class CoOpGamemode extends ArenaGamemode {
     protected int collectiveScore = 0;
+
+    public CoOpGamemode(ResourceLocation id) {
+        super(id);
+    }
 
     @Override
     public int getHighestScore() {

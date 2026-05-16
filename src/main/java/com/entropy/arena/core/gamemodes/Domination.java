@@ -6,7 +6,6 @@ import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.HasCapturePoints;
 import com.entropy.arena.api.gamemode.TeamGamemode;
 import com.entropy.arena.api.map.ArenaMap;
-import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.CapturePointBlock;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.DeltaTracker;
@@ -27,9 +26,8 @@ public class Domination extends TeamGamemode implements HasCapturePoints<TeamCap
 
     protected List<TeamCapturePoint> capturePoints = new ArrayList<>();
 
-    @Override
-    public ResourceLocation getRegistryID() {
-        return EntropyArena.id("domination");
+    public Domination(ResourceLocation id) {
+        super(id);
     }
 
     @Override

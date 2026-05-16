@@ -96,7 +96,7 @@ public class ArenaMap {
     }
 
     public @Nullable ArenaGamemode getNewGamemode() {
-        return GamemodeRegistry.getGamemode(gamemodeID);
+        return GamemodeRegistry.get(gamemodeID);
     }
 
     public void update(ServerLevel level, ServerPlayer player) {

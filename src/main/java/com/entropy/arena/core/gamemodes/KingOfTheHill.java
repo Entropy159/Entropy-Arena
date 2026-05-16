@@ -4,7 +4,6 @@ import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.FFAGamemode;
 import com.entropy.arena.api.gamemode.HasCapturePoints;
 import com.entropy.arena.api.map.ArenaMap;
-import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.CapturePointBlock;
 import com.entropy.arena.core.capturePoint.KOTHCapturePoint;
 import io.netty.buffer.ByteBuf;
@@ -29,9 +28,8 @@ public class KingOfTheHill extends FFAGamemode implements HasCapturePoints<KOTHC
 
     protected KOTHCapturePoint capturePoint;
 
-    @Override
-    public ResourceLocation getRegistryID() {
-        return EntropyArena.id("king_of_the_hill");
+    public KingOfTheHill(ResourceLocation id) {
+        super(id);
     }
 
     @Override

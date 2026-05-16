@@ -19,7 +19,7 @@ import static net.minecraft.commands.Commands.literal;
 
 public class TeamSwitchCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(literal("switch").requires(ctx -> ctx.isPlayer() && ArenaData.get(ctx.getLevel()).inGame() && ArenaData.get(ctx.getLevel()).currentGamemode instanceof TeamGamemode).then(argument("team", StringArgumentType.word()).suggests(TEAM_SUGGESTIONS).executes(ctx -> {
+        dispatcher.register(literal("switch").requires(CommandSourceStack::isPlayer).then(argument("team", StringArgumentType.word()).suggests(TEAM_SUGGESTIONS).executes(ctx -> {
             ServerPlayer player = ctx.getSource().getPlayer();
             if (player != null) {
                 try {
@@ -33,6 +33,8 @@ public class TeamSwitchCommand {
                                 ArenaLogic.get(ctx.getSource().getLevel()).onRespawn(player);
                                 Notification.toAll(Component.translatable("arena.message.switched_team", player.getDisplayName(), team.getColoredName()).withStyle(ChatFormatting.YELLOW));
                                 return 1;
+                            } else {
+                                ctx.getSource().sendFailure(Component.translatable("arena.error.cant_switch_teams"));
                             }
                         } else {
                             ctx.getSource().sendFailure(Component.translatable("arena.error.team_not_found", team.getName()));

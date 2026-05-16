@@ -7,7 +7,6 @@ import com.entropy.arena.api.client.ScreenAnchorPoint;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.CoOpGamemode;
 import com.entropy.arena.api.map.ArenaMap;
-import com.entropy.arena.core.EntropyArena;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
@@ -42,9 +41,8 @@ public class WaveSurvival extends CoOpGamemode {
     protected int mobCount = 0;
     protected boolean isInterval = true;
 
-    @Override
-    public ResourceLocation getRegistryID() {
-        return EntropyArena.id("wave_survival");
+    public WaveSurvival(ResourceLocation id) {
+        super(id);
     }
 
     @Override

@@ -214,7 +214,6 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.error.no_loadouts", "No loadouts found");
         REGISTRATE.addRawLang("arena.error.loadout_already_exists", "Loadout %s already exists");
         REGISTRATE.addRawLang("arena.error.loadout_not_found", "Loadout %s not found");
-        ;
         REGISTRATE.addRawLang("arena.error.item_list_already_exists", "Item list %s already exists");
         REGISTRATE.addRawLang("arena.error.item_list_not_found", "Item list %s not found");
         REGISTRATE.addRawLang("arena.error.no_inventory_at_pos", "No block with inventory at %s");
@@ -222,8 +221,8 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.error.no_random_item_lists", "No ordered item lists found");
         REGISTRATE.addRawLang("arena.error.backing_up", "Backing up map");
         REGISTRATE.addRawLang("arena.error.restoring_backup", "Restoring map backup");
+        REGISTRATE.addRawLang("arena.error.cant_switch_teams", "Can't switch teams right now!");
 
-        REGISTRATE.addRawLang("arena.gamemode.capture_the_flag", "Capture the Flag");
         REGISTRATE.addRawLang("arena.message.ctf.flag_taken", "Team %s's flag has been taken by team %s");
         REGISTRATE.addRawLang("arena.message.ctf.flag_returned", "Team %s's flag has been returned");
         REGISTRATE.addRawLang("arena.message.ctf.flag_scored", "Team %s has scored");
@@ -232,21 +231,9 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.error.ctf.not_enough_pedestals", "Not enough pedestals");
         REGISTRATE.addRawLang("arena.error.ctf.only_one_flag", "You can only have one flag at a time");
 
-        REGISTRATE.addRawLang("arena.gamemode.disguise", "Disguise");
-
-        REGISTRATE.addRawLang("arena.gamemode.domination", "Domination");
-
-        REGISTRATE.addRawLang("arena.gamemode.free_for_all", "Free for All");
-
-        REGISTRATE.addRawLang("arena.gamemode.king_of_the_hill", "King of the Hill");
         REGISTRATE.addRawLang("arena.message.koth.new_king", "%s has taken the hill");
         REGISTRATE.addRawLang("arena.message.koth.hill_lost", "%s has lost the hill");
 
-        REGISTRATE.addRawLang("arena.gamemode.progression", "Progression");
-
-        REGISTRATE.addRawLang("arena.gamemode.team_deathmatch", "Team Deathmatch");
-
-        REGISTRATE.addRawLang("arena.gamemode.wave_survival", "Wave Survival");
         REGISTRATE.addRawLang("arena.message.waves.interval", "Interval: %s");
         REGISTRATE.addRawLang("arena.message.waves.mob_count", "Mobs: %s/%s");
         REGISTRATE.addRawLang("arena.message.waves.survived_wave", "Survived wave %s");

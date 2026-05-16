@@ -8,6 +8,7 @@ import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.api.map.ArenaMap;
+import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.network.toClient.ScoresPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
@@ -20,6 +21,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
@@ -39,6 +41,10 @@ public abstract class TeamGamemode extends ArenaGamemode {
 
     protected HashMap<ArenaTeam, Integer> scoreMap = new HashMap<>();
     protected HashMap<UUID, ArenaTeam> teamMap = new HashMap<>();
+
+    public TeamGamemode(ResourceLocation id) {
+        super(id);
+    }
 
     @Override
     public int getHighestScore() {
@@ -152,9 +158,13 @@ public abstract class TeamGamemode extends ArenaGamemode {
         } else {
             teamMap.remove(player.getUUID());
         }
+        ArenaData.get(player.serverLevel()).teamSwitchTimes.put(player.getUUID(), player.serverLevel().getGameTime());
     }
 
     public boolean canSwitchToTeam(ServerPlayer player, ArenaTeam team) {
+        if (ArenaData.get(player.serverLevel()).teamSwitchTimes.getOrDefault(player.getUUID(), 0L) + ServerConfig.TEAM_SWITCH_COOLDOWN.get() * 20L > player.serverLevel().getGameTime()) {
+            return false;
+        }
         HashMap<ArenaTeam, Integer> teamCounts = new HashMap<>();
         for (ArenaTeam t : teamMap.values()) {
             teamCounts.put(t, teamCounts.getOrDefault(t, 0) + 1);

@@ -3,7 +3,6 @@ package com.entropy.arena.core.gamemodes;
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.gamemode.TeamGamemode;
 import com.entropy.arena.api.loadout.Loadout;
-import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.items.DisguiseItem;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -26,9 +25,8 @@ public class Disguise extends TeamGamemode {
     protected static final StreamCodec<ByteBuf, HashMap<UUID, BlockState>> DISGUISE_MAP_CODEC = ByteBufCodecs.map(HashMap::new, UUIDUtil.STREAM_CODEC, ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY));
     protected HashMap<UUID, BlockState> disguiseMap = new HashMap<>();
 
-    @Override
-    public ResourceLocation getRegistryID() {
-        return EntropyArena.id("disguise");
+    public Disguise(ResourceLocation id) {
+        super(id);
     }
 
     public void setDisguise(ServerPlayer player, BlockState disguise) {

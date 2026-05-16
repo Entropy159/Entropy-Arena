@@ -42,6 +42,7 @@ public class ArenaData extends SavedData {
     public final ArrayList<String> votableMaps = new ArrayList<>();
     public final HashMap<UUID, Long> respawnTimes = new HashMap<>();
     public final HashMap<UUID, Long> spawnProtection = new HashMap<>();
+    public final HashMap<UUID, Long> teamSwitchTimes = new HashMap<>();
 
     public ArenaData(ServerLevel level) {
         this.level = level;

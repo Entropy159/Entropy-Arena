@@ -6,7 +6,6 @@ import com.entropy.arena.api.loadout.ItemList;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.core.ArenaLogic;
-import com.entropy.arena.core.EntropyArena;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -16,9 +15,8 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public class Progression extends FFAGamemode {
-    @Override
-    public ResourceLocation getRegistryID() {
-        return EntropyArena.id("progression");
+    public Progression(ResourceLocation id) {
+        super(id);
     }
 
     @Override

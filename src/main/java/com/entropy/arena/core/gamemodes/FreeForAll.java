@@ -1,15 +1,13 @@
 package com.entropy.arena.core.gamemodes;
 
 import com.entropy.arena.api.gamemode.FFAGamemode;
-import com.entropy.arena.core.EntropyArena;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 
 public class FreeForAll extends FFAGamemode {
-    @Override
-    public ResourceLocation getRegistryID() {
-        return EntropyArena.id("free_for_all");
+    public FreeForAll(ResourceLocation id) {
+        super(id);
     }
 
     @Override

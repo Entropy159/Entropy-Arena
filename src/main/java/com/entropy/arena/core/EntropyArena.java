@@ -1,6 +1,7 @@
 package com.entropy.arena.core;
 
-import com.entropy.arena.api.ArenaRegistrate;
+import com.entropy.arena.api.registrate.ArenaRegistrate;
+import com.entropy.arena.api.gamemode.GamemodeRegistry;
 import com.entropy.arena.core.commands.*;
 import com.entropy.arena.core.config.ClientConfig;
 import com.entropy.arena.core.config.CommonConfig;
@@ -17,6 +18,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
 import org.slf4j.Logger;
 
 @Mod(EntropyArena.MODID)
@@ -27,6 +29,7 @@ public class EntropyArena {
 
     public EntropyArena(IEventBus bus, ModContainer container) {
         NeoForge.EVENT_BUS.register(this);
+        bus.addListener(this::registerRegistries);
 
         ArenaBlocks.init();
         ArenaItems.init();
@@ -51,6 +54,10 @@ public class EntropyArena {
         ItemListCommand.register(dispatcher);
         TeamSwitchCommand.register(dispatcher);
         UnbreakableCommand.register(dispatcher);
+    }
+
+    public void registerRegistries(NewRegistryEvent event) {
+        event.register(GamemodeRegistry.REGISTRY);
     }
 
     public static ResourceLocation id(String path) {

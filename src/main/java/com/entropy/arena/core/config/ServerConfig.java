@@ -20,6 +20,7 @@ public class ServerConfig {
     public static final ModConfigSpec.IntValue SPAWN_PROTECTION = BUILDER.defineInRange("spawnProtection", 5, 0, 15);
     public static final ModConfigSpec.IntValue MAX_HEALTH = BUILDER.defineInRange("maxHealth", 20, 1, 10000);
     public static final ModConfigSpec.BooleanValue REQUIRE_GEM_TO_SCORE = BUILDER.define("requireGemToScore", false);
+    public static final ModConfigSpec.IntValue TEAM_SWITCH_COOLDOWN = BUILDER.defineInRange("teamSwitchCooldown", 15, 0, 120);
 
     public static final ModConfigSpec SPEC = BUILDER.build();
 }

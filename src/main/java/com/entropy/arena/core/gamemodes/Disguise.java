@@ -5,7 +5,6 @@ import com.entropy.arena.api.gamemode.TeamGamemode;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.items.DisguiseItem;
-import com.tterrag.registrate.Registrate;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.UUIDUtil;
@@ -30,16 +29,6 @@ public class Disguise extends TeamGamemode {
     @Override
     public ResourceLocation getRegistryID() {
         return EntropyArena.id("disguise");
-    }
-
-    @Override
-    public Registrate getRegistrate() {
-        return EntropyArena.REGISTRATE;
-    }
-
-    @Override
-    public void generateLang() {
-        setNameTranslation("Disguise");
     }
 
     public void setDisguise(ServerPlayer player, BlockState disguise) {

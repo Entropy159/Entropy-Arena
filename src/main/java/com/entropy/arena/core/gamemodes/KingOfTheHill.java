@@ -7,7 +7,6 @@ import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.CapturePointBlock;
 import com.entropy.arena.core.capturePoint.KOTHCapturePoint;
-import com.tterrag.registrate.Registrate;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
@@ -31,20 +30,8 @@ public class KingOfTheHill extends FFAGamemode implements HasCapturePoints<KOTHC
     protected KOTHCapturePoint capturePoint;
 
     @Override
-    public void generateLang() {
-        setNameTranslation("King of the Hill");
-        EntropyArena.REGISTRATE.addRawLang("arena.message.koth.new_king", "%s has taken the hill");
-        EntropyArena.REGISTRATE.addRawLang("arena.message.koth.hill_lost", "%s has lost the hill");
-    }
-
-    @Override
     public ResourceLocation getRegistryID() {
         return EntropyArena.id("king_of_the_hill");
-    }
-
-    @Override
-    public Registrate getRegistrate() {
-        return EntropyArena.REGISTRATE;
     }
 
     @Override

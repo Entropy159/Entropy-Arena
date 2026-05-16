@@ -1,8 +1,6 @@
 package com.entropy.arena.core;
 
 import com.entropy.arena.api.ArenaUtils;
-import com.entropy.arena.api.gamemode.ArenaGamemode;
-import com.entropy.arena.api.gamemode.GamemodeRegistry;
 import com.entropy.arena.core.registry.ArenaBlocks;
 import com.entropy.arena.core.registry.ArenaSounds;
 import com.entropy.arena.core.registry.ArenaTags;
@@ -111,8 +109,6 @@ public class ArenaDatagen {
             }
         }
 
-        GamemodeRegistry.forEach(ArenaGamemode::generateLang);
-
         REGISTRATE.addRawLang("key.categories." + MODID, "Entropy Arena");
         REGISTRATE.addRawLang("key.next_music", "Next Music");
         REGISTRATE.addRawLang("key.map_voting", "Map Voting");
@@ -201,6 +197,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.chunk_reset_progress", "Reset chunk %s/%s");
         REGISTRATE.addRawLang("arena.message.added_unbreakable", "Made item unbreakable");
         REGISTRATE.addRawLang("arena.message.removed_unbreakable", "Made item breakable");
+        REGISTRATE.addRawLang("arena.message.switched_team", "%s has switched to team %s");
 
         REGISTRATE.addRawLang("arena.error.already_running", "Game is already running");
         REGISTRATE.addRawLang("arena.error.no_lobby", "No lobby position found");
@@ -225,5 +222,33 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.error.no_random_item_lists", "No ordered item lists found");
         REGISTRATE.addRawLang("arena.error.backing_up", "Backing up map");
         REGISTRATE.addRawLang("arena.error.restoring_backup", "Restoring map backup");
+
+        REGISTRATE.addRawLang("arena.gamemode.capture_the_flag", "Capture the Flag");
+        REGISTRATE.addRawLang("arena.message.ctf.flag_taken", "Team %s's flag has been taken by team %s");
+        REGISTRATE.addRawLang("arena.message.ctf.flag_returned", "Team %s's flag has been returned");
+        REGISTRATE.addRawLang("arena.message.ctf.flag_scored", "Team %s has scored");
+        REGISTRATE.addRawLang("arena.message.ctf.flag_dropped", "Team %s's flag has dropped out of the map");
+        REGISTRATE.addRawLang("arena.message.ctf.pedestal_invalid", "You cannot score on a pedestal that's been taken from");
+        REGISTRATE.addRawLang("arena.error.ctf.not_enough_pedestals", "Not enough pedestals");
+        REGISTRATE.addRawLang("arena.error.ctf.only_one_flag", "You can only have one flag at a time");
+
+        REGISTRATE.addRawLang("arena.gamemode.disguise", "Disguise");
+
+        REGISTRATE.addRawLang("arena.gamemode.domination", "Domination");
+
+        REGISTRATE.addRawLang("arena.gamemode.free_for_all", "Free for All");
+
+        REGISTRATE.addRawLang("arena.gamemode.king_of_the_hill", "King of the Hill");
+        REGISTRATE.addRawLang("arena.message.koth.new_king", "%s has taken the hill");
+        REGISTRATE.addRawLang("arena.message.koth.hill_lost", "%s has lost the hill");
+
+        REGISTRATE.addRawLang("arena.gamemode.progression", "Progression");
+
+        REGISTRATE.addRawLang("arena.gamemode.team_deathmatch", "Team Deathmatch");
+
+        REGISTRATE.addRawLang("arena.gamemode.wave_survival", "Wave Survival");
+        REGISTRATE.addRawLang("arena.message.waves.interval", "Interval: %s");
+        REGISTRATE.addRawLang("arena.message.waves.mob_count", "Mobs: %s/%s");
+        REGISTRATE.addRawLang("arena.message.waves.survived_wave", "Survived wave %s");
     }
 }

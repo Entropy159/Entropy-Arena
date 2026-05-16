@@ -14,7 +14,6 @@ import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.items.TeamGemItem;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.entropy.arena.core.registry.ArenaItems;
-import com.tterrag.registrate.Registrate;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
@@ -45,26 +44,8 @@ public class CaptureTheFlag extends TeamGamemode {
     protected HashMap<BlockPos, Boolean> pedestalValueMap = new HashMap<>();
 
     @Override
-    public void generateLang() {
-        setNameTranslation("Capture the Flag");
-        EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.flag_taken", "Team %s's flag has been taken by team %s");
-        EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.flag_returned", "Team %s's flag has been returned");
-        EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.flag_scored", "Team %s has scored");
-        EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.flag_dropped", "Team %s's flag has dropped out of the map");
-        EntropyArena.REGISTRATE.addRawLang("arena.message.ctf.pedestal_invalid", "You cannot score on a pedestal that's been taken from");
-
-        EntropyArena.REGISTRATE.addRawLang("arena.error.ctf.not_enough_pedestals", "Not enough pedestals");
-        EntropyArena.REGISTRATE.addRawLang("arena.error.ctf.only_one_flag", "You can only have one flag at a time");
-    }
-
-    @Override
     public ResourceLocation getRegistryID() {
         return EntropyArena.id("capture_the_flag");
-    }
-
-    @Override
-    public Registrate getRegistrate() {
-        return EntropyArena.REGISTRATE;
     }
 
     @Override

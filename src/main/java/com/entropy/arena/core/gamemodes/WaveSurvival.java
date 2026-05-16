@@ -8,7 +8,6 @@ import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.CoOpGamemode;
 import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.core.EntropyArena;
-import com.tterrag.registrate.Registrate;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
@@ -44,21 +43,8 @@ public class WaveSurvival extends CoOpGamemode {
     protected boolean isInterval = true;
 
     @Override
-    public void generateLang() {
-        setNameTranslation("Wave Survival");
-        EntropyArena.REGISTRATE.addRawLang("arena.message.waves.interval", "Interval: %s");
-        EntropyArena.REGISTRATE.addRawLang("arena.message.waves.mob_count", "Mobs: %s/%s");
-        EntropyArena.REGISTRATE.addRawLang("arena.message.waves.survived_wave", "Survived wave %s");
-    }
-
-    @Override
     public ResourceLocation getRegistryID() {
         return EntropyArena.id("wave_survival");
-    }
-
-    @Override
-    public Registrate getRegistrate() {
-        return EntropyArena.REGISTRATE;
     }
 
     @Override

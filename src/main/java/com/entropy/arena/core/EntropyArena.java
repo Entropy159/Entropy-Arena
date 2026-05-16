@@ -1,5 +1,6 @@
 package com.entropy.arena.core;
 
+import com.entropy.arena.api.ArenaRegistrate;
 import com.entropy.arena.core.commands.*;
 import com.entropy.arena.core.config.ClientConfig;
 import com.entropy.arena.core.config.CommonConfig;
@@ -7,7 +8,6 @@ import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.registry.*;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
-import com.tterrag.registrate.Registrate;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 public class EntropyArena {
     public static final String MODID = "entropyarena";
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static final Registrate REGISTRATE = Registrate.create(MODID);
+    public static final ArenaRegistrate REGISTRATE = ArenaRegistrate.create(MODID);
 
     public EntropyArena(IEventBus bus, ModContainer container) {
         NeoForge.EVENT_BUS.register(this);

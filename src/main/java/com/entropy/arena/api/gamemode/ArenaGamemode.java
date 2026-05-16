@@ -16,7 +16,6 @@ import com.entropy.arena.core.blocks.TeamBlock;
 import com.entropy.arena.core.items.DisguiseItem;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.entropy.arena.core.registry.ArenaStatTypes;
-import com.tterrag.registrate.Registrate;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
@@ -58,14 +57,6 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
     }
 
     public abstract ResourceLocation getRegistryID();
-
-    public abstract void generateLang();
-
-    public void setNameTranslation(String englishName) {
-        getRegistrate().addRawLang("arena.gamemode." + getRegistryID().toLanguageKey(), englishName);
-    }
-
-    public abstract Registrate getRegistrate();
 
     public void onLevelTick(ServerLevel level) {
 

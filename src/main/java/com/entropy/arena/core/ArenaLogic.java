@@ -160,6 +160,11 @@ public class ArenaLogic {
             return;
         }
         data.currentGamemode = data.currentMap.getNewGamemode();
+        if (data.currentGamemode == null) {
+            Notification.toAll(Component.translatable("arena.error.no_gamemode", data.currentMap.getGamemodeID().toString()).withStyle(ChatFormatting.RED));
+            disable();
+            return;
+        }
         Notification.toAll(Component.translatable("arena.message.game_start").withStyle(ChatFormatting.GREEN));
         data.backup(this::afterMapLoad);
     }

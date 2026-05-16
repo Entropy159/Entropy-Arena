@@ -113,7 +113,6 @@ public abstract class TeamGamemode extends ArenaGamemode {
         List<ArenaTeam> validTeams = data.currentMap.getTeams(player.serverLevel()).stream().sorted(Comparator.comparingInt(t -> Math.toIntExact(teamMap.values().stream().filter(t2 -> t == t2).count()))).toList();
         if (!validTeams.isEmpty()) {
             ArenaTeam team = validTeams.getFirst();
-            team.setThisTeam(player);
             setPlayerTeam(player, team);
         }
     }
@@ -152,6 +151,7 @@ public abstract class TeamGamemode extends ArenaGamemode {
     }
 
     public void setPlayerTeam(ServerPlayer player, ArenaTeam team) {
+        team.setThisTeam(player);
         if (team != ArenaTeam.NONE) {
             teamMap.put(player.getUUID(), team);
         } else {

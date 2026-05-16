@@ -10,6 +10,8 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 
+import java.util.function.Supplier;
+
 public class ArenaRegistrate extends AbstractRegistrate<ArenaRegistrate> {
     protected ArenaRegistrate(String modid) {
         super(modid);
@@ -22,19 +24,19 @@ public class ArenaRegistrate extends AbstractRegistrate<ArenaRegistrate> {
         return registrate;
     }
 
-    public <T extends ArenaGamemode> GamemodeBuilder<T, ArenaRegistrate> gamemode(NonNullFunction<ResourceLocation, T> factory) {
+    public <T extends ArenaGamemode> GamemodeBuilder<Supplier<ArenaGamemode>, ArenaRegistrate> gamemode(NonNullFunction<ResourceLocation, T> factory) {
         return gamemode(self(), factory);
     }
 
-    public <T extends ArenaGamemode> GamemodeBuilder<T, ArenaRegistrate> gamemode(String name, NonNullFunction<ResourceLocation, T> factory) {
+    public <T extends ArenaGamemode> GamemodeBuilder<Supplier<ArenaGamemode>, ArenaRegistrate> gamemode(String name, NonNullFunction<ResourceLocation, T> factory) {
         return gamemode(self(), name, factory);
     }
 
-    public <T extends ArenaGamemode, P> GamemodeBuilder<T, P> gamemode(P parent, NonNullFunction<ResourceLocation, T> factory) {
+    public <T extends ArenaGamemode, P> GamemodeBuilder<Supplier<ArenaGamemode>, P> gamemode(P parent, NonNullFunction<ResourceLocation, T> factory) {
         return gamemode(parent, currentName(), factory);
     }
 
-    public <T extends ArenaGamemode, P> GamemodeBuilder<T, P> gamemode(P parent, String name, NonNullFunction<ResourceLocation, T> factory) {
-        return entry(name, callback -> GamemodeBuilder.create(this, parent, name, callback, factory));
+    public <T extends ArenaGamemode, P> GamemodeBuilder<Supplier<ArenaGamemode>, P> gamemode(P parent, String name, NonNullFunction<ResourceLocation, T> factory) {
+        return entry(name, callback -> GamemodeBuilder.create(this, parent, name, callback, id -> () -> factory.apply(id)));
     }
 }

@@ -55,7 +55,7 @@ public record ArenaMapInfo(String name, MapScreenshot screenshot, ResourceLocati
         public void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
             Minecraft client = Minecraft.getInstance();
             Font font = client.font;
-            ArenaGamemode mode = GamemodeRegistry.get(mapInfo.gamemode);
+            ArenaGamemode mode = GamemodeRegistry.getNew(mapInfo.gamemode);
             int lineHeight = client.font.lineHeight + TEXT_PADDING;
             int imageHeight = (int) (getWidth() * mapInfo.screenshot.getAspectRatio());
             int centerX = getX() + getWidth() / 2;

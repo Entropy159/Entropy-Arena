@@ -27,6 +27,6 @@ public record GameInfoPacket(String mapName, ResourceLocation gamemode) implemen
 
     public void handle(IPayloadContext ctx) {
         ClientData.currentMap = mapName.isBlank() ? null : mapName;
-        ClientData.currentGamemode = GamemodeRegistry.get(gamemode);
+        ClientData.currentGamemode = GamemodeRegistry.getNew(gamemode);
     }
 }

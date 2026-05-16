@@ -11,11 +11,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 
-public class GamemodeBuilder<T extends ArenaGamemode, P> extends AbstractBuilder<ArenaGamemode, T, P, GamemodeBuilder<T, P>> {
+import java.util.function.Supplier;
+
+public class GamemodeBuilder<T extends Supplier<ArenaGamemode>, P> extends AbstractBuilder<Supplier<ArenaGamemode>, T, P, GamemodeBuilder<T, P>> {
     private final NonNullFunction<ResourceLocation, T> factory;
     private final ResourceLocation id;
 
-    public static <T extends ArenaGamemode, P> GamemodeBuilder<T, P> create(AbstractRegistrate<?> owner, P parent, String name, BuilderCallback callback, NonNullFunction<ResourceLocation, T> factory) {
+    public static <T extends Supplier<ArenaGamemode>, P> GamemodeBuilder<T, P> create(AbstractRegistrate<?> owner, P parent, String name, BuilderCallback callback, NonNullFunction<ResourceLocation, T> factory) {
         return new GamemodeBuilder<>(owner, parent, name, callback, factory).defaultLang();
     }
 
@@ -26,11 +28,11 @@ public class GamemodeBuilder<T extends ArenaGamemode, P> extends AbstractBuilder
     }
 
     public GamemodeBuilder<T, P> defaultLang() {
-        return lang(t -> "arena.gamemode." + t.getRegistryID().toLanguageKey());
+        return lang(t -> "arena.gamemode." + id.toLanguageKey());
     }
 
     public GamemodeBuilder<T, P> lang(String name) {
-        return lang(t -> "arena.gamemode." + t.getRegistryID().toLanguageKey(), name);
+        return lang(t -> "arena.gamemode." + id.toLanguageKey(), name);
     }
 
     @Override
@@ -39,7 +41,7 @@ public class GamemodeBuilder<T extends ArenaGamemode, P> extends AbstractBuilder
     }
 
     @Override
-    protected @NotNull RegistryEntry<ArenaGamemode, T> createEntryWrapper(@NotNull DeferredHolder<ArenaGamemode, T> delegate) {
+    protected @NotNull RegistryEntry<Supplier<ArenaGamemode>, T> createEntryWrapper(@NotNull DeferredHolder<Supplier<ArenaGamemode>, T> delegate) {
         return new GamemodeEntry<>(getOwner(), delegate);
     }
 

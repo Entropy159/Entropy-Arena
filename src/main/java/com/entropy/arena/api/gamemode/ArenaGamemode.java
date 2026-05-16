@@ -231,7 +231,7 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
 
     public <T extends ArenaGamemode> StreamCodec<ByteBuf, T> getStreamCodec() {
         return StreamCodec.of((buffer, value) -> value.encodeData(buffer), buffer -> {
-            @SuppressWarnings("unchecked") T value = (T) GamemodeRegistry.get(registryID);
+            @SuppressWarnings("unchecked") T value = (T) GamemodeRegistry.getNew(registryID);
             Objects.requireNonNull(value).decodeData(buffer);
             return value;
         });

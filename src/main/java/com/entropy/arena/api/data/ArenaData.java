@@ -94,11 +94,13 @@ public class ArenaData extends SavedData {
     }
 
     public void backup(Runnable after) {
-        backupState = ArenaMapBackup.BackupState.BACKING_UP;
-        ArenaMapBackup.backup(level, currentMap, currentGamemode.getPropertiesToLookFor(), () -> {
-            backupState = ArenaMapBackup.BackupState.HAS_BACKUP;
-            after.run();
-        });
+        if (currentGamemode != null) {
+            backupState = ArenaMapBackup.BackupState.BACKING_UP;
+            ArenaMapBackup.backup(level, currentMap, currentGamemode.getPropertiesToLookFor(), () -> {
+                backupState = ArenaMapBackup.BackupState.HAS_BACKUP;
+                after.run();
+            });
+        }
     }
 
     public void restoreBackup(Runnable after) {

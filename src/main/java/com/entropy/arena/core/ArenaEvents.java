@@ -16,6 +16,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.BlockItem;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.TriState;
@@ -46,7 +47,7 @@ public class ArenaEvents {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOW)
     public static void onDeath(LivingDeathEvent event) {
         if (event.getEntity().level() instanceof ServerLevel level && event.getEntity() instanceof ServerPlayer player) {
             if (ArenaLogic.get(level).onDeath(player, event.getSource())) {

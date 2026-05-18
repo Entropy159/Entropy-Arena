@@ -9,6 +9,7 @@ import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.loadout.LoadoutSerializer;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.api.map.ArenaMap;
+import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.CapturePointBlock;
 import com.entropy.arena.core.blocks.PedestalBlock;
 import com.entropy.arena.core.blocks.SpawnpointBlock;
@@ -253,6 +254,7 @@ public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<Are
         try {
             return this.getClass().getDeclaredConstructor(ResourceLocation.class).newInstance(registryID);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            EntropyArena.LOGGER.error("Error creating new ArenaGamemode instance!", e);
             throw new RuntimeException(e);
         }
     }

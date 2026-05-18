@@ -1,5 +1,6 @@
 package com.entropy.arena.api.client;
 
+import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.config.ClientConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.DeltaTracker;
@@ -63,11 +64,54 @@ public class ArenaRenderingUtils {
         return (float) (Math.sin(scaledTime) + 1) / 2;
     }
 
-    public static void renderImageAtWorldPos(GuiGraphics graphics, ResourceLocation location, Vec3 worldPos, int size, int color, boolean centerAlpha) {
+    public static void renderStickyImageAtWorldPos(GuiGraphics graphics, ResourceLocation location, Vec3 worldPos, int size, int color) {
+        Vec3 screenPos = worldToScreen(worldPos);
+        int x = (int) screenPos.x;
+        int y = (int) screenPos.y;
+        int padding = size / 2;
+        int maxX = client.getWindow().getGuiScaledWidth() - padding;
+        int maxY = client.getWindow().getGuiScaledHeight() - padding;
+        if (screenPos.z >= 1) {
+            int centerX = client.getWindow().getGuiScaledWidth() / 2;
+            if (x < centerX) {
+                x = maxX + size;
+            } else {
+                x = padding - size;
+            }
+            y = client.getWindow().getGuiScaledHeight() - y;
+        }
+        if (x < 0) {
+            x = padding;
+            location = EntropyArena.id("left");
+        }
+        if (x > client.getWindow().getGuiScaledWidth()) {
+            x = maxX;
+            location = EntropyArena.id("right");
+        }
+        if (y < 0) {
+            y = padding;
+            location = EntropyArena.id("up");
+        }
+        if (y > client.getWindow().getGuiScaledHeight()) {
+            y = maxY;
+            location = EntropyArena.id("down");
+        }
+        renderImageWithDefaultPath(graphics, location, x, y, size, color);
+    }
+
+    public static void renderImageAtWorldPos(GuiGraphics graphics, ResourceLocation location, Vec3 worldPos, int size, int color) {
+        Vec3 screenPos = worldToScreen(worldPos);
+        if (screenPos.z < 1) {
+            renderImageWithDefaultPath(graphics, location, (int) screenPos.x, (int) screenPos.y, size, color);
+        }
+    }
+
+    public static void renderImageAtWorldPosCenterAlpha(GuiGraphics graphics, ResourceLocation location, Vec3 worldPos, int size, int color) {
         Vec3 screenPos = worldToScreen(worldPos);
         float alpha = centerTransparency(screenPos.x, screenPos.y) * new Color(color).getAlpha() / 255f;
-        if (screenPos.z < 1)
-            renderImageWithDefaultPath(graphics, location, (int) screenPos.x, (int) screenPos.y, size, centerAlpha ? (Math.round(alpha * 255) << 24) | (color & 0xFFFFFF) : color);
+        if (screenPos.z < 1) {
+            renderImageWithDefaultPath(graphics, location, (int) screenPos.x, (int) screenPos.y, size, (Math.round(alpha * 255) << 24) | (color & 0xFFFFFF));
+        }
     }
 
     public static float centerTransparency(double x, double y) {

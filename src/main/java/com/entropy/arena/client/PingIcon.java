@@ -17,7 +17,7 @@ public record PingIcon(Vector3f pos, int color, long timestamp) {
     public void render(GuiGraphics graphics, DeltaTracker tracker) {
         if (Minecraft.getInstance().level == null || expired()) return;
         float alpha = 1 - (Minecraft.getInstance().level.getGameTime() + tracker.getGameTimeDeltaPartialTick(true) - timestamp) / (float) DURATION;
-        ArenaRenderingUtils.renderImageAtWorldPos(graphics, EntropyArena.id("ping"), new Vec3(pos.x, pos.y, pos.z), 8, (Math.round(alpha * 255) << 24) | (color & 0xFFFFFF), false);
+        ArenaRenderingUtils.renderStickyImageAtWorldPos(graphics, EntropyArena.id("ping"), new Vec3(pos.x, pos.y, pos.z), 8, (Math.round(alpha * 255) << 24) | (color & 0xFFFFFF));
     }
 
     public boolean expired() {

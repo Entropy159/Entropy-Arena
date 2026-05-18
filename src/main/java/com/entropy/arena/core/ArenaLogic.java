@@ -101,6 +101,7 @@ public class ArenaLogic {
         ArenaUtils.teleportToPos(player, data.lobbyPos);
         player.setGameMode(GameType.ADVENTURE);
         player.setGlowingTag(false);
+        player.setRespawnPosition(level.dimension(), data.lobbyPos, 0, true, false);
         LoadoutSerializerRegistry.clearAll(player);
         player.setHealth(player.getMaxHealth());
         level.getScoreboard().removePlayerFromTeam(player.getScoreboardName());

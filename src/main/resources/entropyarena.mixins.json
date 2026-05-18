@@ -22,6 +22,7 @@
   },
   "client": [
     "ClientLevelMixin",
+    "ClientPacketListenerMixin",
     "GameRendererMixin",
     "LivingEntityRendererMixin",
     "MusicManagerMixin",

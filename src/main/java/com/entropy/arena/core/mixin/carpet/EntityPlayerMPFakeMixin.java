@@ -1,21 +1,28 @@
 package com.entropy.arena.core.mixin.carpet;
 
 import carpet.patches.EntityPlayerMPFake;
-import com.entropy.arena.api.data.ArenaData;
-import com.entropy.arena.core.EntropyArena;
-import net.minecraft.network.chat.Component;
+import com.mojang.authlib.GameProfile;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ClientInformation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.Overwrite;
 
 @Mixin(EntityPlayerMPFake.class)
-public class EntityPlayerMPFakeMixin {
-    @Redirect(method = "die", at = @At(value = "INVOKE", target = "Lcarpet/patches/EntityPlayerMPFake;kill(Lnet/minecraft/network/chat/Component;)V"))
-    private void preventLeave(EntityPlayerMPFake instance, Component reason) {
-        if (ArenaData.get(instance.serverLevel()).running) {
-            EntropyArena.LOGGER.info("Prevented fake player {} from leaving on death!", instance.getScoreboardName());
-        } else {
-            instance.kill(reason);
-        }
+public abstract class EntityPlayerMPFakeMixin extends ServerPlayer {
+    public EntityPlayerMPFakeMixin(MinecraftServer server, ServerLevel level, GameProfile gameProfile, ClientInformation clientInformation) {
+        super(server, level, gameProfile, clientInformation);
+    }
+
+    /**
+     * @author Entropy159
+     * @reason To prevent leaving
+     */
+    @Overwrite
+    public void die(@NotNull DamageSource cause) {
+        super.die(cause);
     }
 }

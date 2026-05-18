@@ -43,12 +43,14 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
-public abstract class ArenaGamemode implements CustomPacketPayload {
+public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<ArenaGamemode> {
     private final ResourceLocation registryID;
 
     public ArenaGamemode(ResourceLocation id) {
@@ -244,5 +246,14 @@ public abstract class ArenaGamemode implements CustomPacketPayload {
 
     public void registerPacket(PayloadRegistrar registrar) {
         registrar.playToClient(type(), getStreamCodec(), ArenaGamemode::handleClientPacket);
+    }
+
+    @Override
+    public ArenaGamemode get() {
+        try {
+            return this.getClass().getDeclaredConstructor(ResourceLocation.class).newInstance(registryID);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

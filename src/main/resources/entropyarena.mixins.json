@@ -6,7 +6,6 @@
     "BlockItemMixin",
     "ItemEntityMixin",
     "PlayerMixin",
-    "carpet.EntityPlayerMPFakeMixin",
     "ignoreAdventureMode.CommonHooksMixin",
     "ignoreAdventureMode.ItemStackMixin",
     "ignoreAdventureMode.PlayerMixin",

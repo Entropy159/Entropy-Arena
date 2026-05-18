@@ -55,11 +55,11 @@ public class Disguise extends TeamGamemode {
     }
 
     @Override
-    public boolean onDeath(ServerPlayer player, DamageSource source) {
+    public void onDeath(ServerPlayer player, DamageSource source) {
+        super.onDeath(player, source);
         if (source.getEntity() instanceof ServerPlayer killer && getPlayerTeam(killer) == ArenaTeam.RED) {
             incrementScore(ArenaTeam.RED);
         }
-        return super.onDeath(player, source);
     }
 
     @Override

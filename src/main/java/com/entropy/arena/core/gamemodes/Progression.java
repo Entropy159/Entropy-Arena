@@ -20,13 +20,13 @@ public class Progression extends FFAGamemode {
     }
 
     @Override
-    public boolean onDeath(ServerPlayer player, DamageSource source) {
+    public void onDeath(ServerPlayer player, DamageSource source) {
+        super.onDeath(player, source);
         if (source.getEntity() instanceof ServerPlayer killer && player.getUUID() != killer.getUUID()) {
             incrementScore(killer);
             setScore(player, getScore(player) - 1);
             ArenaLogic.get(player.serverLevel()).giveStarterGear(player);
         }
-        return super.onDeath(player, source);
     }
 
     @Override

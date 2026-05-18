@@ -11,10 +11,10 @@ public class FreeForAll extends FFAGamemode {
     }
 
     @Override
-    public boolean onDeath(ServerPlayer player, DamageSource source) {
+    public void onDeath(ServerPlayer player, DamageSource source) {
+        super.onDeath(player, source);
         if (source.getEntity() instanceof ServerPlayer killer && player.getUUID() != killer.getUUID()) {
             incrementScore(killer);
         }
-        return super.onDeath(player, source);
     }
 }

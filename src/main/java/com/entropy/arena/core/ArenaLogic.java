@@ -180,7 +180,7 @@ public class ArenaLogic {
         data.currentGamemode.onMatchStart(level);
         level.players().forEach(player -> {
             sendValidLoadouts(player);
-            onRespawn(player);
+            respawn(player);
         });
         PacketDistributor.sendToAllPlayers(RunningPacket.fromData(data));
         PacketDistributor.sendToAllPlayers(new ScoresPacket(data.currentGamemode.getScoreText(level)));
@@ -272,7 +272,7 @@ public class ArenaLogic {
         if (data.inGame()) {
             if (entity instanceof ServerPlayer player && data.respawnTimes.containsKey(player.getUUID())) {
                 if (data.respawnTimes.get(player.getUUID()) + ServerConfig.RESPAWN_DELAY.get() * 20L < level.getGameTime()) {
-                    onRespawn(player);
+                    respawn(player);
                 } else {
                     long secondsUntilRespawn = ServerConfig.RESPAWN_DELAY.get() - (level.getGameTime() - data.respawnTimes.get(player.getUUID())) / 20;
                     player.displayClientMessage(Component.translatable("arena.message.respawning", secondsUntilRespawn).withStyle(ChatFormatting.RED), true);
@@ -282,23 +282,19 @@ public class ArenaLogic {
         }
     }
 
-    public boolean onDeath(ServerPlayer player, DamageSource source) {
+    public void onDeath(ServerPlayer player, DamageSource source) {
         if (data.inGame()) {
-            if (ServerConfig.RESPAWN_DELAY.get() > 0) {
-                if (!data.currentGamemode.onDeath(player, source)) {
-                    player.setGameMode(GameType.SPECTATOR);
-                    data.respawnTimes.put(player.getUUID(), level.getGameTime());
-                    player.removeAllEffects();
-                    Notification.toAll(player.getCombatTracker().getDeathMessage().copy().withStyle(ChatFormatting.RED));
-                }
-                return true;
-            }
-            return data.currentGamemode.onDeath(player, source);
+            player.setRespawnPosition(level.dimension(), player.blockPosition(), player.getYRot(), true, false);
+            data.currentGamemode.onDeath(player, source);
         }
-        return false;
     }
 
     public void onRespawn(ServerPlayer player) {
+        data.respawnTimes.put(player.getUUID(), level.getGameTime());
+        player.setGameMode(GameType.SPECTATOR);
+    }
+
+    public void respawn(ServerPlayer player) {
         data.respawnTimes.remove(player.getUUID());
         player.setGameMode(GameType.ADVENTURE);
         AttributeInstance attribute = player.getAttributes().getInstance(Attributes.MAX_HEALTH);
@@ -348,7 +344,7 @@ public class ArenaLogic {
             PacketDistributor.sendToPlayer(player, new ScoresPacket(data.currentGamemode.getScoreText(level)));
             sendValidLoadouts(player);
             data.currentGamemode.onJoin(player);
-            onRespawn(player);
+            respawn(player);
         }
         PacketDistributor.sendToPlayer(player, RunningPacket.fromData(data));
     }

@@ -92,14 +92,13 @@ public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<Are
      * @param source The damage source that caused the player to die
      * @return Whether to prevent the player from dying or not
      */
-    public boolean onDeath(ServerPlayer player, DamageSource source) {
+    public void onDeath(ServerPlayer player, DamageSource source) {
         LoadoutSerializerRegistry.forEachStack(player, (serializer, slot, stack) -> {
             if (stack.getOrDefault(ArenaDataComponents.SHOULD_DROP_ON_DEATH, false) || shouldDropOnDeath().test(stack)) {
                 player.drop(stack, true, false);
             }
         });
         LoadoutSerializerRegistry.clearAll(player);
-        return false;
     }
 
     public Predicate<ItemStack> shouldDropOnDeath() {

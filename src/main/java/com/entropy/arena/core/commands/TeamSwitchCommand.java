@@ -30,7 +30,7 @@ public class TeamSwitchCommand {
                             if (ArenaData.get(ctx.getSource().getLevel()).currentGamemode instanceof TeamGamemode teamGamemode && teamGamemode.canSwitchToTeam(ctx.getSource().getPlayer(), team)) {
                                 teamGamemode.setPlayerTeam(player, team);
                                 teamGamemode.sendToAll();
-                                ArenaLogic.get(ctx.getSource().getLevel()).onRespawn(player);
+                                ArenaLogic.get(ctx.getSource().getLevel()).respawn(player);
                                 Notification.toAll(Component.translatable("arena.message.switched_team", player.getDisplayName(), team.getColoredName()).withStyle(ChatFormatting.YELLOW));
                                 return 1;
                             } else {

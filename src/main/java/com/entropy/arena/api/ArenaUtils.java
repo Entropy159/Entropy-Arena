@@ -17,7 +17,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.portal.DimensionTransition;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -65,7 +64,7 @@ public class ArenaUtils {
     }
 
     public static void teleportToPos(ServerPlayer player, BlockPos pos) {
-        player.changeDimension(new DimensionTransition(player.serverLevel(), pos.getBottomCenter(), player.getDeltaMovement(), player.getYRot(), player.getXRot(), DimensionTransition.DO_NOTHING));
+        player.teleportTo(pos.getBottomCenter().x, pos.getBottomCenter().y, pos.getBottomCenter().z);
     }
 
     public static float lerp(float a, float b, float f) {

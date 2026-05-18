@@ -92,7 +92,7 @@ public class EntropyArenaClient {
 
     @SubscribeEvent
     public static void spawnProtection(EntityInvulnerabilityCheckEvent event) {
-        if (client.level != null && running && (inLobby || client.level.getGameTime() <= lastRespawn + ServerConfig.SPAWN_PROTECTION.get() * 20L)) {
+        if (client.level != null && event.getEntity() == client.player && running && (inLobby || client.level.getGameTime() <= lastRespawn + ServerConfig.SPAWN_PROTECTION.get() * 20L)) {
             event.setInvulnerable(true);
         }
     }

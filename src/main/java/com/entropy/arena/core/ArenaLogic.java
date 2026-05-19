@@ -291,8 +291,10 @@ public class ArenaLogic {
     }
 
     public void onRespawn(ServerPlayer player) {
-        data.respawnTimes.put(player.getUUID(), level.getGameTime());
-        player.setGameMode(GameType.SPECTATOR);
+        if (data.inGame()) {
+            data.respawnTimes.put(player.getUUID(), level.getGameTime());
+            player.setGameMode(GameType.SPECTATOR);
+        }
     }
 
     public void respawn(ServerPlayer player) {

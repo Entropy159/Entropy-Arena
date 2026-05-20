@@ -116,6 +116,11 @@ public class ArenaMapBackup {
         }
         int totalChunks = queue.size();
         AtomicInteger currentChunk = new AtomicInteger(1);
+        if (queue.isEmpty()) {
+            EntropyArena.LOGGER.warn("Tried to restore an empty backup, ignoring");
+            after.run();
+            return;
+        }
         EventScheduler.scheduleUntil(1, queue::isEmpty, () -> {
             while (active.size() < ServerConfig.CONCURRENT_CHUNK_LOADS.get() && !queue.isEmpty()) {
                 ChunkPos pos = queue.poll();

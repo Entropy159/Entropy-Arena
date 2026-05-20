@@ -6,6 +6,7 @@
     "BlockItemMixin",
     "ItemEntityMixin",
     "PlayerMixin",
+    "ServerPlayerMixin",
     "ignoreAdventureMode.CommonHooksMixin",
     "ignoreAdventureMode.ItemStackMixin",
     "ignoreAdventureMode.PlayerMixin",
@@ -22,7 +23,7 @@
   "client": [
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
-    "GameRendererMixin",
+    "LevelRendererMixin",
     "LivingEntityRendererMixin",
     "MusicManagerMixin",
     "PlayerRendererMixin",

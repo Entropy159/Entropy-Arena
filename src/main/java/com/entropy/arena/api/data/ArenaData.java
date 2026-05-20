@@ -52,9 +52,8 @@ public class ArenaData extends SavedData {
         ArenaData data = new ArenaData(level);
         if (tag.contains("backupState")) {
             data.backupState = ArenaMapBackup.BackupState.valueOf(tag.getString("backupState"));
-            if (data.backupState == ArenaMapBackup.BackupState.RESTORING || data.backupState == ArenaMapBackup.BackupState.HAS_BACKUP) {
-                data.restoreBackup(() -> {
-                });
+            if (data.backupState != ArenaMapBackup.BackupState.NO_BACKUP) {
+                data.restoreBackup();
             }
         } else {
             data.backupState = ArenaMapBackup.BackupState.NO_BACKUP;
@@ -101,6 +100,11 @@ public class ArenaData extends SavedData {
                 after.run();
             });
         }
+    }
+
+    public void restoreBackup() {
+        restoreBackup(() -> {
+        });
     }
 
     public void restoreBackup(Runnable after) {

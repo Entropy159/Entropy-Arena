@@ -4,6 +4,7 @@ import com.entropy.arena.api.client.ArenaRenderingUtils;
 import com.entropy.arena.api.client.ScreenAnchorPoint;
 import com.entropy.arena.core.config.ClientConfig;
 import com.entropy.arena.core.network.toClient.NotificationPacket;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -25,28 +26,28 @@ public record Notification(Component message, long timestamp) {
         if (level == null) {
             return false;
         }
-        if (expired(level.getGameTime())) {
+        if (expired()) {
             return false;
         }
-        ArenaRenderingUtils.renderTextWithAlpha(graphics, message, anchor, getAlpha(level.getGameTime()));
+        ArenaRenderingUtils.renderTextWithAlpha(graphics, message, anchor, getAlpha());
         return true;
     }
 
-    private boolean expired(long now) {
-        double delay = ClientConfig.NOTIFICATION_FADEOUT_DELAY.get() * 20;
-        double duration = ClientConfig.NOTIFICATION_FADEOUT_DURATION.get() * 20;
-        return timestamp + delay + duration <= now;
+    private boolean expired() {
+        double delay = ClientConfig.NOTIFICATION_FADEOUT_DELAY.get() * 1000;
+        double duration = ClientConfig.NOTIFICATION_FADEOUT_DURATION.get() * 1000;
+        return timestamp + delay + duration <= Util.getMillis();
     }
 
-    private float getAlpha(long now) {
-        if (expired(now)) {
+    private float getAlpha() {
+        if (expired()) {
             return 0;
         }
-        double delay = ClientConfig.NOTIFICATION_FADEOUT_DELAY.get() * 20;
-        double duration = ClientConfig.NOTIFICATION_FADEOUT_DURATION.get() * 20;
-        if (timestamp + delay > now) {
+        double delay = ClientConfig.NOTIFICATION_FADEOUT_DELAY.get() * 1000;
+        double duration = ClientConfig.NOTIFICATION_FADEOUT_DURATION.get() * 1000;
+        if (timestamp + delay > Util.getMillis()) {
             return 1;
         }
-        return (float) Math.clamp(1 - (now - (timestamp + delay)) / duration, 0, 1);
+        return (float) Math.clamp(1 - (Util.getMillis() - (timestamp + delay)) / duration, 0, 1);
     }
 }

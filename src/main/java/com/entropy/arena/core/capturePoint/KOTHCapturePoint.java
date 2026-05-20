@@ -7,7 +7,6 @@ import com.entropy.arena.api.client.ArenaRenderingUtils;
 import com.entropy.arena.core.gamemodes.KingOfTheHill;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
@@ -78,14 +77,14 @@ public class KOTHCapturePoint extends CapturePoint {
     }
 
     @Override
-    public int getColor(DeltaTracker tracker) {
+    public int getColor() {
         boolean inPoint = isLocalPlayerInPoint();
         boolean hasKing = getKing() != null;
         boolean isKing = hasKing && Minecraft.getInstance().isLocalPlayer(getKing());
         if (isKing) {
             return KingOfTheHill.KING_COLOR;
         }
-        float alpha = isBeingTaken() || isContested() || inPoint ? ArenaRenderingUtils.sineFromZeroToOne(6, tracker) : 0;
+        float alpha = isBeingTaken() || isContested() || inPoint ? ArenaRenderingUtils.sineFromZeroToOne(6) : 0;
         return ArenaUtils.lerpColors(0xFFFFFFFF, hasKing ? 0xFFFF0000 : KingOfTheHill.KING_COLOR, alpha);
     }
 

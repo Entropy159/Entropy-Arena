@@ -230,13 +230,13 @@ public class CaptureTheFlag extends TeamGamemode {
     @Override
     public void onClientRender(GuiGraphics graphics, DeltaTracker tracker) {
         super.onClientRender(graphics, tracker);
-        pedestalPositions.forEach((team, list) -> list.forEach(pos -> renderFlagIcon(team, pos, graphics, tracker)));
+        pedestalPositions.forEach((team, list) -> list.forEach(pos -> renderFlagIcon(team, pos, graphics)));
     }
 
-    protected void renderFlagIcon(ArenaTeam team, BlockPos pos, GuiGraphics graphics, DeltaTracker tracker) {
+    protected void renderFlagIcon(ArenaTeam team, BlockPos pos, GuiGraphics graphics) {
         int color = team.getColor();
         if (!pedestalValueMap.get(pos)) {
-            color = ArenaUtils.lerpColors(team.getColor(), 0x000000, ArenaRenderingUtils.sineFromZeroToOne(6, tracker));
+            color = ArenaUtils.lerpColors(team.getColor(), 0x000000, ArenaRenderingUtils.sineFromZeroToOne(6));
         }
         ArenaRenderingUtils.renderImageAtWorldPosCenterAlpha(graphics, EntropyArena.id("flag"), pos.getCenter(), 16, color);
     }

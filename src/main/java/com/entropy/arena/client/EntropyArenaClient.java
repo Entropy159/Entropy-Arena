@@ -12,7 +12,6 @@ import com.entropy.arena.core.network.toServer.ScreenshotPacket;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -106,7 +105,7 @@ public class EntropyArenaClient {
 
             if (client.options.hideGui) return;
 
-            renderPings(graphics, tracker);
+            renderPings(graphics);
 
             if (running) {
                 ArenaRenderingUtils.renderText(graphics, getTimerText(), ScreenAnchorPoint.TOP_LEFT);
@@ -122,10 +121,10 @@ public class EntropyArenaClient {
         });
     }
 
-    private static void renderPings(GuiGraphics graphics, DeltaTracker tracker) {
+    private static void renderPings(GuiGraphics graphics) {
         if (client.level == null) return;
         pings.removeIf(PingIcon::expired);
-        pings.forEach(ping -> ping.render(graphics, tracker));
+        pings.forEach(ping -> ping.render(graphics));
     }
 
     private static Component getTimerText() {

@@ -134,8 +134,8 @@ public abstract class CapturePoint {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void render(GuiGraphics graphics, DeltaTracker tracker) {
-        ArenaRenderingUtils.renderImageAtWorldPosCenterAlpha(graphics, getIcon(), getPos().getCenter(), 16, getColor(tracker));
+    public void render(GuiGraphics graphics) {
+        ArenaRenderingUtils.renderImageAtWorldPosCenterAlpha(graphics, getIcon(), getPos().getCenter(), 16, getColor());
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -151,7 +151,7 @@ public abstract class CapturePoint {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public abstract int getColor(DeltaTracker tracker);
+    public abstract int getColor();
 
     @Override
     public boolean equals(Object obj) {

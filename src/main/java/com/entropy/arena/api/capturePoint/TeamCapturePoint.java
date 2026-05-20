@@ -83,8 +83,8 @@ public class TeamCapturePoint extends CapturePoint {
     }
 
     @Override
-    public int getColor(DeltaTracker tracker) {
-        float alpha = ArenaRenderingUtils.sineFromZeroToOne(6, tracker);
+    public int getColor() {
+        float alpha = ArenaRenderingUtils.sineFromZeroToOne(6);
         if (isBeingTaken()) {
             return ArenaUtils.lerpColors(getTeam().getColor(), takingTeam.getColor(), alpha);
         }

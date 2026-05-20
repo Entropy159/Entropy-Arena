@@ -3,7 +3,7 @@ package com.entropy.arena.api.client;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.config.ClientConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.DeltaTracker;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -57,9 +57,9 @@ public class ArenaRenderingUtils {
         return client.getWindow().getGuiScaledHeight() - client.font.lineHeight - textLine(line);
     }
 
-    public static float sineFromZeroToOne(float scale, DeltaTracker tracker) {
+    public static float sineFromZeroToOne(float scale) {
         if (client.level == null) return 0;
-        float time = client.level.getGameTime() + tracker.getGameTimeDeltaPartialTick(true);
+        float time = Util.getMillis() / 50f;
         float scaledTime = time / scale;
         return (float) (Math.sin(scaledTime) + 1) / 2;
     }
@@ -80,14 +80,6 @@ public class ArenaRenderingUtils {
             }
             y = client.getWindow().getGuiScaledHeight() - y;
         }
-        if (x < 0) {
-            x = padding;
-            location = EntropyArena.id("left");
-        }
-        if (x > client.getWindow().getGuiScaledWidth()) {
-            x = maxX;
-            location = EntropyArena.id("right");
-        }
         if (y < 0) {
             y = padding;
             location = EntropyArena.id("up");
@@ -95,6 +87,14 @@ public class ArenaRenderingUtils {
         if (y > client.getWindow().getGuiScaledHeight()) {
             y = maxY;
             location = EntropyArena.id("down");
+        }
+        if (x < 0) {
+            x = padding;
+            location = EntropyArena.id("left");
+        }
+        if (x > client.getWindow().getGuiScaledWidth()) {
+            x = maxX;
+            location = EntropyArena.id("right");
         }
         renderImageWithDefaultPath(graphics, location, x, y, size, color);
     }

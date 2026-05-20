@@ -6,6 +6,7 @@ import com.entropy.arena.client.EntropyArenaClient;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.config.ClientConfig;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
@@ -30,7 +31,7 @@ public record NotificationPacket(Component message) implements CustomPacketPaylo
             if (ClientConfig.CHAT_INSTEAD_OF_NOTIFICATION.get()) {
                 EntropyArenaClient.sendChatMessage(message);
             } else {
-                ClientData.notifications.add(new Notification(message, level.getGameTime()));
+                ClientData.notifications.add(new Notification(message, Util.getMillis()));
                 EntropyArena.LOGGER.info("[Notification] {}", message.getString());
             }
         }

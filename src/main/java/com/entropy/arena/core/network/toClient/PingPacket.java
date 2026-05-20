@@ -4,6 +4,7 @@ import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.client.PingIcon;
 import com.entropy.arena.core.EntropyArena;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -28,7 +29,7 @@ public record PingPacket(Vector3f pos, int color) implements CustomPacketPayload
 
     public void handle(IPayloadContext ctx) {
         if (Minecraft.getInstance().level != null) {
-            ClientData.pings.add(new PingIcon(pos, color, Minecraft.getInstance().level.getGameTime()));
+            ClientData.pings.add(new PingIcon(pos, color, Util.getMillis()));
         }
     }
 }

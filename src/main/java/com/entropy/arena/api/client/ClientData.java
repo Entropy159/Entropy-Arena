@@ -6,11 +6,9 @@ import com.entropy.arena.api.gamemode.ArenaGamemode;
 import com.entropy.arena.api.map.ArenaMapInfo;
 import com.entropy.arena.client.PingIcon;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.phys.Vec3;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class ClientData {
@@ -28,4 +26,5 @@ public class ClientData {
     public static ArrayList<Notification> notifications = new ArrayList<>();
     public static ArrayList<Component> scoreList = new ArrayList<>();
     public static CopyOnWriteArraySet<PingIcon> pings = new CopyOnWriteArraySet<>();
+    public static HashMap<Integer, Vec3> entitiesToUnlerp = new HashMap<>();
 }

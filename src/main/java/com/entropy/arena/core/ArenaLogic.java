@@ -98,7 +98,7 @@ public class ArenaLogic {
         if (data.lobbyPos == null) {
             return;
         }
-        ArenaUtils.teleportToPos(player, data.lobbyPos);
+        ArenaUtils.instantTeleport(player, data.lobbyPos);
         player.setGameMode(GameType.ADVENTURE);
         player.setGlowingTag(false);
         player.setRespawnPosition(level.dimension(), data.lobbyPos, 0, true, false);
@@ -292,8 +292,12 @@ public class ArenaLogic {
 
     public void onRespawn(ServerPlayer player) {
         if (data.inGame()) {
-            data.respawnTimes.put(player.getUUID(), level.getGameTime());
-            player.setGameMode(GameType.SPECTATOR);
+            if (ServerConfig.RESPAWN_DELAY.get() > 0) {
+                data.respawnTimes.put(player.getUUID(), level.getGameTime());
+                player.setGameMode(GameType.SPECTATOR);
+            } else {
+                respawn(player);
+            }
         }
     }
 
@@ -306,21 +310,23 @@ public class ArenaLogic {
         }
         player.setHealth(player.getMaxHealth());
         if (data.running && data.lobby && data.lobbyPos != null) {
-            ArenaUtils.teleportToPos(player, data.lobbyPos);
+            ArenaUtils.instantTeleport(player, data.lobbyPos);
         } else if (data.inGame()) {
             data.spawnProtection.put(player.getUUID(), level.getGameTime());
             PacketDistributor.sendToPlayer(player, new RespawnPacket(level.getGameTime()));
             ArrayList<BlockPos> spawns = data.currentGamemode.getValidSpawns(player, data.currentMap);
             if (!spawns.isEmpty()) {
-                ArenaUtils.teleportToPos(player, spawns.get(new Random().nextInt(spawns.size())));
+                ArenaUtils.instantTeleport(player, spawns.get(new Random().nextInt(spawns.size())));
             } else {
                 player.setGameMode(GameType.SPECTATOR);
-                if (data.currentMap != null)
-                    player.teleportTo(data.currentMap.getCenter().x, data.currentMap.getCenter().y, data.currentMap.getCenter().z);
+                if (data.currentMap != null) {
+                    ArenaUtils.instantTeleport(player, data.currentMap.getCenter());
+                }
             }
             data.currentGamemode.onRespawn(player);
-            if (data.loadoutSelections.containsKey(player.getUUID()) || getValidLoadouts(player).size() < 2)
+            if (data.loadoutSelections.containsKey(player.getUUID()) || getValidLoadouts(player).size() < 2) {
                 giveStarterGear(player);
+            }
         }
     }
 

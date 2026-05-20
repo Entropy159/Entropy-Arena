@@ -1,5 +1,7 @@
 package com.entropy.arena.api;
 
+import com.entropy.arena.core.EntropyArena;
+import com.entropy.arena.core.network.toClient.InstantTeleportPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -16,7 +18,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.GameRules;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -63,8 +68,17 @@ public class ArenaUtils {
         return Arrays.stream(input.toLowerCase().split("_")).filter(s -> !s.isEmpty()).map(s -> Character.toUpperCase(s.charAt(0)) + s.substring(1)).collect(Collectors.joining(" "));
     }
 
-    public static void teleportToPos(ServerPlayer player, BlockPos pos) {
-        player.teleportTo(pos.getBottomCenter().x, pos.getBottomCenter().y, pos.getBottomCenter().z);
+    public static void instantTeleport(Entity entity, Vec3 pos) {
+        instantTeleport(entity, pos.x, pos.y, pos.z);
+    }
+
+    public static void instantTeleport(Entity entity, double x, double y, double z) {
+        PacketDistributor.sendToAllPlayers(new InstantTeleportPacket(entity.getId(), new Vec3(x, y, z)));
+        entity.teleportTo(x, y, z);
+    }
+
+    public static void instantTeleport(Entity entity, BlockPos pos) {
+        instantTeleport(entity, pos.getBottomCenter());
     }
 
     public static float lerp(float a, float b, float f) {

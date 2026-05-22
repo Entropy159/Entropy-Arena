@@ -1,6 +1,7 @@
 package com.entropy.arena.api.gamemode;
 
 import com.entropy.arena.api.ArenaTeam;
+import com.entropy.arena.api.EventScheduler;
 import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.events.KillStreakEvent;
@@ -100,11 +101,11 @@ public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<Are
         LoadoutSerializerRegistry.clearAll(player);
         int oldValue = killStreak.getOrDefault(player.getUUID(), 0);
         killStreak.put(player.getUUID(), 0);
-        NeoForge.EVENT_BUS.post(new KillStreakEvent(player, oldValue, 0));
+        EventScheduler.schedule(1, () -> NeoForge.EVENT_BUS.post(new KillStreakEvent(player, oldValue, 0)));
         if (source.getEntity() instanceof ServerPlayer killer) {
-            oldValue = killStreak.getOrDefault(killer.getUUID(), 0);
-            killStreak.put(killer.getUUID(), oldValue + 1);
-            NeoForge.EVENT_BUS.post(new KillStreakEvent(killer, oldValue, killStreak.get(killer.getUUID())));
+            int oldKillerValue = killStreak.getOrDefault(killer.getUUID(), 0);
+            killStreak.put(killer.getUUID(), oldKillerValue + 1);
+            EventScheduler.schedule(1, () -> NeoForge.EVENT_BUS.post(new KillStreakEvent(killer, oldKillerValue, killStreak.get(killer.getUUID()))));
         }
     }
 

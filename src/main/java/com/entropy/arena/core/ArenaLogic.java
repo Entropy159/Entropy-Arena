@@ -118,7 +118,11 @@ public class ArenaLogic {
             data.currentGamemode.onMatchEnd(level);
             data.currentGamemode = null;
         }
-        if (data.currentMap != null) data.currentMap.reset(level, this::afterMapReset);
+        if (data.currentMap != null) {
+            data.currentMap.reset(level, this::afterMapReset);
+        } else {
+            afterMapReset();
+        }
     }
 
     private void afterMapReset() {

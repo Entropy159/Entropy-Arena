@@ -147,17 +147,17 @@ public class ArenaEvents {
 
     @SubscribeEvent
     public static void killstreaks(KillStreakEvent event) {
-        if (event.getNewValue() == 0 && event.getOldValue() >= 5) {
-            Notification.toAll(Component.translatable("arena.message.lost_killstreak", event.getEntity().getDisplayName(), event.getOldValue()).withStyle(ChatFormatting.RED));
-        }
         List<Integer> announcedMilestones = new ArrayList<>();
+        announcedMilestones.add(3);
         announcedMilestones.add(5);
         announcedMilestones.add(10);
-        announcedMilestones.add(20);
         announcedMilestones.forEach(num -> {
             if (event.getNewValue() >= num && event.getOldValue() < num) {
-                Notification.toAll(Component.translatable("arena.message.killstreak_" + num, event.getEntity().getDisplayName(), event.getNewValue()).withStyle(ChatFormatting.GREEN));
+                Notification.toAll(Component.translatable("arena.message.killstreak_" + announcedMilestones.indexOf(num), event.getEntity().getDisplayName(), event.getNewValue()).withStyle(ChatFormatting.GREEN));
             }
         });
+        if (event.getNewValue() == 0 && event.getOldValue() >= announcedMilestones.getFirst()) {
+            Notification.toAll(Component.translatable("arena.message.lost_killstreak", event.getEntity().getDisplayName(), event.getOldValue()).withStyle(ChatFormatting.RED));
+        }
     }
 }

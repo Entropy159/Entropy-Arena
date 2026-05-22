@@ -201,9 +201,9 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.removed_unbreakable", "Made item breakable");
         REGISTRATE.addRawLang("arena.message.switched_team", "%s has switched to team %s");
         REGISTRATE.addRawLang("arena.message.lost_killstreak", "%s has lost their kill streak of %s");
-        REGISTRATE.addRawLang("arena.message.killstreak_5", "%s has a %s kill streak");
-        REGISTRATE.addRawLang("arena.message.killstreak_10", "%s is on a roll with %s kills");
-        REGISTRATE.addRawLang("arena.message.killstreak_20", "%s is dominating with %s kills");
+        REGISTRATE.addRawLang("arena.message.killstreak_0", "%s has a %s kill streak");
+        REGISTRATE.addRawLang("arena.message.killstreak_1", "%s is on a roll with %s kills");
+        REGISTRATE.addRawLang("arena.message.killstreak_2", "%s is dominating with %s kills");
 
         REGISTRATE.addRawLang("arena.error.already_running", "Game is already running");
         REGISTRATE.addRawLang("arena.error.no_lobby", "No lobby position found");

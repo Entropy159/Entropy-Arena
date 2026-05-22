@@ -1,6 +1,6 @@
 package com.entropy.arena.api.client;
 
-import com.entropy.arena.core.EntropyArena;
+import com.entropy.arena.api.ArenaUtils;
 import com.entropy.arena.core.config.ClientConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.Util;
@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -65,37 +64,6 @@ public class ArenaRenderingUtils {
         return (float) (Math.sin(scaledTime) + 1) / 2;
     }
 
-    public static void renderStickyImageAtWorldPos(GuiGraphics graphics, ResourceLocation location, Vec3 worldPos, int size, int color) {
-        Vec3 screenPos = worldToScreen(worldPos);
-        int x = (int) screenPos.x;
-        int y = (int) screenPos.y;
-        int padding = size / 2;
-        int maxX = client.getWindow().getGuiScaledWidth() - padding;
-        int maxY = client.getWindow().getGuiScaledHeight() - padding;
-        if (y < padding || y > maxY || x < padding || x > maxX || !WorldToScreen.inFrontOfCamera(screenPos)) {
-            if (!WorldToScreen.inFrontOfCamera(screenPos)) {
-                x = -x;
-                y = -y;
-            }
-            Vec2 newPos = WorldToScreen.calculateAngleRectIntersection((float) Math.atan2(y, x), new Vec2(padding, padding), new Vec2(maxX, maxY));
-            x = (int) newPos.x;
-            y = (int) newPos.y;
-            if (y <= padding) {
-                location = EntropyArena.id("up");
-            }
-            if (y >= maxY) {
-                location = EntropyArena.id("down");
-            }
-            if (x <= padding) {
-                location = EntropyArena.id("left");
-            }
-            if (x >= maxX) {
-                location = EntropyArena.id("right");
-            }
-        }
-        renderImageWithDefaultPath(graphics, location, x, y, size, color);
-    }
-
     public static void renderImageAtWorldPos(GuiGraphics graphics, ResourceLocation location, Vec3 worldPos, int size, int color) {
         Vec3 screenPos = worldToScreen(worldPos);
         if (WorldToScreen.inFrontOfCamera(screenPos)) {
@@ -103,12 +71,10 @@ public class ArenaRenderingUtils {
         }
     }
 
-    public static void renderImageAtWorldPosCenterAlpha(GuiGraphics graphics, ResourceLocation location, Vec3 worldPos, int size, int color) {
+    public static void renderImageAtWorldPosCenterFade(GuiGraphics graphics, ResourceLocation location, Vec3 worldPos, int size, int color) {
         Vec3 screenPos = worldToScreen(worldPos);
-        float alpha = centerTransparency(screenPos.x, screenPos.y) * new Color(color).getAlpha() / 255f;
-        if (WorldToScreen.inFrontOfCamera(screenPos)) {
-            renderImageWithDefaultPath(graphics, location, (int) screenPos.x, (int) screenPos.y, size, (Math.round(alpha * 255) << 24) | (color & 0xFFFFFF));
-        }
+        float centerAlpha = centerTransparency(screenPos.x, screenPos.y);
+        renderImageAtWorldPos(graphics, location, worldPos, size, ArenaUtils.multiplyAlpha(color, centerAlpha));
     }
 
     public static float centerTransparency(double x, double y) {

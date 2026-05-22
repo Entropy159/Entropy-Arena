@@ -238,7 +238,7 @@ public class CaptureTheFlag extends TeamGamemode {
         if (!pedestalValueMap.get(pos)) {
             color = ArenaUtils.lerpColors(team.getColor(), 0x000000, ArenaRenderingUtils.sineFromZeroToOne(6));
         }
-        ArenaRenderingUtils.renderImageAtWorldPosCenterAlpha(graphics, EntropyArena.id("flag"), pos.getCenter(), 16, color);
+        ArenaRenderingUtils.renderImageAtWorldPosCenterFade(graphics, EntropyArena.id("flag"), pos.getCenter(), 16, color);
     }
 
     @Override

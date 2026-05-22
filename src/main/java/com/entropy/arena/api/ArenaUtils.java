@@ -1,6 +1,5 @@
 package com.entropy.arena.api;
 
-import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.network.toClient.InstantTeleportPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
@@ -93,6 +92,18 @@ public class ArenaUtils {
         int blue = (int) lerp(color1.getBlue(), color2.getBlue(), factor);
         int alpha = (int) lerp(color1.getAlpha(), color2.getAlpha(), factor);
         return new Color(red, green, blue, alpha).getRGB();
+    }
+
+    public static int multiplyAlpha(int color, float mult) {
+        return colorWithAlpha(color, new Color(color, true).getAlpha() / 255f * mult);
+    }
+
+    public static int colorWithAlpha(int original, float newAlpha) {
+        return colorWithAlpha(original, Math.round(newAlpha * 255));
+    }
+
+    public static int colorWithAlpha(int original, int newAlpha) {
+        return (original & 0x00FFFFFF) | (newAlpha << 24);
     }
 
     public static void broadcastToOps(MinecraftServer server, @Nullable ServerPlayer origin, Component message) {

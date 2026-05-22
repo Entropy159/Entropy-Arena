@@ -1,5 +1,6 @@
 package com.entropy.arena.client;
 
+import com.entropy.arena.api.ArenaUtils;
 import com.entropy.arena.api.client.ArenaRenderingUtils;
 import com.entropy.arena.core.EntropyArena;
 import net.minecraft.Util;
@@ -10,6 +11,8 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Vector3f;
 
+import java.awt.*;
+
 public record PingIcon(Vector3f pos, int color, long timestamp) {
     public static final int DURATION = 3000;
 
@@ -17,7 +20,7 @@ public record PingIcon(Vector3f pos, int color, long timestamp) {
     public void render(GuiGraphics graphics) {
         if (Minecraft.getInstance().level == null || expired()) return;
         float alpha = 1 - (Util.getMillis() - timestamp) / (float) DURATION;
-        ArenaRenderingUtils.renderStickyImageAtWorldPos(graphics, EntropyArena.id("ping"), new Vec3(pos.x, pos.y, pos.z), 8, (Math.round(alpha * 255) << 24) | (color & 0xFFFFFF));
+        ArenaRenderingUtils.renderImageAtWorldPosCenterFade(graphics, EntropyArena.id("ping"), new Vec3(pos.x, pos.y, pos.z), 8, ArenaUtils.colorWithAlpha(color, alpha));
     }
 
     public boolean expired() {

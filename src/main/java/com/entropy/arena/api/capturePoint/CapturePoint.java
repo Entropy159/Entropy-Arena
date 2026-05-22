@@ -4,7 +4,6 @@ import com.entropy.arena.api.client.ArenaRenderingUtils;
 import com.entropy.arena.core.EntropyArena;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
@@ -135,7 +134,7 @@ public abstract class CapturePoint {
 
     @OnlyIn(Dist.CLIENT)
     public void render(GuiGraphics graphics) {
-        ArenaRenderingUtils.renderImageAtWorldPosCenterAlpha(graphics, getIcon(), getPos().getCenter(), 16, getColor());
+        ArenaRenderingUtils.renderImageAtWorldPosCenterFade(graphics, getIcon(), getPos().getCenter(), 16, getColor());
     }
 
     @OnlyIn(Dist.CLIENT)

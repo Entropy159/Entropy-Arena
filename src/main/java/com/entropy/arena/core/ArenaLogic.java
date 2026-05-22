@@ -1,8 +1,8 @@
 package com.entropy.arena.core;
 
-import com.entropy.arena.api.ArenaGameType;
-import com.entropy.arena.api.ArenaUtils;
-import com.entropy.arena.api.Notification;
+import com.entropy.arena.api.util.ArenaGameType;
+import com.entropy.arena.api.util.ArenaUtils;
+import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.events.GiveLoadoutEvent;
 import com.entropy.arena.api.events.MatchEndEvent;

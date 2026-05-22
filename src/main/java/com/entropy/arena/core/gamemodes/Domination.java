@@ -1,6 +1,6 @@
 package com.entropy.arena.core.gamemodes;
 
-import com.entropy.arena.api.ArenaTeam;
+import com.entropy.arena.api.util.ArenaTeam;
 import com.entropy.arena.api.capturePoint.TeamCapturePoint;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.HasCapturePoints;

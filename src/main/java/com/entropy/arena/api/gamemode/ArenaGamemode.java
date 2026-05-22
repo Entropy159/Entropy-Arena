@@ -1,7 +1,7 @@
 package com.entropy.arena.api.gamemode;
 
-import com.entropy.arena.api.ArenaTeam;
-import com.entropy.arena.api.EventScheduler;
+import com.entropy.arena.api.util.ArenaTeam;
+import com.entropy.arena.api.util.EventScheduler;
 import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.events.KillStreakEvent;

@@ -1,6 +1,6 @@
 package com.entropy.arena.core;
 
-import com.entropy.arena.api.ArenaUtils;
+import com.entropy.arena.api.util.ArenaUtils;
 import com.entropy.arena.core.registry.ArenaBlocks;
 import com.entropy.arena.core.registry.ArenaSounds;
 import com.entropy.arena.core.registry.ArenaTags;

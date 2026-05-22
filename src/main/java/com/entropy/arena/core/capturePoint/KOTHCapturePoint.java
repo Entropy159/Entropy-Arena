@@ -1,7 +1,7 @@
 package com.entropy.arena.core.capturePoint;
 
-import com.entropy.arena.api.ArenaUtils;
-import com.entropy.arena.api.Notification;
+import com.entropy.arena.api.util.ArenaUtils;
+import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.api.capturePoint.CapturePoint;
 import com.entropy.arena.api.client.ArenaRenderingUtils;
 import com.entropy.arena.core.gamemodes.KingOfTheHill;

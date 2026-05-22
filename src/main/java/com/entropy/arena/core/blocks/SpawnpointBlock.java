@@ -1,6 +1,6 @@
 package com.entropy.arena.core.blocks;
 
-import com.entropy.arena.api.ArenaTeam;
+import com.entropy.arena.api.util.ArenaTeam;
 import com.entropy.arena.api.data.ArenaData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

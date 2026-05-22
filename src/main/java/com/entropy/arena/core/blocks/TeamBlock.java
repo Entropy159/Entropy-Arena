@@ -1,6 +1,6 @@
 package com.entropy.arena.core.blocks;
 
-import com.entropy.arena.api.ArenaTeam;
+import com.entropy.arena.api.util.ArenaTeam;
 import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.registry.ArenaBlocks;
 import net.minecraft.world.item.ItemStack;

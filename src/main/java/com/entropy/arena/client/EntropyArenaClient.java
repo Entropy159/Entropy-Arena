@@ -1,6 +1,6 @@
 package com.entropy.arena.client;
 
-import com.entropy.arena.api.Notification;
+import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.api.client.ArenaRenderingUtils;
 import com.entropy.arena.api.client.ScreenAnchorPoint;
 import com.entropy.arena.api.map.MapScreenshot;

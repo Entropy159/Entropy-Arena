@@ -1,6 +1,6 @@
 package com.entropy.arena.core.network.toClient;
 
-import com.entropy.arena.api.ArenaGameType;
+import com.entropy.arena.api.util.ArenaGameType;
 import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.map.ArenaMapInfo;

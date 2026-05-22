@@ -1,6 +1,6 @@
 package com.entropy.arena.core.gamemodes;
 
-import com.entropy.arena.api.ArenaTeam;
+import com.entropy.arena.api.util.ArenaTeam;
 import com.entropy.arena.api.gamemode.TeamGamemode;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.core.items.DisguiseItem;

@@ -1,4 +1,4 @@
-package com.entropy.arena.api;
+package com.entropy.arena.api.util;
 
 import com.entropy.arena.core.EntropyArena;
 import net.neoforged.bus.api.SubscribeEvent;

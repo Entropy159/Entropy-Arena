@@ -1,4 +1,4 @@
-package com.entropy.arena.api;
+package com.entropy.arena.api.util;
 
 import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;

@@ -1,6 +1,6 @@
 package com.entropy.arena.core.network.toClient;
 
-import com.entropy.arena.api.Notification;
+import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.client.EntropyArenaClient;
 import com.entropy.arena.core.EntropyArena;

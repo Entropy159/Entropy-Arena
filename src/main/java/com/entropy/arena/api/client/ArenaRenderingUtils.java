@@ -1,6 +1,6 @@
 package com.entropy.arena.api.client;
 
-import com.entropy.arena.api.ArenaUtils;
+import com.entropy.arena.api.util.ArenaUtils;
 import com.entropy.arena.core.config.ClientConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.Util;

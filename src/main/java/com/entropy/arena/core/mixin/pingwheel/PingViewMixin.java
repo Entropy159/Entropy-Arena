@@ -1,6 +1,6 @@
 package com.entropy.arena.core.mixin.pingwheel;
 
-import com.entropy.arena.api.ArenaTeam;
+import com.entropy.arena.api.util.ArenaTeam;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import net.minecraft.ChatFormatting;

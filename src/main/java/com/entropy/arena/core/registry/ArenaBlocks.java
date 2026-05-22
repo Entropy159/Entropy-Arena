@@ -1,6 +1,6 @@
 package com.entropy.arena.core.registry;
 
-import com.entropy.arena.api.ArenaTeam;
+import com.entropy.arena.api.util.ArenaTeam;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.*;
 import com.tterrag.registrate.util.entry.BlockEntry;

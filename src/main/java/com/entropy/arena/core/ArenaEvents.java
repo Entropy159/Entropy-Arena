@@ -1,6 +1,6 @@
 package com.entropy.arena.core;
 
-import com.entropy.arena.api.Notification;
+import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.events.*;
 import com.entropy.arena.core.blocks.TeamBlock;

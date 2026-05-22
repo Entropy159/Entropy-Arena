@@ -1,6 +1,6 @@
 package com.entropy.arena.core.registry;
 
-import com.entropy.arena.api.ArenaTeam;
+import com.entropy.arena.api.util.ArenaTeam;
 import com.entropy.arena.core.EntropyArena;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.component.DataComponentType;

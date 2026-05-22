@@ -1,7 +1,7 @@
 package com.entropy.arena.api.gamemode;
 
-import com.entropy.arena.api.ArenaTeam;
-import com.entropy.arena.api.Notification;
+import com.entropy.arena.api.util.ArenaTeam;
+import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.api.client.ArenaRenderingUtils;
 import com.entropy.arena.api.client.ScreenAnchorPoint;
 import com.entropy.arena.api.data.ArenaData;

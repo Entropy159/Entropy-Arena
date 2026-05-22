@@ -1,6 +1,6 @@
 package com.entropy.arena.core.network.toServer;
 
-import com.entropy.arena.api.ArenaGameType;
+import com.entropy.arena.api.util.ArenaGameType;
 import com.entropy.arena.core.ArenaLogic;
 import com.entropy.arena.core.EntropyArena;
 import io.netty.buffer.ByteBuf;

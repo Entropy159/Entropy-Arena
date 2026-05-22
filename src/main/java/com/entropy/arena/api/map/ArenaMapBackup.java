@@ -1,6 +1,6 @@
 package com.entropy.arena.api.map;
 
-import com.entropy.arena.api.EventScheduler;
+import com.entropy.arena.api.util.EventScheduler;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.config.ServerConfig;
 import net.minecraft.core.BlockPos;

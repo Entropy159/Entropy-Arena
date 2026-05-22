@@ -1,4 +1,4 @@
-package com.entropy.arena.api;
+package com.entropy.arena.api.util;
 
 import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.registry.ArenaBlocks;

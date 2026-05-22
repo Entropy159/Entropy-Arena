@@ -1,7 +1,7 @@
 package com.entropy.arena.core.commands;
 
-import com.entropy.arena.api.ArenaTeam;
-import com.entropy.arena.api.Notification;
+import com.entropy.arena.api.util.ArenaTeam;
+import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.TeamGamemode;
 import com.entropy.arena.api.map.ArenaMap;

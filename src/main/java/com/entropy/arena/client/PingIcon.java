@@ -1,6 +1,6 @@
 package com.entropy.arena.client;
 
-import com.entropy.arena.api.ArenaUtils;
+import com.entropy.arena.api.util.ArenaUtils;
 import com.entropy.arena.api.client.ArenaRenderingUtils;
 import com.entropy.arena.core.EntropyArena;
 import net.minecraft.Util;
@@ -10,8 +10,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Vector3f;
-
-import java.awt.*;
 
 public record PingIcon(Vector3f pos, int color, long timestamp) {
     public static final int DURATION = 3000;

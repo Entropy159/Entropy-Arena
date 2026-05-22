@@ -1,6 +1,6 @@
 package com.entropy.arena.core.registry;
 
-import com.entropy.arena.api.ArenaTeam;
+import com.entropy.arena.api.util.ArenaTeam;
 import com.entropy.arena.core.items.DisguiseItem;
 import com.entropy.arena.core.items.TeamGemItem;
 import com.tterrag.registrate.util.entry.ItemEntry;

@@ -1,12 +1,11 @@
 package com.entropy.arena.api.capturePoint;
 
-import com.entropy.arena.api.ArenaTeam;
-import com.entropy.arena.api.ArenaUtils;
-import com.entropy.arena.api.Notification;
+import com.entropy.arena.api.util.ArenaTeam;
+import com.entropy.arena.api.util.ArenaUtils;
+import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.api.client.ArenaRenderingUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;

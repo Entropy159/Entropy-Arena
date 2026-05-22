@@ -1,7 +1,7 @@
 package com.entropy.arena.api.client;
 
-import com.entropy.arena.api.ArenaGameType;
-import com.entropy.arena.api.Notification;
+import com.entropy.arena.api.util.ArenaGameType;
+import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.api.gamemode.ArenaGamemode;
 import com.entropy.arena.api.map.ArenaMapInfo;
 import com.entropy.arena.client.PingIcon;

@@ -1,6 +1,6 @@
 package com.entropy.arena.core.mixin.team;
 
-import com.entropy.arena.api.ArenaTeam;
+import com.entropy.arena.api.util.ArenaTeam;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.world.entity.Entity;

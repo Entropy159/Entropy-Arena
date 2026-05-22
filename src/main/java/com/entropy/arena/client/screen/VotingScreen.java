@@ -1,6 +1,6 @@
 package com.entropy.arena.client.screen;
 
-import com.entropy.arena.api.ArenaGameType;
+import com.entropy.arena.api.util.ArenaGameType;
 import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.map.ArenaMapInfo;
 import com.entropy.arena.core.ArenaLogic;

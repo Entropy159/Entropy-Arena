@@ -1,6 +1,6 @@
 package com.entropy.arena.api.map;
 
-import com.entropy.arena.api.ArenaUtils;
+import com.entropy.arena.api.util.ArenaUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;

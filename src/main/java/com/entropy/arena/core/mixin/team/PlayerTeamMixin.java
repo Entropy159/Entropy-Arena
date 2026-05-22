@@ -1,6 +1,6 @@
 package com.entropy.arena.core.mixin.team;
 
-import com.entropy.arena.api.ArenaTeam;
+import com.entropy.arena.api.util.ArenaTeam;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.MutableComponent;

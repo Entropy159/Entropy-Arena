@@ -1,6 +1,6 @@
 package com.entropy.arena.api.map;
 
-import com.entropy.arena.api.ArenaUtils;
+import com.entropy.arena.api.util.ArenaUtils;
 import com.entropy.arena.api.gamemode.ArenaGamemode;
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
 import com.entropy.arena.core.network.toServer.MapVotePacket;

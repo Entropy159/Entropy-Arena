@@ -1,18 +1,18 @@
 package com.entropy.arena.core;
 
+import com.entropy.arena.api.Notification;
 import com.entropy.arena.api.data.ArenaData;
-import com.entropy.arena.api.events.IgnoreAdventureModeEvent;
-import com.entropy.arena.api.events.ItemEntityExplosionEvent;
-import com.entropy.arena.api.events.LoadoutComponentEvent;
-import com.entropy.arena.api.events.ShouldBlockBeInfiniteEvent;
+import com.entropy.arena.api.events.*;
 import com.entropy.arena.core.blocks.TeamBlock;
 import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.gamemodes.CaptureTheFlag;
 import com.entropy.arena.core.items.DisguiseItem;
 import com.entropy.arena.core.items.TeamGemItem;
 import com.entropy.arena.core.registry.ArenaTags;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.BlockItem;
@@ -28,6 +28,7 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @EventBusSubscriber
@@ -142,5 +143,21 @@ public class ArenaEvents {
         if (event.getEntity().getItem().getItem() instanceof TeamGemItem) {
             event.setImmune(TriState.TRUE);
         }
+    }
+
+    @SubscribeEvent
+    public static void killstreaks(KillStreakEvent event) {
+        if (event.getNewValue() == 0 && event.getOldValue() >= 5) {
+            Notification.toAll(Component.translatable("arena.message.lost_killstreak", event.getEntity().getDisplayName(), event.getOldValue()).withStyle(ChatFormatting.RED));
+        }
+        List<Integer> announcedMilestones = new ArrayList<>();
+        announcedMilestones.add(5);
+        announcedMilestones.add(10);
+        announcedMilestones.add(20);
+        announcedMilestones.forEach(num -> {
+            if (event.getNewValue() >= num && event.getOldValue() < num) {
+                Notification.toAll(Component.translatable("arena.message.killstreak_" + num, event.getEntity().getDisplayName(), event.getNewValue()).withStyle(ChatFormatting.GREEN));
+            }
+        });
     }
 }

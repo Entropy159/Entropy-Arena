@@ -3,6 +3,7 @@ package com.entropy.arena.api.gamemode;
 import com.entropy.arena.api.ArenaTeam;
 import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.data.ArenaData;
+import com.entropy.arena.api.events.KillStreakEvent;
 import com.entropy.arena.api.events.LoadoutComponentEvent;
 import com.entropy.arena.api.loadout.ItemList;
 import com.entropy.arena.api.loadout.Loadout;
@@ -45,14 +46,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<ArenaGamemode> {
     private final ResourceLocation registryID;
+    public HashMap<UUID, Integer> killStreak = new HashMap<>();
 
     public ArenaGamemode(ResourceLocation id) {
         registryID = id;
@@ -90,7 +90,6 @@ public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<Are
      *
      * @param player The player that died
      * @param source The damage source that caused the player to die
-     * @return Whether to prevent the player from dying or not
      */
     public void onDeath(ServerPlayer player, DamageSource source) {
         LoadoutSerializerRegistry.forEachStack(player, (serializer, slot, stack) -> {
@@ -99,6 +98,14 @@ public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<Are
             }
         });
         LoadoutSerializerRegistry.clearAll(player);
+        int oldValue = killStreak.getOrDefault(player.getUUID(), 0);
+        killStreak.put(player.getUUID(), 0);
+        NeoForge.EVENT_BUS.post(new KillStreakEvent(player, oldValue, 0));
+        if (source.getEntity() instanceof ServerPlayer killer) {
+            oldValue = killStreak.getOrDefault(killer.getUUID(), 0);
+            killStreak.put(killer.getUUID(), oldValue + 1);
+            NeoForge.EVENT_BUS.post(new KillStreakEvent(killer, oldValue, killStreak.get(killer.getUUID())));
+        }
     }
 
     public Predicate<ItemStack> shouldDropOnDeath() {
@@ -252,7 +259,8 @@ public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<Are
     public ArenaGamemode get() {
         try {
             return this.getClass().getDeclaredConstructor(ResourceLocation.class).newInstance(registryID);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
             EntropyArena.LOGGER.error("Error creating new ArenaGamemode instance!", e);
             throw new RuntimeException(e);
         }

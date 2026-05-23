@@ -80,7 +80,7 @@ public class ArenaRenderingUtils {
     public static float centerTransparency(double x, double y) {
         Vec3 pos = new Vec3(x / client.getWindow().getGuiScaledWidth(), y / client.getWindow().getGuiScaledHeight(), 0);
         Vec3 center = new Vec3(0.5, 0.5, 0);
-        double centerRadius = ClientConfig.SCREEN_CENTER_NO_ICONS.getAsDouble();
+        double centerRadius = ClientConfig.ICON_FADE_RADIUS.getAsDouble();
         double distance = pos.distanceTo(center);
         float value = (float) (((distance * 2) - centerRadius) / centerRadius);
         return Math.clamp(value, 0.5f, 1);

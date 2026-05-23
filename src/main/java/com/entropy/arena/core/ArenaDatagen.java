@@ -120,10 +120,10 @@ public class ArenaDatagen {
 
         REGISTRATE.configLang("section." + MODID + ".client.toml", "Client");
         REGISTRATE.configLang("section." + MODID + ".client.toml.title", "Client");
-        REGISTRATE.configLang(ClientConfig.CHAT_INSTEAD_OF_NOTIFICATION, "Use Chat For Notifications");
+        REGISTRATE.configLang(ClientConfig.USE_CHAT_FOR_NOTIFICATIONS, "Use Chat For Notifications");
         REGISTRATE.configLang(ClientConfig.NOTIFICATION_FADEOUT_DELAY, "Notification Fade Out Delay");
         REGISTRATE.configLang(ClientConfig.NOTIFICATION_FADEOUT_DURATION, "Notification Fade Out Duration");
-        REGISTRATE.configLang(ClientConfig.SCREEN_CENTER_NO_ICONS, "Screen Center No Icons");
+        REGISTRATE.configLang(ClientConfig.ICON_FADE_RADIUS, "Screen Center No Icons");
 
         REGISTRATE.configLang("section." + MODID + ".server.toml", "Server");
         REGISTRATE.configLang("section." + MODID + ".server.toml.title", "Server");

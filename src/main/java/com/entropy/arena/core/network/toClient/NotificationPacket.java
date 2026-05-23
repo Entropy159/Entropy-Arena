@@ -28,7 +28,7 @@ public record NotificationPacket(Component message) implements CustomPacketPaylo
     public void handle(IPayloadContext ctx) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level != null) {
-            if (ClientConfig.CHAT_INSTEAD_OF_NOTIFICATION.get()) {
+            if (ClientConfig.USE_CHAT_FOR_NOTIFICATIONS.get()) {
                 EntropyArenaClient.sendChatMessage(message);
             } else {
                 ClientData.notifications.add(new Notification(message, Util.getMillis()));

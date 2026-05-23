@@ -1,8 +1,9 @@
 package com.entropy.arena.core;
 
-import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.events.*;
+import com.entropy.arena.api.util.Notification;
+import com.entropy.arena.core.blocks.SpawnpointBlock;
 import com.entropy.arena.core.blocks.TeamBlock;
 import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.gamemodes.CaptureTheFlag;
@@ -15,7 +16,9 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.level.LevelAccessor;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.TriState;
@@ -24,11 +27,11 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @EventBusSubscriber
@@ -94,6 +97,14 @@ public class ArenaEvents {
     @SubscribeEvent
     public static void onLevelClose(ServerStoppingEvent event) {
         event.getServer().getAllLevels().forEach(level -> ArenaLogic.get(level).onLevelClose());
+    }
+
+    @SubscribeEvent
+    public static void placeBlock(BlockEvent.EntityPlaceEvent event) {
+        LevelAccessor level = event.getBlockSnapshot().getLevel();
+        if (event.getEntity() instanceof Player player && !player.isCreative() && level != null && level.getBlockState(event.getBlockSnapshot().getPos().below()).getBlock() instanceof SpawnpointBlock && ServerConfig.PREVENT_BLOCKS_ON_SPAWNS.get()) {
+            event.setCanceled(true);
+        }
     }
 
     @SubscribeEvent

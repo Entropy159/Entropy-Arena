@@ -123,7 +123,7 @@ public class ArenaDatagen {
         REGISTRATE.configLang(ClientConfig.USE_CHAT_FOR_NOTIFICATIONS, "Use Chat For Notifications");
         REGISTRATE.configLang(ClientConfig.NOTIFICATION_FADEOUT_DELAY, "Notification Fade Out Delay");
         REGISTRATE.configLang(ClientConfig.NOTIFICATION_FADEOUT_DURATION, "Notification Fade Out Duration");
-        REGISTRATE.configLang(ClientConfig.ICON_FADE_RADIUS, "Screen Center No Icons");
+        REGISTRATE.configLang(ClientConfig.ICON_FADE_RADIUS, "Icon Fade Radius");
 
         REGISTRATE.configLang("section." + MODID + ".server.toml", "Server");
         REGISTRATE.configLang("section." + MODID + ".server.toml.title", "Server");
@@ -139,6 +139,8 @@ public class ArenaDatagen {
         REGISTRATE.configLang(ServerConfig.INFINITE_BLOCKS, "Infinite Blocks");
         REGISTRATE.configLang(ServerConfig.SPAWN_PROTECTION, "Spawn Protection");
         REGISTRATE.configLang(ServerConfig.MAX_HEALTH, "Max Health");
+        REGISTRATE.configLang(ServerConfig.PREVENT_BLOCKS_ON_SPAWNS, "Prevent Blocks on Spawns");
+
         REGISTRATE.configLang(ServerConfig.KILL_STREAK_LOSE_ANNOUNCE, "Kill Streak Lose Announce");
         REGISTRATE.configLang(ServerConfig.KILL_STREAK_ANNOUNCEMENTS, "Kill Streak Announcements");
         REGISTRATE.configLang("killStreakAnnouncements.button", "-->");

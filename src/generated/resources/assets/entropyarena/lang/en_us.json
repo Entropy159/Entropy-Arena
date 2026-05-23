@@ -146,6 +146,7 @@
   "entropyarena.configuration.notificationFadeoutDelay.tooltip": " Default: 5.0\n Range: 1.0 ~ 30.0",
   "entropyarena.configuration.notificationFadeoutDuration": "Notification Fade Out Duration",
   "entropyarena.configuration.notificationFadeoutDuration.tooltip": " Default: 1.0\n Range: 0.0 ~ 5.0",
+  "entropyarena.configuration.preventBlocksOnSpawns": "Prevent Blocks on Spawns",
   "entropyarena.configuration.recapSeconds": "Recap Seconds",
   "entropyarena.configuration.recapSeconds.tooltip": " Default: 5\n Range: 0 ~ 100",
   "entropyarena.configuration.respawnDelay": "Respawn Delay",

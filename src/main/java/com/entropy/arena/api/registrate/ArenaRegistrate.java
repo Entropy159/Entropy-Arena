@@ -8,8 +8,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ArenaRegistrate extends AbstractRegistrate<ArenaRegistrate> {
+    final Logger LOGGER = LogManager.getLogger(ArenaRegistrate.class);
+
     protected ArenaRegistrate(String modid) {
         super(modid);
     }
@@ -35,5 +40,22 @@ public class ArenaRegistrate extends AbstractRegistrate<ArenaRegistrate> {
 
     public <T extends ArenaGamemode, P> GamemodeBuilder<T, P> gamemode(P parent, String name, NonNullFunction<ResourceLocation, T> factory) {
         return entry(name, callback -> GamemodeBuilder.create(this, parent, name, callback, factory));
+    }
+
+    public void configLang(ModConfigSpec.ConfigValue<?> value, String translation) {
+        ModConfigSpec.ValueSpec spec = value.getSpec();
+        String langKey = spec.getTranslationKey();
+        if (langKey == null) {
+            langKey = value.getPath().stream().reduce(getModid() + ".configuration", (a, b) -> a + "." + b);
+        }
+        addRawLang(langKey, translation);
+        String comment = spec.getComment();
+        if (comment != null) {
+            addRawLang(langKey + ".tooltip", comment);
+        }
+    }
+
+    public void configLang(String key, String translation) {
+        addRawLang(getModid() + ".configuration." + key, translation);
     }
 }

@@ -1,6 +1,8 @@
 package com.entropy.arena.core;
 
 import com.entropy.arena.api.util.ArenaUtils;
+import com.entropy.arena.core.config.ClientConfig;
+import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.registry.ArenaBlocks;
 import com.entropy.arena.core.registry.ArenaSounds;
 import com.entropy.arena.core.registry.ArenaTags;
@@ -114,29 +116,40 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("key.map_voting", "Map Voting");
         REGISTRATE.addRawLang("key.loadouts", "Loadouts");
 
-        REGISTRATE.addRawLang(MODID + ".configuration.useChatForNotifications", "Use Chat For Notifications");
-        REGISTRATE.addRawLang(MODID + ".configuration.notificationFadeoutDelay", "Notification Fade Out Delay");
-        REGISTRATE.addRawLang(MODID + ".configuration.notificationFadeoutDuration", "Notification Fade Out Duration");
-        REGISTRATE.addRawLang(MODID + ".configuration.screenCenterNoIcons", "Screen Center No Icons");
+        REGISTRATE.configLang("title", "Entropy Arena");
 
-        REGISTRATE.addRawLang(MODID + ".configuration.concurrentChunkLoads", "Concurrent Chunk Loads");
-        REGISTRATE.addRawLang(MODID + ".configuration.intervalSeconds", "Interval Seconds");
-        REGISTRATE.addRawLang(MODID + ".configuration.recapSeconds", "Recap Seconds");
-        REGISTRATE.addRawLang(MODID + ".configuration.defaultRoundSeconds", "Default Round Seconds");
-        REGISTRATE.addRawLang(MODID + ".configuration.defaultTargetScore", "Default Target Score");
-        REGISTRATE.addRawLang(MODID + ".configuration.friendlyFire", "Friendly Fire");
-        REGISTRATE.addRawLang(MODID + ".configuration.hideEnemyNametags", "Hide Enemy Nametags");
-        REGISTRATE.addRawLang(MODID + ".configuration.respawnDelay", "Respawn Delay");
-        REGISTRATE.addRawLang(MODID + ".configuration.giveSaturation", "Give Saturation");
-        REGISTRATE.addRawLang(MODID + ".configuration.infiniteBlocks", "Infinite Blocks");
-        REGISTRATE.addRawLang(MODID + ".configuration.spawnProtection", "Spawn Protection");
-        REGISTRATE.addRawLang(MODID + ".configuration.maxHealth", "Max Health");
+        REGISTRATE.configLang("section." + MODID + ".client.toml", "Client");
+        REGISTRATE.configLang("section." + MODID + ".client.toml.title", "Client");
+        REGISTRATE.configLang(ClientConfig.CHAT_INSTEAD_OF_NOTIFICATION, "Use Chat For Notifications");
+        REGISTRATE.configLang(ClientConfig.NOTIFICATION_FADEOUT_DELAY, "Notification Fade Out Delay");
+        REGISTRATE.configLang(ClientConfig.NOTIFICATION_FADEOUT_DURATION, "Notification Fade Out Duration");
+        REGISTRATE.configLang(ClientConfig.SCREEN_CENTER_NO_ICONS, "Screen Center No Icons");
 
-        REGISTRATE.addRawLang(MODID + ".configuration.requireGemToScore", "Require Gem to Score");
-        REGISTRATE.addRawLang(MODID + ".configuration.teamSwitchCooldown", "Team Switch Cooldown");
-        REGISTRATE.addRawLang(MODID + ".configuration.glowingForFlag", "Glowing for Flag");
-        REGISTRATE.addRawLang(MODID + ".configuration.returnAllGems", "Return All Gems");
-        REGISTRATE.addRawLang(MODID + ".configuration.flagExpirationSeconds", "Flag Expiration Seconds");
+        REGISTRATE.configLang("section." + MODID + ".server.toml", "Server");
+        REGISTRATE.configLang("section." + MODID + ".server.toml.title", "Server");
+        REGISTRATE.configLang(ServerConfig.CONCURRENT_CHUNK_LOADS, "Concurrent Chunk Loads");
+        REGISTRATE.configLang(ServerConfig.INTERVAL_SECONDS, "Interval Seconds");
+        REGISTRATE.configLang(ServerConfig.RECAP_SECONDS, "Recap Seconds");
+        REGISTRATE.configLang(ServerConfig.DEFAULT_ROUND_SECONDS, "Default Round Seconds");
+        REGISTRATE.configLang(ServerConfig.DEFAULT_TARGET_SCORE, "Default Target Score");
+        REGISTRATE.configLang(ServerConfig.FRIENDLY_FIRE, "Friendly Fire");
+        REGISTRATE.configLang(ServerConfig.HIDE_ENEMY_NAMETAGS, "Hide Enemy Nametags");
+        REGISTRATE.configLang(ServerConfig.RESPAWN_DELAY, "Respawn Delay");
+        REGISTRATE.configLang(ServerConfig.GIVE_SATURATION, "Give Saturation");
+        REGISTRATE.configLang(ServerConfig.INFINITE_BLOCKS, "Infinite Blocks");
+        REGISTRATE.configLang(ServerConfig.SPAWN_PROTECTION, "Spawn Protection");
+        REGISTRATE.configLang(ServerConfig.MAX_HEALTH, "Max Health");
+        REGISTRATE.configLang(ServerConfig.KILL_STREAK_LOSE_ANNOUNCE, "Kill Streak Lose Announce");
+        REGISTRATE.configLang(ServerConfig.KILL_STREAK_ANNOUNCEMENTS, "Kill Streak Announcements");
+        REGISTRATE.configLang("killStreakAnnouncements.button", "-->");
+
+        REGISTRATE.configLang("ctf", "Capture the Flag");
+        REGISTRATE.configLang("ctf.button", "-->");
+        REGISTRATE.configLang(ServerConfig.REQUIRE_GEM_TO_SCORE, "Require Gem to Score");
+        REGISTRATE.configLang(ServerConfig.TEAM_SWITCH_COOLDOWN, "Team Switch Cooldown");
+        REGISTRATE.configLang(ServerConfig.GLOWING_FOR_FLAG, "Glowing for Flag");
+        REGISTRATE.configLang(ServerConfig.RETURN_ALL_GEMS, "Return All Gems");
+        REGISTRATE.configLang(ServerConfig.FLAG_EXPIRATION_SECONDS, "Flag Expiration Seconds");
 
         REGISTRATE.addRawLang("arena.hud.interval", "Interval: %s");
         REGISTRATE.addRawLang("arena.hud.timer", "Timer: %s");
@@ -201,9 +214,6 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.removed_unbreakable", "Made item breakable");
         REGISTRATE.addRawLang("arena.message.switched_team", "%s has switched to team %s");
         REGISTRATE.addRawLang("arena.message.lost_killstreak", "%s has lost their kill streak of %s");
-        REGISTRATE.addRawLang("arena.message.killstreak_0", "%s has a %s kill streak");
-        REGISTRATE.addRawLang("arena.message.killstreak_1", "%s is on a roll with %s kills");
-        REGISTRATE.addRawLang("arena.message.killstreak_2", "%s is dominating with %s kills");
 
         REGISTRATE.addRawLang("arena.error.already_running", "Game is already running");
         REGISTRATE.addRawLang("arena.error.no_lobby", "No lobby position found");

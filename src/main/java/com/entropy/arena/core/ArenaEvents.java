@@ -147,16 +147,22 @@ public class ArenaEvents {
 
     @SubscribeEvent
     public static void killstreaks(KillStreakEvent event) {
-        List<Integer> announcedMilestones = new ArrayList<>();
-        announcedMilestones.add(3);
-        announcedMilestones.add(5);
-        announcedMilestones.add(10);
-        announcedMilestones.forEach(num -> {
-            if (event.getNewValue() >= num && event.getOldValue() < num) {
-                Notification.toAll(Component.translatable("arena.message.killstreak_" + announcedMilestones.indexOf(num), event.getEntity().getDisplayName(), event.getNewValue()).withStyle(ChatFormatting.GREEN));
+        List<? extends String> announcements = ServerConfig.KILL_STREAK_ANNOUNCEMENTS.get();
+        announcements.forEach(string -> {
+            try {
+                String[] strings = string.split(": ");
+                int num = Integer.parseInt(strings[0]);
+                String message = strings[1];
+                if (event.getNewValue() >= num && event.getOldValue() < num) {
+                    String[] splitMessage = message.split("%s");
+                    Notification.toAll(Component.literal(splitMessage[0]).withStyle(ChatFormatting.GREEN).append(event.getEntity().getDisplayName()).append(Component.literal(splitMessage[1]).withStyle(ChatFormatting.GREEN)));
+                }
+            } catch (NumberFormatException e) {
+                EntropyArena.LOGGER.error("Error parsing integer in kill streak announcements!", e);
             }
         });
-        if (event.getNewValue() == 0 && event.getOldValue() >= announcedMilestones.getFirst()) {
+        int announce = ServerConfig.KILL_STREAK_LOSE_ANNOUNCE.get();
+        if (event.getNewValue() == 0 && event.getOldValue() >= announce && announce > 0) {
             Notification.toAll(Component.translatable("arena.message.lost_killstreak", event.getEntity().getDisplayName(), event.getOldValue()).withStyle(ChatFormatting.RED));
         }
     }

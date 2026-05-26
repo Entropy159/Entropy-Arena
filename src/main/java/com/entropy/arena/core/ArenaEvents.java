@@ -1,7 +1,9 @@
 package com.entropy.arena.core;
 
+import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.events.*;
+import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.core.blocks.SpawnpointBlock;
 import com.entropy.arena.core.blocks.TeamBlock;
@@ -118,7 +120,14 @@ public class ArenaEvents {
     public static void adventureModeBypass(IgnoreAdventureModeEvent event) {
         if (event.isPlacing()) {
             if (event.getHeldItem().getItem() instanceof BlockItem bi && bi.getBlock() instanceof TeamBlock) {
-                event.setBypass(!event.getState().is(ArenaTags.TEAM_BLOCK_INVALID));
+                boolean isValid = !event.getState().is(ArenaTags.TEAM_BLOCK_INVALID);
+                if (event.getPlayer() instanceof ServerPlayer player) {
+                    if (ArenaData.get(player.serverLevel()).currentMap == null || ArenaData.get(player.serverLevel()).currentMap.allowBlocks()) {
+                        event.setBypass(isValid);
+                    }
+                } else {
+                    event.setBypass(isValid && ClientData.allowBlocks);
+                }
             }
             if (event.getHeldItem().getItem() instanceof DisguiseItem) {
                 event.setBypass(true);

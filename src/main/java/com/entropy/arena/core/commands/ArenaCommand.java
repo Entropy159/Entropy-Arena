@@ -9,6 +9,7 @@ import com.entropy.arena.core.network.toClient.TakeScreenshotPacket;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.entropy.arena.core.registry.ArenaItems;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -69,6 +70,9 @@ public class ArenaCommand {
                                 .then(argument("name", StringArgumentType.string())
                                         .suggests(ALL_MAP_SUGGESTIONS)
                                         .executes(ArenaCommand::loadMap)))
+                        .then(literal("allowBlocks")
+                                .then(argument("allow", BoolArgumentType.bool())
+                                        .executes(ArenaCommand::allowBlocks)))
                         .then(literal("enable")
                                 .then(argument("name", StringArgumentType.string())
                                         .suggests(DISABLED_MAP_SUGGESTIONS)
@@ -173,6 +177,20 @@ public class ArenaCommand {
                 ctx.getSource().getPlayer().teleportTo(map.getCenter().x, map.getCenter().y, map.getCenter().z);
             }
             ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.loaded_map", name).withStyle(ChatFormatting.GREEN), true);
+            return 1;
+        }
+        ctx.getSource().sendFailure(Component.translatable("arena.error.map_not_found", name).withStyle(ChatFormatting.DARK_RED));
+        return 0;
+    }
+
+    private static int allowBlocks(CommandContext<CommandSourceStack> ctx) {
+        String name = StringArgumentType.getString(ctx, "name");
+        boolean allowBlocks = BoolArgumentType.getBool(ctx, "allow");
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        ArenaMap map = data.mapList.getMap(name);
+        if (map != null) {
+            map.allowBlocks(allowBlocks);
+            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.set_allow_blocks", name, allowBlocks).withStyle(ChatFormatting.GREEN), true);
             return 1;
         }
         ctx.getSource().sendFailure(Component.translatable("arena.error.map_not_found", name).withStyle(ChatFormatting.DARK_RED));

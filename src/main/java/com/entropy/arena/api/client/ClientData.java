@@ -19,6 +19,7 @@ public class ClientData {
     public static String currentMap;
     public static long lastRespawn = 0;
     public static ArenaGamemode currentGamemode;
+    public static boolean allowBlocks = true;
 
     public static List<ArenaMapInfo> votableMaps = new ArrayList<>();
     public static Map<ArenaGameType, Integer> typeVotes = new HashMap<>();

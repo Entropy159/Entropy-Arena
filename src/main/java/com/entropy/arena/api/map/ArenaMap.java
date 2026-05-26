@@ -1,9 +1,9 @@
 package com.entropy.arena.api.map;
 
-import com.entropy.arena.api.util.ArenaTeam;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.ArenaGamemode;
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
+import com.entropy.arena.api.util.ArenaTeam;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.SpawnpointBlock;
 import com.entropy.arena.core.config.ServerConfig;
@@ -43,12 +43,13 @@ public class ArenaMap {
     private int timerOverride;
     private int targetScoreOverride;
     protected final HashMap<Property<?>, HashMap<Object, ArrayList<BlockPos>>> blockPropertyMap = new HashMap<>();
+    private boolean allowBlocks;
 
     public ArenaMap(ServerLevel level, String name, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2) {
-        this(name, true, gamemodeID, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), 0, 0);
+        this(name, true, gamemodeID, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), 0, 0, true);
     }
 
-    public ArenaMap(String name, boolean enabled, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, int timerOverride, int targetScoreOverride) {
+    public ArenaMap(String name, boolean enabled, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, int timerOverride, int targetScoreOverride, boolean allowBlocks) {
         this.name = name;
         this.enabled = enabled;
         this.gamemodeID = gamemodeID;
@@ -60,6 +61,15 @@ public class ArenaMap {
         this.screenshot = screenshot;
         this.timerOverride = timerOverride;
         this.targetScoreOverride = targetScoreOverride;
+        this.allowBlocks = allowBlocks;
+    }
+
+    public boolean allowBlocks() {
+        return allowBlocks;
+    }
+
+    public void allowBlocks(boolean newValue) {
+        allowBlocks = newValue;
     }
 
     public ArrayList<ArenaTeam> getTeams(ServerLevel level) {
@@ -153,6 +163,7 @@ public class ArenaMap {
         tag.putByteArray("screenshot", screenshot.getData());
         tag.putInt("timerOverride", timerOverride);
         tag.putInt("targetScoreOverride", targetScoreOverride);
+        tag.putBoolean("allowBlocks", allowBlocks);
         return tag;
     }
 
@@ -168,7 +179,8 @@ public class ArenaMap {
         MapScreenshot screenshot = new MapScreenshot(name, tag.getByteArray("screenshot"));
         int timerOverride = tag.getInt("timerOverride");
         int targetScoreOverride = tag.getInt("targetScoreOverride");
-        return new ArenaMap(name, enabled, gamemode, corner1, corner2, time, raining, thundering, screenshot, timerOverride, targetScoreOverride);
+        boolean allowBlocks = tag.getBoolean("allowBlocks");
+        return new ArenaMap(name, enabled, gamemode, corner1, corner2, time, raining, thundering, screenshot, timerOverride, targetScoreOverride, allowBlocks);
     }
 
     public String getName() {
@@ -185,7 +197,9 @@ public class ArenaMap {
                 .append(Component.literal(", gamemode: ").withStyle(ChatFormatting.GRAY))
                 .append((gamemode == null ? Component.literal("None") : gamemode.getName().copy()).withStyle(ChatFormatting.DARK_AQUA))
                 .append(Component.literal(", ").withStyle(ChatFormatting.GRAY))
-                .append(Component.translatable("arena." + (enabled ? "enabled" : "disabled")).withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED));
+                .append(Component.translatable("arena." + (enabled ? "enabled" : "disabled")).withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED))
+                .append(Component.literal(", ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal("Allow blocks: " + allowBlocks).withStyle(ChatFormatting.AQUA));
     }
 
     public ArenaMapInfo getInfo(int votes) {

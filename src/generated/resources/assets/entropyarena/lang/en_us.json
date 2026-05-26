@@ -82,6 +82,7 @@
   "arena.message.respawning": "Respawning in %s",
   "arena.message.saved_item_list": "Saved item list %s",
   "arena.message.selected_loadout": "Selected loadout %s",
+  "arena.message.set_allow_blocks": "Set blocks allowed for %s to %s",
   "arena.message.set_lobby_pos": "Set lobby position to %s",
   "arena.message.switch_team": "You are on team %s",
   "arena.message.switched_team": "%s has switched to team %s",

@@ -1,9 +1,9 @@
 package com.entropy.arena.core.commands;
 
-import com.entropy.arena.api.util.ArenaTeam;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
 import com.entropy.arena.api.map.ArenaMap;
+import com.entropy.arena.api.util.ArenaTeam;
 import com.entropy.arena.core.ArenaLogic;
 import com.entropy.arena.core.network.toClient.TakeScreenshotPacket;
 import com.entropy.arena.core.registry.ArenaDataComponents;
@@ -71,8 +71,10 @@ public class ArenaCommand {
                                         .suggests(ALL_MAP_SUGGESTIONS)
                                         .executes(ArenaCommand::loadMap)))
                         .then(literal("allowBlocks")
-                                .then(argument("allow", BoolArgumentType.bool())
-                                        .executes(ArenaCommand::allowBlocks)))
+                                .then(argument("name", StringArgumentType.string())
+                                        .suggests(ALL_MAP_SUGGESTIONS)
+                                        .then(argument("allow", BoolArgumentType.bool())
+                                                .executes(ArenaCommand::allowBlocks))))
                         .then(literal("enable")
                                 .then(argument("name", StringArgumentType.string())
                                         .suggests(DISABLED_MAP_SUGGESTIONS)
@@ -190,7 +192,7 @@ public class ArenaCommand {
         ArenaMap map = data.mapList.getMap(name);
         if (map != null) {
             map.allowBlocks(allowBlocks);
-            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.set_allow_blocks", name, allowBlocks).withStyle(ChatFormatting.GREEN), true);
+            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.map_%sallowed_blocks".formatted(allowBlocks ? "" : "dis"), name).withStyle(ChatFormatting.GREEN), true);
             return 1;
         }
         ctx.getSource().sendFailure(Component.translatable("arena.error.map_not_found", name).withStyle(ChatFormatting.DARK_RED));

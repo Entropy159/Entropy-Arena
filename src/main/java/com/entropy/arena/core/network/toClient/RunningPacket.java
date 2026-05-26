@@ -27,13 +27,13 @@ public record RunningPacket(boolean running, boolean lobby, int targetScore, boo
         ClientData.running = running;
         ClientData.inLobby = lobby;
         ClientData.targetScore = targetScore;
-        ClientData.allowBlocks = allowBlocks || !running;
+        ClientData.allowBlocks = allowBlocks;
         if (!lobby || !running) {
             ClientData.votableMaps.clear();
         }
     }
 
     public static RunningPacket fromData(ArenaData data) {
-        return new RunningPacket(data.running, data.lobby, data.currentMap == null ? 0 : (data.gameType.isTimed() ? 0 : data.currentMap.getTargetScore()), data.currentMap == null || data.currentMap.allowBlocks());
+        return new RunningPacket(data.running, data.lobby, data.currentMap == null ? 0 : (data.gameType.isTimed() ? 0 : data.currentMap.getTargetScore()), !data.running || data.currentMap == null || data.currentMap.allowBlocks());
     }
 }

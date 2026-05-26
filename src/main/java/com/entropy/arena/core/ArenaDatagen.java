@@ -216,7 +216,8 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.removed_unbreakable", "Made item breakable");
         REGISTRATE.addRawLang("arena.message.switched_team", "%s has switched to team %s");
         REGISTRATE.addRawLang("arena.message.lost_killstreak", "%s has lost their kill streak of %s");
-        REGISTRATE.addRawLang("arena.message.set_allow_blocks", "Set blocks allowed for %s to %s");
+        REGISTRATE.addRawLang("arena.message.map_allowed_blocks", "Set blocks allowed for %s");
+        REGISTRATE.addRawLang("arena.message.map_disallowed_blocks", "Set blocks disallowed for %s");
 
         REGISTRATE.addRawLang("arena.error.already_running", "Game is already running");
         REGISTRATE.addRawLang("arena.error.no_lobby", "No lobby position found");

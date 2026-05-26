@@ -122,7 +122,8 @@ public class ArenaEvents {
             if (event.getHeldItem().getItem() instanceof BlockItem bi && bi.getBlock() instanceof TeamBlock) {
                 boolean isValid = !event.getState().is(ArenaTags.TEAM_BLOCK_INVALID);
                 if (event.getPlayer() instanceof ServerPlayer player) {
-                    if (ArenaData.get(player.serverLevel()).currentMap == null || ArenaData.get(player.serverLevel()).currentMap.allowBlocks()) {
+                    ArenaMap map = ArenaData.get(player.serverLevel()).currentMap;
+                    if (map == null || map.allowBlocks()) {
                         event.setBypass(isValid);
                     }
                 } else {
@@ -132,8 +133,7 @@ public class ArenaEvents {
             if (event.getHeldItem().getItem() instanceof DisguiseItem) {
                 event.setBypass(true);
             }
-        }
-        if (!event.isPlacing()) {
+        } else {
             if (event.getState().getBlock() instanceof TeamBlock) {
                 event.setBypass(true);
             }

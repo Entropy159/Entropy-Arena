@@ -12,6 +12,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,6 +52,14 @@ public abstract class CoOpGamemode extends ArenaGamemode {
     @Override
     public List<ServerPlayer> getWinners(ServerLevel level) {
         return level.players();
+    }
+
+    @Override
+    public void onDeath(ServerPlayer player, DamageSource source) {
+        super.onDeath(player, source);
+        if (source.getEntity() instanceof ServerPlayer) {
+            collectiveScore--;
+        }
     }
 
     @Override

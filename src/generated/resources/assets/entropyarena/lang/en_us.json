@@ -129,6 +129,8 @@
   "entropyarena.configuration.ctf.returnAllGems.tooltip": "Whether clicking a pedestal will score/return all gems instead of just the held one",
   "entropyarena.configuration.ctf.teamSwitchCooldown": "Team Switch Cooldown",
   "entropyarena.configuration.ctf.teamSwitchCooldown.tooltip": "The duration in seconds to prevent switching teams again\n Default: 15\n Range: 0 ~ 120",
+  "entropyarena.configuration.deductPointsOnSelfDeath": "Deduct Points on Self Death",
+  "entropyarena.configuration.deductPointsOnSelfDeath.tooltip": "If enabled, a self-kill (or a team kill) will subtract a point from your score",
   "entropyarena.configuration.defaultRoundSeconds": "Default Round Seconds",
   "entropyarena.configuration.defaultRoundSeconds.tooltip": "The default duration in seconds for timed rounds to last\n Default: 600\n Range: 15 ~ 1800",
   "entropyarena.configuration.defaultTargetScore": "Default Target Score",

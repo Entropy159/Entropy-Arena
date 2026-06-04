@@ -141,6 +141,8 @@ public class ArenaDatagen {
         REGISTRATE.configLang(ServerConfig.MAX_HEALTH, "Max Health");
         REGISTRATE.configLang(ServerConfig.PREVENT_BLOCKS_ON_SPAWNS, "Prevent Blocks on Spawns");
 
+        REGISTRATE.configLang(ServerConfig.DEDUCT_POINTS_ON_SELF_DEATH, "Deduct Points on Self Death");
+
         REGISTRATE.configLang(ServerConfig.KILL_STREAK_LOSE_ANNOUNCE, "Kill Streak Lose Announce");
         REGISTRATE.configLang(ServerConfig.KILL_STREAK_ANNOUNCEMENTS, "Kill Streak Announcements");
         REGISTRATE.configLang("killStreakAnnouncements.button", "-->");

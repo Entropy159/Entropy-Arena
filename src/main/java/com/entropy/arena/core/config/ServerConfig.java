@@ -22,6 +22,8 @@ public class ServerConfig {
     public static final ModConfigSpec.IntValue MAX_HEALTH = BUILDER.comment("The max player health").defineInRange("maxHealth", 20, 1, 10000);
     public static final ModConfigSpec.BooleanValue PREVENT_BLOCKS_ON_SPAWNS = BUILDER.comment("Whether to prevent placing blocks on top of spawns").define("preventBlocksOnSpawns", true);
 
+    public static final ModConfigSpec.BooleanValue DEDUCT_POINTS_ON_SELF_DEATH = BUILDER.comment("If enabled, a self-kill (or a team kill) will subtract a point from your score").define("deductPointsOnSelfDeath", true);
+
     public static final ModConfigSpec.IntValue KILL_STREAK_LOSE_ANNOUNCE = BUILDER.comment("The minimum kill streak needed before announcing a loss").defineInRange("killStreakLoseAnnounce", 3, 0, 100);
     public static final ModConfigSpec.ConfigValue<List<? extends String>> KILL_STREAK_ANNOUNCEMENTS = BUILDER.comment("The kill streak count and respective messages to announce", "Follows the format 'count: message where %s is the player name'").defineListAllowEmpty("killStreakAnnouncements", new ArrayList<>() {{
         add("3: %s has a 3 kill streak");

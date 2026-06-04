@@ -14,6 +14,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
@@ -49,6 +50,14 @@ public abstract class FFAGamemode extends ArenaGamemode {
             Notification.toAll(Component.translatable("arena.message.game_tied").withStyle(ChatFormatting.YELLOW));
         } else {
             Notification.toAll(Component.translatable("arena.message.player_winner", winners.getFirst().getDisplayName(), getHighestScore()).withStyle(ChatFormatting.GREEN));
+        }
+    }
+
+    @Override
+    public void onDeath(ServerPlayer player, DamageSource source) {
+        super.onDeath(player, source);
+        if (source.getEntity() == player) {
+            setScore(player, Math.max(0, getScore(player) - 1));
         }
     }
 

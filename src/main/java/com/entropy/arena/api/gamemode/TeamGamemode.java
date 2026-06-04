@@ -1,13 +1,13 @@
 package com.entropy.arena.api.gamemode;
 
-import com.entropy.arena.api.util.ArenaTeam;
-import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.api.client.ArenaRenderingUtils;
 import com.entropy.arena.api.client.ScreenAnchorPoint;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.api.map.ArenaMap;
+import com.entropy.arena.api.util.ArenaTeam;
+import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.network.toClient.ScoresPacket;
 import io.netty.buffer.ByteBuf;
@@ -25,6 +25,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.neoforged.api.distmarker.Dist;
@@ -79,6 +80,15 @@ public abstract class TeamGamemode extends ArenaGamemode {
             Notification.toAll(Component.translatable("arena.message.game_tied").withStyle(ChatFormatting.YELLOW));
         } else {
             Notification.toAll(Component.translatable("arena.message.team_winner", winners.getFirst().getColoredName(), getHighestScore()).withStyle(ChatFormatting.GREEN));
+        }
+    }
+
+    @Override
+    public void onDeath(ServerPlayer player, DamageSource source) {
+        super.onDeath(player, source);
+        ArenaTeam team = getPlayerTeam(player);
+        if (source.getEntity() instanceof ServerPlayer killer && team == getPlayerTeam(player)) {
+            setScore(team, Math.max(0, getScore(team) - 1));
         }
     }
 

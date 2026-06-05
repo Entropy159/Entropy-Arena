@@ -1,7 +1,5 @@
 package com.entropy.arena.api.gamemode;
 
-import com.entropy.arena.api.util.ArenaTeam;
-import com.entropy.arena.api.util.EventScheduler;
 import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.events.KillStreakEvent;
@@ -11,6 +9,8 @@ import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.loadout.LoadoutSerializer;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.api.map.ArenaMap;
+import com.entropy.arena.api.util.ArenaTeam;
+import com.entropy.arena.api.util.EventScheduler;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.CapturePointBlock;
 import com.entropy.arena.core.blocks.PedestalBlock;
@@ -117,9 +117,11 @@ public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<Are
     }
 
     public void onGiveLoadout(ServerPlayer player, Loadout loadout) {
+        ArenaMap currentMap = ArenaData.get(player.serverLevel()).currentMap;
+        boolean blocksAllowed = currentMap == null || currentMap.allowBlocks();
         LoadoutSerializerRegistry.forEachStack(player, (serializer, slot, stack) -> {
             if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof TeamBlock) {
-                serializer.setStack(player, slot, TeamBlock.getStack(getTeamForBlock(player)));
+                serializer.setStack(player, slot, blocksAllowed ? TeamBlock.getStack(getTeamForBlock(player)) : ItemStack.EMPTY);
             }
             if (stack.has(ArenaDataComponents.ITEM_LIST)) {
                 applyItemList(player, serializer, slot, stack, 0);

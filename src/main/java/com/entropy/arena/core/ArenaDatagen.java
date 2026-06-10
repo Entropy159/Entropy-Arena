@@ -247,6 +247,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.error.cant_switch_teams", "Can't switch teams right now!");
         REGISTRATE.addRawLang("arena.error.no_config", "No config found with key %s and mod ID %s");
         REGISTRATE.addRawLang("arena.error.invalid_config_value", "Invalid config value %s");
+        REGISTRATE.addRawLang("arena.error.no_level", "No level found with dimension %s");
 
         REGISTRATE.addRawLang("arena.message.ctf.flag_taken", "Team %s's flag has been taken by team %s");
         REGISTRATE.addRawLang("arena.message.ctf.flag_returned", "Team %s's flag has been returned");

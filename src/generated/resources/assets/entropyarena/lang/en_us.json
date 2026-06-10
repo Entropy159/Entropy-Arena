@@ -18,6 +18,7 @@
   "arena.error.no_enemy_spawns": "No enemy spawns found",
   "arena.error.no_gamemode": "Gamemode %s not found",
   "arena.error.no_inventory_at_pos": "No block with inventory at %s",
+  "arena.error.no_level": "No level found with dimension %s",
   "arena.error.no_loadouts": "No loadouts found",
   "arena.error.no_lobby": "No lobby position found",
   "arena.error.no_maps": "No maps found",

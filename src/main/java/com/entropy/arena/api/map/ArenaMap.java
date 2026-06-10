@@ -1,6 +1,7 @@
 package com.entropy.arena.api.map;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
+import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.utils.StringUtils;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.electronwill.nightconfig.toml.TomlParser;
@@ -17,18 +18,23 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -38,6 +44,7 @@ import java.util.function.Consumer;
 public class ArenaMap {
     private boolean enabled;
     private final String name;
+    private final ResourceKey<Level> dimension;
     private final ResourceLocation gamemodeID;
     private final BlockPos corner1;
     private final BlockPos corner2;
@@ -49,12 +56,13 @@ public class ArenaMap {
     private final Map<ConfigKey, CommentedConfig> configOverrides;
 
     public ArenaMap(ServerLevel level, String name, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2) {
-        this(name, true, gamemodeID, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), new HashMap<>());
+        this(name, true, level.dimension(), gamemodeID, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), new HashMap<>());
     }
 
-    public ArenaMap(String name, boolean enabled, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, Map<ConfigKey, CommentedConfig> configOverrides) {
+    public ArenaMap(String name, boolean enabled, ResourceKey<Level> dimension, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, Map<ConfigKey, CommentedConfig> configOverrides) {
         this.name = name;
         this.enabled = enabled;
+        this.dimension = dimension;
         this.gamemodeID = gamemodeID;
         this.corner1 = corner1;
         this.corner2 = corner2;
@@ -63,6 +71,15 @@ public class ArenaMap {
         this.thundering = thundering;
         this.screenshot = screenshot;
         this.configOverrides = configOverrides;
+    }
+
+    public @Nullable ServerLevel getLevel() {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        return server == null ? null : getLevel(server);
+    }
+
+    public @Nullable ServerLevel getLevel(MinecraftServer server) {
+        return server.getLevel(dimension);
     }
 
     public ArrayList<ArenaTeam> getTeams(ServerLevel level) {
@@ -150,7 +167,7 @@ public class ArenaMap {
             return config.get();
         }
         T value = commentedConfig.get(config.getPath());
-        return value == null ? config.get() : value;
+        return value == null || value instanceof Config ? config.get() : value;
     }
 
     public <T> void setConfigOverride(ModConfigSpec.ConfigValue<T> config, T value, ModConfig.Type type, String modID) {
@@ -173,7 +190,7 @@ public class ArenaMap {
     }
 
     public boolean hasConfigOverride(String modID, String key) {
-        return configOverrides.entrySet().stream().anyMatch(entry -> Objects.equals(entry.getKey().modID, modID) && entry.getValue().contains(key));
+        return configOverrides.entrySet().stream().anyMatch(entry -> Objects.equals(entry.getKey().modID, modID) && entry.getValue().contains(key) && !(entry.getValue().get(key) instanceof Config));
     }
 
     public void syncConfig(ServerLevel level) {
@@ -183,6 +200,8 @@ public class ArenaMap {
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
         tag.putString("name", name);
+        tag.putBoolean("enabled", enabled);
+        tag.putString("dimension", dimension.location().toString());
         tag.putString("gamemode", gamemodeID.toString());
         tag.putLong("corner1", corner1.asLong());
         tag.putLong("corner2", corner2.asLong());
@@ -202,6 +221,10 @@ public class ArenaMap {
     public static ArenaMap fromTag(CompoundTag tag) {
         String name = tag.getString("name");
         boolean enabled = !tag.contains("enabled") || tag.getBoolean("enabled");
+        ResourceKey<Level> dimension = Level.OVERWORLD;
+        if (tag.contains("dimension")) {
+            dimension = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(tag.getString("dimension")));
+        }
         ResourceLocation gamemode = ResourceLocation.tryParse(tag.getString("gamemode"));
         BlockPos corner1 = BlockPos.of(tag.getLong("corner1"));
         BlockPos corner2 = BlockPos.of(tag.getLong("corner2"));
@@ -216,7 +239,7 @@ public class ArenaMap {
                 configOverrides.put(ConfigKey.decode(key), new TomlParser().parse(configs.getString(key)));
             }
         }
-        return new ArenaMap(name, enabled, gamemode, corner1, corner2, time, raining, thundering, screenshot, configOverrides);
+        return new ArenaMap(name, enabled, dimension, gamemode, corner1, corner2, time, raining, thundering, screenshot, configOverrides);
     }
 
     public String getName() {
@@ -225,7 +248,19 @@ public class ArenaMap {
 
     public Component toComponent() {
         ArenaGamemode gamemode = getNewGamemode();
-        return Component.literal(name).withStyle(ChatFormatting.YELLOW).append(Component.literal(" - from ").withStyle(ChatFormatting.GRAY)).append(Component.literal(corner1.toShortString()).withStyle(ChatFormatting.BLUE)).append(Component.literal(" to ").withStyle(ChatFormatting.GRAY)).append(Component.literal(corner2.toShortString()).withStyle(ChatFormatting.BLUE)).append(Component.literal(", gamemode: ").withStyle(ChatFormatting.GRAY)).append((gamemode == null ? Component.literal("None") : gamemode.getName().copy()).withStyle(ChatFormatting.DARK_AQUA)).append(Component.literal(", ").withStyle(ChatFormatting.GRAY)).append(Component.translatable("arena." + (enabled ? "enabled" : "disabled")).withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED));
+        return Component.literal(name).withStyle(ChatFormatting.YELLOW)
+                .append(Component.literal(" - from ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(corner1.toShortString()).withStyle(ChatFormatting.BLUE))
+                .append(Component.literal(" to ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(corner2.toShortString()).withStyle(ChatFormatting.BLUE))
+                .append(Component.literal(", gamemode: ").withStyle(ChatFormatting.GRAY))
+                .append((gamemode == null ? Component.literal("None") : gamemode.getName().copy()).withStyle(ChatFormatting.DARK_AQUA))
+                .append(Component.literal(", dimension: ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(dimension.location().toString()))
+                .append(Component.literal(", ").withStyle(ChatFormatting.GRAY))
+                .append(Component.translatable("arena." + (enabled ? "enabled" : "disabled")).withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED))
+                .append(Component.literal(", config overrides: ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(configOverrides.values().stream().map(config -> config.entrySet().stream().filter(entry -> !(entry.getValue() instanceof Config)).toList().size()).reduce(0, Integer::sum).toString()).withStyle(ChatFormatting.DARK_PURPLE));
     }
 
     public ArenaMapInfo getInfo(int votes) {
@@ -255,8 +290,16 @@ public class ArenaMap {
         return enabled;
     }
 
+    public boolean isValid() {
+        return isEnabled() && getLevel() != null;
+    }
+
     public void setEnabled(boolean newValue) {
         enabled = newValue;
+    }
+
+    public ResourceKey<Level> getDimension() {
+        return dimension;
     }
 
     public record ConfigKey(ModConfig.Type type, String modID) {

@@ -146,7 +146,7 @@ public class CaptureTheFlag extends TeamGamemode {
             gem.set(ArenaDataComponents.TEAM, gemTeam);
             player.addItem(gem);
             Notification.toAll(Component.translatable("arena.message.ctf.flag_taken", gemTeam.getColoredName(), playerTeam.getColoredName()).withStyle(ChatFormatting.RED));
-            ArenaUtils.playSoundForEveryone(player.serverLevel(), SoundEvents.BEACON_DEACTIVATE, SoundSource.AMBIENT);
+            ArenaUtils.playSoundForEveryone(player.server, SoundEvents.BEACON_DEACTIVATE, SoundSource.AMBIENT);
             sendToAll();
         }
     }
@@ -162,7 +162,7 @@ public class CaptureTheFlag extends TeamGamemode {
                     pedestalValueMap.put(pedestalPosition, true);
                     gem.shrink(1);
                     Notification.toAll(Component.translatable("arena.message.ctf.flag_returned", getPlayerTeam(player).getColoredName()));
-                    ArenaUtils.playSoundForEveryone(level, SoundEvents.BEACON_ACTIVATE, SoundSource.AMBIENT);
+                    ArenaUtils.playSoundForEveryone(level.getServer(), SoundEvents.BEACON_ACTIVATE, SoundSource.AMBIENT);
                     sendToAll();
                 }
             } catch (IndexOutOfBoundsException e) {
@@ -180,7 +180,7 @@ public class CaptureTheFlag extends TeamGamemode {
                 PedestalBlock.setHasGem(level, pos, true);
                 pedestalValueMap.put(pos, true);
                 Notification.toAll(Component.translatable("arena.message.ctf.flag_dropped", flagTeam.getColoredName()).withStyle(ChatFormatting.YELLOW));
-                ArenaUtils.playSoundForEveryone(level, SoundEvents.BEACON_ACTIVATE, SoundSource.AMBIENT);
+                ArenaUtils.playSoundForEveryone(level.getServer(), SoundEvents.BEACON_ACTIVATE, SoundSource.AMBIENT);
                 sendToAll();
             }
         } catch (IndexOutOfBoundsException e) {
@@ -218,7 +218,7 @@ public class CaptureTheFlag extends TeamGamemode {
                     incrementScore(playerTeam);
                     gem.shrink(1);
                     Notification.toAll(Component.translatable("arena.message.ctf.flag_scored", playerTeam.getColoredName()).withStyle(ChatFormatting.GREEN));
-                    ArenaUtils.playSoundForEveryone(level, SoundEvents.ENDER_EYE_DEATH, SoundSource.AMBIENT);
+                    ArenaUtils.playSoundForEveryone(level.getServer(), SoundEvents.ENDER_EYE_DEATH, SoundSource.AMBIENT);
                     sendToAll();
                 }
             } catch (IndexOutOfBoundsException e) {

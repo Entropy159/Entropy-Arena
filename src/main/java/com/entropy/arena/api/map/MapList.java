@@ -53,4 +53,8 @@ public class MapList {
     public ArrayList<ArenaMap> getEnabledMaps() {
         return new ArrayList<>(maps.values().stream().filter(ArenaMap::isEnabled).toList());
     }
+
+    public ArrayList<ArenaMap> getValidMaps() {
+        return new ArrayList<>(maps.values().stream().filter(ArenaMap::isValid).toList());
+    }
 }

@@ -1,9 +1,7 @@
 package com.entropy.arena.core;
 
-import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.events.*;
-import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.api.util.ArenaUtils;
 import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.core.blocks.SpawnpointBlock;
@@ -34,17 +32,15 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.List;
 
 @EventBusSubscriber
 public class ArenaEvents {
     @SubscribeEvent
-    public static void onLevelTick(LevelTickEvent.Pre event) {
-        if (event.getLevel() instanceof ServerLevel level) {
-            ArenaLogic.get(level).onLevelTick();
-        }
+    public static void onServerTick(ServerTickEvent.Pre event) {
+        ArenaLogic.get(event.getServer()).onServerTick();
     }
 
     @SubscribeEvent
@@ -100,7 +96,7 @@ public class ArenaEvents {
 
     @SubscribeEvent
     public static void onLevelClose(ServerStoppingEvent event) {
-        event.getServer().getAllLevels().forEach(level -> ArenaLogic.get(level).onLevelClose());
+        ArenaLogic.get(event.getServer()).onServerClose();
     }
 
     @SubscribeEvent

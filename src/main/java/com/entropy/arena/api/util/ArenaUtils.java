@@ -4,10 +4,12 @@ import com.electronwill.nightconfig.core.CommentedConfig;
 import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.map.ArenaMap;
+import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.network.toClient.InstantTeleportPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
@@ -32,9 +34,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -88,6 +88,20 @@ public class ArenaUtils {
         instantTeleport(entity, pos.getBottomCenter());
     }
 
+    public static void instantTeleport(Entity entity, GlobalPos pos) {
+        MinecraftServer server = entity.getServer();
+        if (server != null) {
+            ServerLevel target = server.getLevel(pos.dimension());
+            if (target == entity.level()) {
+                instantTeleport(entity, pos.pos());
+            } else if (target != null) {
+                entity.teleportTo(target, pos.pos().getX(), pos.pos().getY(), pos.pos().getZ(), Set.of(), entity.getYRot(), entity.getXRot());
+            } else {
+                EntropyArena.LOGGER.error("Tried teleporting an entity to a nonexistent level {}", pos.dimension().location());
+            }
+        }
+    }
+
     public static float lerp(float a, float b, float f) {
         return (float) (a * (1.0 - f)) + (b * f);
     }
@@ -129,12 +143,12 @@ public class ArenaUtils {
         }
     }
 
-    public static void playSoundForEveryone(ServerLevel level, SoundEvent event, SoundSource source) {
-        level.players().forEach(player -> playSoundForPlayer(level, player, event, source));
+    public static void playSoundForEveryone(MinecraftServer server, SoundEvent event, SoundSource source) {
+        server.getPlayerList().getPlayers().forEach(player -> playSoundForPlayer(player, event, source));
     }
 
-    public static void playSoundForPlayer(ServerLevel level, ServerPlayer player, SoundEvent event, SoundSource source) {
-        player.connection.send(new ClientboundSoundPacket(Holder.direct(SoundEvent.createFixedRangeEvent(event.getLocation(), 16)), source, player.getEyePosition().x, player.getEyePosition().y, player.getEyePosition().z, 1, 1, level.getRandom().nextLong()));
+    public static void playSoundForPlayer(ServerPlayer player, SoundEvent event, SoundSource source) {
+        player.connection.send(new ClientboundSoundPacket(Holder.direct(SoundEvent.createFixedRangeEvent(event.getLocation(), 16)), source, player.getEyePosition().x, player.getEyePosition().y, player.getEyePosition().z, 1, 1, player.serverLevel().getRandom().nextLong()));
     }
 
     public static <T> T getPerMapConfig(ModConfigSpec.ConfigValue<T> config, ModConfig.Type type, String modID, ServerLevel level) {

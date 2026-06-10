@@ -44,7 +44,7 @@ public abstract class FFAGamemode extends ArenaGamemode {
     public void onMatchEnd(ServerLevel level) {
         super.onMatchEnd(level);
         List<ServerPlayer> winners = getWinners(level);
-        if (getHighestScore() == 0) {
+        if (getHighestScore() == 0 || winners.isEmpty()) {
             Notification.toAll(Component.translatable("arena.message.nobody_scored").withStyle(ChatFormatting.RED));
         } else if (winners.size() > 1) {
             Notification.toAll(Component.translatable("arena.message.game_tied").withStyle(ChatFormatting.YELLOW));

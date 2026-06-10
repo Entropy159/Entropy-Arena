@@ -10,6 +10,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -36,8 +37,8 @@ public record RunningPacket(boolean running, boolean lobby, int targetScore) imp
         }
     }
 
-    public static RunningPacket fromData(ServerLevel level) {
-        ArenaData data = ArenaData.get(level);
-        return new RunningPacket(data.running, data.lobby, data.currentMap == null ? 0 : (data.gameType.isTimed() ? 0 : ArenaUtils.getPerMapConfig(ServerConfig.TARGET_SCORE, ModConfig.Type.SERVER, EntropyArena.MODID, level)));
+    public static RunningPacket fromData(MinecraftServer server) {
+        ArenaData data = ArenaData.get(server);
+        return new RunningPacket(data.running, data.lobby, data.currentMap == null ? 0 : (data.gameType.isTimed() ? 0 : ArenaUtils.getPerMapConfig(ServerConfig.TARGET_SCORE, ModConfig.Type.SERVER, EntropyArena.MODID)));
     }
 }

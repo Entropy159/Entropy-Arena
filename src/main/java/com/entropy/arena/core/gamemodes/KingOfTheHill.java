@@ -48,7 +48,7 @@ public class KingOfTheHill extends FFAGamemode implements HasCapturePoints<KOTHC
     public void onEntityTick(ServerLevel level, Entity entity) {
         super.onEntityTick(level, entity);
         if (entity instanceof ServerPlayer player) {
-            (capturePoint.getKing() == player.getUUID() ? ArenaTeam.YELLOW : ArenaTeam.NONE).setThisTeam(player);
+            (capturePoint.getKing() == player.getUUID() ? ArenaTeam.YELLOW : ArenaTeam.NONE).setTeamSilent(player);
         }
     }
 

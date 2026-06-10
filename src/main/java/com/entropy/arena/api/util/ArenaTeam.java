@@ -79,7 +79,7 @@ public enum ArenaTeam implements StringRepresentable {
         return null;
     }
 
-    public void setThisTeam(ServerPlayer player) {
+    public void setTeamSilent(ServerPlayer player) {
         Scoreboard scoreboard = player.serverLevel().getScoreboard();
         PlayerTeam team = scoreboard.getPlayerTeam(getSerializedName());
         if (team == null) {
@@ -91,6 +91,10 @@ public enum ArenaTeam implements StringRepresentable {
         team.setNameTagVisibility(ServerConfig.HIDE_ENEMY_NAMETAGS.get() ? Team.Visibility.HIDE_FOR_OTHER_TEAMS : Team.Visibility.ALWAYS);
         team.setAllowFriendlyFire(ServerConfig.FRIENDLY_FIRE.get());
         scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
+    }
+
+    public void setThisTeam(ServerPlayer player) {
+        setTeamSilent(player);
         Notification.toPlayer(Component.translatable("arena.message.switch_team", getName()).withColor(color), player);
     }
 

@@ -1,8 +1,5 @@
 package com.entropy.arena.core;
 
-import com.entropy.arena.api.util.ArenaGameType;
-import com.entropy.arena.api.util.ArenaUtils;
-import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.events.GiveLoadoutEvent;
 import com.entropy.arena.api.events.MatchEndEvent;
@@ -12,12 +9,16 @@ import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.api.map.ArenaMapBackup;
+import com.entropy.arena.api.util.ArenaGameType;
+import com.entropy.arena.api.util.ArenaUtils;
+import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.network.toClient.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -27,31 +28,41 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.Level;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ArenaLogic {
-    private static final HashMap<ResourceKey<Level>, ArenaLogic> INSTANCE_MAP = new HashMap<>();
+    private static final HashMap<MinecraftServer, ArenaLogic> INSTANCE_MAP = new HashMap<>();
     public static final int MAPS_FOR_VOTING = 3;
 
-    private final ServerLevel level;
-    private ArenaData data;
+    private final MinecraftServer server;
+    private final ArenaData data;
+    private @NotNull ServerLevel currentLevel;
 
-    public ArenaLogic(ServerLevel level) {
-        this.level = level;
-        this.data = ArenaData.get(level);
+    public ArenaLogic(MinecraftServer server) {
+        this.server = server;
+        this.currentLevel = server.overworld();
+        this.data = ArenaData.get(server);
+    }
+
+    public static ArenaLogic get(MinecraftServer server) {
+        return INSTANCE_MAP.computeIfAbsent(server, ArenaLogic::new);
     }
 
     public static ArenaLogic get(ServerLevel level) {
-        ArenaLogic logic = INSTANCE_MAP.computeIfAbsent(level.dimension(), (dim) -> new ArenaLogic(level));
-        logic.data = ArenaData.get(level);
-        return logic;
+        return get(level.getServer());
+    }
+
+    public static @Nullable ArenaLogic get() {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        return server == null ? null : get(server);
     }
 
     public @Nullable Component enable() {
@@ -90,8 +101,8 @@ public class ArenaLogic {
     }
 
     public void sendAllToLobby() {
-        level.players().forEach(this::sendToLobby);
-        PacketDistributor.sendToAllPlayers(RunningPacket.fromData(level));
+        server.getPlayerList().getPlayers().forEach(this::sendToLobby);
+        PacketDistributor.sendToAllPlayers(RunningPacket.fromData(server));
     }
 
     private void sendToLobby(ServerPlayer player) {
@@ -102,26 +113,28 @@ public class ArenaLogic {
         ArenaUtils.instantTeleport(player, data.lobbyPos);
         player.setGameMode(GameType.ADVENTURE);
         player.setGlowingTag(false);
-        player.setRespawnPosition(level.dimension(), data.lobbyPos, 0, true, false);
+        player.setRespawnPosition(data.lobbyPos.dimension(), data.lobbyPos.pos(), 0, true, false);
         LoadoutSerializerRegistry.clearAll(player);
         player.setHealth(player.getMaxHealth());
-        level.getScoreboard().removePlayerFromTeam(player.getScoreboardName());
+        server.getScoreboard().removePlayerFromTeam(player.getScoreboardName());
         NeoForge.EVENT_BUS.post(new TeleportToLobbyEvent.Post(player));
     }
 
     public void endMatch() {
-        NeoForge.EVENT_BUS.post(new MatchEndEvent.Pre(level));
+        NeoForge.EVENT_BUS.post(new MatchEndEvent.Pre(currentLevel));
         Notification.toAll(Component.translatable("arena.message.game_over").withStyle(ChatFormatting.RED));
         data.loadoutSelections.clear();
+        data.votableMaps.clear();
+        data.mapVotes.clear();
         PacketDistributor.sendToAllPlayers(new ScoresPacket(List.of()));
         sendAllToLobby();
         if (data.currentGamemode != null) {
-            data.currentGamemode.onMatchEnd(level);
+            data.currentGamemode.onMatchEnd(currentLevel);
             data.currentGamemode = null;
         }
         PacketDistributor.sendToAllPlayers(new ConfigOverridesPacket(new HashMap<>()));
         if (data.currentMap != null) {
-            data.currentMap.reset(level, this::afterMapReset);
+            data.currentMap.reset(currentLevel, this::afterMapReset);
         } else {
             afterMapReset();
         }
@@ -134,15 +147,19 @@ public class ArenaLogic {
             PacketDistributor.sendToAllPlayers(new TimerPacket(data.timer));
             data.lobby = true;
         }
-        PacketDistributor.sendToAllPlayers(RunningPacket.fromData(level));
+        PacketDistributor.sendToAllPlayers(RunningPacket.fromData(server));
         PacketDistributor.sendToAllPlayers(GameInfoPacket.fromData(data));
-        ArenaUtils.playSoundForEveryone(level, SoundEvents.PLAYER_LEVELUP, SoundSource.AMBIENT);
-        NeoForge.EVENT_BUS.post(new MatchEndEvent.Post(level));
+        ArenaUtils.playSoundForEveryone(server, SoundEvents.PLAYER_LEVELUP, SoundSource.AMBIENT);
+        NeoForge.EVENT_BUS.post(new MatchEndEvent.Post(currentLevel));
+        if (data.lobbyPos != null) {
+            ServerLevel lobbyLevel = server.getLevel(data.lobbyPos.dimension());
+            currentLevel = lobbyLevel == null ? server.overworld() : lobbyLevel;
+        }
     }
 
     private void startMapVote() {
         data.mapVotes.clear();
-        ArrayList<ArenaMap> maps = data.mapList.getEnabledMaps();
+        ArrayList<ArenaMap> maps = data.mapList.getValidMaps();
         int mapCount = Math.min(MAPS_FOR_VOTING, maps.size());
         for (int i = 0; i < mapCount; i++) {
             int mapIndex = new Random().nextInt(maps.size());
@@ -154,14 +171,14 @@ public class ArenaLogic {
     }
 
     public void startMatch() {
-        NeoForge.EVENT_BUS.post(new MatchStartEvent.Pre(level));
+        NeoForge.EVENT_BUS.post(new MatchStartEvent.Pre(server));
         data.gameType = getVotedGameType();
         data.currentMap = getVotedMap();
         data.mapVotes.clear();
         data.typeVotes.clear();
         data.votableMaps.clear();
         if (data.currentMap == null) {
-            ArenaUtils.broadcastToOps(level.getServer(), null, Component.translatable("arena.error.no_maps"));
+            ArenaUtils.broadcastToOps(server, null, Component.translatable("arena.error.no_maps"));
             EntropyArena.LOGGER.error("No map found after voting!");
             disable();
             return;
@@ -172,31 +189,38 @@ public class ArenaLogic {
             disable();
             return;
         }
+        ServerLevel mapLevel = data.currentMap.getLevel(server);
+        if (mapLevel == null) {
+            ArenaUtils.broadcastToOps(server, null, Component.translatable("arena.error.no_level", data.currentMap.getDimension().location()));
+            disable();
+            return;
+        }
+        currentLevel = mapLevel;
         Notification.toAll(Component.translatable("arena.message.game_start").withStyle(ChatFormatting.GREEN));
         data.backup(this::afterMapLoad);
     }
 
     private void afterMapLoad() {
         data.lobby = false;
-        data.currentMap.load(level);
-        data.currentMap.syncConfig(level);
-        if (ArenaUtils.getPerMapConfig(ServerConfig.SET_WORLD_BORDER, ModConfig.Type.SERVER, EntropyArena.MODID, level)) {
-            data.currentMap.setWorldBorder(level);
+        data.currentMap.load(currentLevel);
+        data.currentMap.syncConfig(currentLevel);
+        if (ArenaUtils.getPerMapConfig(ServerConfig.SET_WORLD_BORDER, ModConfig.Type.SERVER, EntropyArena.MODID)) {
+            data.currentMap.setWorldBorder(currentLevel);
         }
         Notification.toAll(Component.translatable("arena.message.map_info", data.currentMap.getName()).withStyle(ChatFormatting.YELLOW).append(data.currentGamemode.getName()));
         if (data.gameType == ArenaGameType.TIMED) {
-            data.timer = ArenaUtils.getPerMapConfig(ServerConfig.ROUND_SECONDS, ModConfig.Type.SERVER, EntropyArena.MODID, level);
+            data.timer = ArenaUtils.getPerMapConfig(ServerConfig.ROUND_SECONDS, ModConfig.Type.SERVER, EntropyArena.MODID);
         }
         PacketDistributor.sendToAllPlayers(GameInfoPacket.fromData(data));
-        data.currentGamemode.onMatchStart(level);
-        level.players().forEach(player -> {
+        data.currentGamemode.onMatchStart(currentLevel);
+        server.getPlayerList().getPlayers().forEach(player -> {
             sendValidLoadouts(player);
             respawn(player);
         });
-        PacketDistributor.sendToAllPlayers(RunningPacket.fromData(level));
-        PacketDistributor.sendToAllPlayers(new ScoresPacket(data.currentGamemode.getScoreText(level)));
-        ArenaUtils.playSoundForEveryone(level, SoundEvents.NOTE_BLOCK_PLING.value(), SoundSource.AMBIENT);
-        NeoForge.EVENT_BUS.post(new MatchStartEvent.Post(level));
+        PacketDistributor.sendToAllPlayers(RunningPacket.fromData(server));
+        PacketDistributor.sendToAllPlayers(new ScoresPacket(data.currentGamemode.getScoreText(currentLevel)));
+        ArenaUtils.playSoundForEveryone(server, SoundEvents.NOTE_BLOCK_PLING.value(), SoundSource.AMBIENT);
+        NeoForge.EVENT_BUS.post(new MatchStartEvent.Post(currentLevel));
     }
 
     public void sendValidLoadouts(ServerPlayer player) {
@@ -209,7 +233,7 @@ public class ArenaLogic {
     private ArenaMap getVotedMap() {
         HashMap<String, Integer> voteMap = new HashMap<>();
         data.mapVotes.forEach((playerUUID, mapName) -> voteMap.put(mapName, voteMap.getOrDefault(mapName, 0) + 1));
-        Optional<ArenaMap> selectedOptional = data.mapList.getEnabledMaps().stream().max(Comparator.comparingInt(m -> voteMap.getOrDefault(m.getName(), 0)));
+        Optional<ArenaMap> selectedOptional = data.mapList.getValidMaps().stream().max(Comparator.comparingInt(m -> voteMap.getOrDefault(m.getName(), 0)));
         return selectedOptional.orElse(null);
     }
 
@@ -223,14 +247,14 @@ public class ArenaLogic {
     public void voteForMap(ServerPlayer player, String mapName) {
         data.mapVotes.put(player.getUUID(), mapName);
         Notification.toPlayer(Component.translatable("arena.message.voted_for_map", mapName).withStyle(ChatFormatting.GREEN), player);
-        ArenaUtils.playSoundForPlayer(level, player, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.AMBIENT);
+        ArenaUtils.playSoundForPlayer(player, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.AMBIENT);
         sendMapVotes(false);
     }
 
     public void voteForType(ServerPlayer player, ArenaGameType type) {
         data.typeVotes.put(player.getUUID(), type);
         Notification.toPlayer(type.getVotedComponent().withStyle(ChatFormatting.GREEN), player);
-        ArenaUtils.playSoundForPlayer(level, player, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.AMBIENT);
+        ArenaUtils.playSoundForPlayer(player, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.AMBIENT);
         sendMapVotes(false);
     }
 
@@ -245,11 +269,11 @@ public class ArenaLogic {
         Notification.toPlayer(Component.translatable("arena.message.selected_loadout", loadout).withStyle(ChatFormatting.GREEN), player);
     }
 
-    public void onLevelTick() {
+    public void onServerTick() {
         if (!data.running) {
             return;
         }
-        if ((data.gameType == ArenaGameType.TIMED || data.lobby) && level.getGameTime() % 20 == 0 && !level.players().isEmpty()) {
+        if ((data.gameType == ArenaGameType.TIMED || data.lobby) && currentLevel.getGameTime() % 20 == 0 && !server.getPlayerList().getPlayers().isEmpty()) {
             if (data.timer > 0) {
                 data.timer--;
                 PacketDistributor.sendToAllPlayers(new TimerPacket(data.timer));
@@ -265,45 +289,45 @@ public class ArenaLogic {
             }
         }
         if (data.inGame()) {
-            data.currentGamemode.onLevelTick(level);
-            if (data.currentGamemode.shouldWin(level, data.gameType.isTimed(), data.timer, ArenaUtils.getPerMapConfig(ServerConfig.TARGET_SCORE, ModConfig.Type.SERVER, EntropyArena.MODID, level))) {
+            data.currentGamemode.onLevelTick(currentLevel);
+            if (data.currentGamemode.shouldWin(currentLevel, data.gameType.isTimed(), data.timer, ArenaUtils.getPerMapConfig(ServerConfig.TARGET_SCORE, ModConfig.Type.SERVER, EntropyArena.MODID))) {
                 EntropyArena.LOGGER.info("Ending game!");
                 endMatch();
             }
         }
-        if (level.players().isEmpty()) {
+        if (server.getPlayerList().getPlayers().isEmpty()) {
             endMatch();
         }
     }
 
     public void onEntityTick(Entity entity) {
-        if (data.running && entity instanceof ServerPlayer player && ArenaUtils.getPerMapConfig(ServerConfig.GIVE_SATURATION, ModConfig.Type.SERVER, EntropyArena.MODID, level)) {
+        if (data.running && entity instanceof ServerPlayer player && ArenaUtils.getPerMapConfig(ServerConfig.GIVE_SATURATION, ModConfig.Type.SERVER, EntropyArena.MODID)) {
             player.getFoodData().setFoodLevel(20);
         }
         if (data.inGame()) {
             if (entity instanceof ServerPlayer player && data.respawnTimes.containsKey(player.getUUID())) {
-                if (data.respawnTimes.get(player.getUUID()) + ArenaUtils.getPerMapConfig(ServerConfig.RESPAWN_DELAY, ModConfig.Type.SERVER, EntropyArena.MODID, level) * 20L < level.getGameTime()) {
+                if (data.respawnTimes.get(player.getUUID()) + ArenaUtils.getPerMapConfig(ServerConfig.RESPAWN_DELAY, ModConfig.Type.SERVER, EntropyArena.MODID) * 20L < currentLevel.getGameTime()) {
                     respawn(player);
                 } else {
-                    long secondsUntilRespawn = ArenaUtils.getPerMapConfig(ServerConfig.RESPAWN_DELAY, ModConfig.Type.SERVER, EntropyArena.MODID, level) - (level.getGameTime() - data.respawnTimes.get(player.getUUID())) / 20;
+                    long secondsUntilRespawn = ArenaUtils.getPerMapConfig(ServerConfig.RESPAWN_DELAY, ModConfig.Type.SERVER, EntropyArena.MODID) - (currentLevel.getGameTime() - data.respawnTimes.get(player.getUUID())) / 20;
                     player.displayClientMessage(Component.translatable("arena.message.respawning", secondsUntilRespawn).withStyle(ChatFormatting.RED), true);
                 }
             }
-            data.currentGamemode.onEntityTick(level, entity);
+            data.currentGamemode.onEntityTick(currentLevel, entity);
         }
     }
 
     public void onDeath(ServerPlayer player, DamageSource source) {
         if (data.inGame()) {
-            player.setRespawnPosition(level.dimension(), player.blockPosition(), player.getYRot(), true, false);
+            player.setRespawnPosition(currentLevel.dimension(), player.blockPosition(), player.getYRot(), true, false);
             data.currentGamemode.onDeath(player, source);
         }
     }
 
     public void onRespawn(ServerPlayer player) {
         if (data.inGame()) {
-            if (ArenaUtils.getPerMapConfig(ServerConfig.RESPAWN_DELAY, ModConfig.Type.SERVER, EntropyArena.MODID, level) > 0) {
-                data.respawnTimes.put(player.getUUID(), level.getGameTime());
+            if (ArenaUtils.getPerMapConfig(ServerConfig.RESPAWN_DELAY, ModConfig.Type.SERVER, EntropyArena.MODID) > 0) {
+                data.respawnTimes.put(player.getUUID(), currentLevel.getGameTime());
                 player.setGameMode(GameType.SPECTATOR);
             } else {
                 respawn(player);
@@ -316,21 +340,21 @@ public class ArenaLogic {
         player.setGameMode(GameType.ADVENTURE);
         AttributeInstance attribute = player.getAttributes().getInstance(Attributes.MAX_HEALTH);
         if (attribute != null) {
-            attribute.setBaseValue(ArenaUtils.getPerMapConfig(ServerConfig.MAX_HEALTH, ModConfig.Type.SERVER, EntropyArena.MODID, level));
+            attribute.setBaseValue(ArenaUtils.getPerMapConfig(ServerConfig.MAX_HEALTH, ModConfig.Type.SERVER, EntropyArena.MODID));
         }
         player.setHealth(player.getMaxHealth());
         if (data.running && data.lobby && data.lobbyPos != null) {
             ArenaUtils.instantTeleport(player, data.lobbyPos);
         } else if (data.inGame()) {
-            data.spawnProtection.put(player.getUUID(), level.getGameTime());
-            PacketDistributor.sendToPlayer(player, new RespawnPacket(level.getGameTime()));
+            data.spawnProtection.put(player.getUUID(), currentLevel.getGameTime());
+            PacketDistributor.sendToPlayer(player, new RespawnPacket(currentLevel.getGameTime()));
             ArrayList<BlockPos> spawns = data.currentGamemode.getValidSpawns(player, data.currentMap);
             if (!spawns.isEmpty()) {
-                ArenaUtils.instantTeleport(player, spawns.get(new Random().nextInt(spawns.size())));
+                ArenaUtils.instantTeleport(player, GlobalPos.of(currentLevel.dimension(), spawns.get(new Random().nextInt(spawns.size()))));
             } else {
                 player.setGameMode(GameType.SPECTATOR);
                 if (data.currentMap != null) {
-                    ArenaUtils.instantTeleport(player, data.currentMap.getCenter());
+                    ArenaUtils.instantTeleport(player, GlobalPos.of(currentLevel.dimension(), BlockPos.containing(data.currentMap.getCenter())));
                 }
             }
             data.currentGamemode.onRespawn(player);
@@ -360,12 +384,12 @@ public class ArenaLogic {
     public void onJoin(ServerPlayer player) {
         if (data.inGame()) {
             PacketDistributor.sendToPlayer(player, GameInfoPacket.fromData(data));
-            PacketDistributor.sendToPlayer(player, new ScoresPacket(data.currentGamemode.getScoreText(level)));
+            PacketDistributor.sendToPlayer(player, new ScoresPacket(data.currentGamemode.getScoreText(currentLevel)));
             sendValidLoadouts(player);
             data.currentGamemode.onJoin(player);
             respawn(player);
         }
-        PacketDistributor.sendToPlayer(player, RunningPacket.fromData(level));
+        PacketDistributor.sendToPlayer(player, RunningPacket.fromData(server));
     }
 
     public void onLeave(ServerPlayer player) {
@@ -375,11 +399,11 @@ public class ArenaLogic {
         sendToLobby(player);
     }
 
-    public void onLevelClose() {
-        INSTANCE_MAP.remove(level.dimension());
+    public void onServerClose() {
+        INSTANCE_MAP.remove(server);
     }
 
     public boolean isSpawnProtected(ServerPlayer player) {
-        return data.running && (data.lobby || data.spawnProtection.getOrDefault(player.getUUID(), 0L) + ArenaUtils.getPerMapConfig(ServerConfig.SPAWN_PROTECTION, ModConfig.Type.SERVER, EntropyArena.MODID, level) * 20L >= level.getGameTime());
+        return data.running && (data.lobby || data.spawnProtection.getOrDefault(player.getUUID(), 0L) + ArenaUtils.getPerMapConfig(ServerConfig.SPAWN_PROTECTION, ModConfig.Type.SERVER, EntropyArena.MODID) * 20L >= currentLevel.getGameTime());
     }
 }

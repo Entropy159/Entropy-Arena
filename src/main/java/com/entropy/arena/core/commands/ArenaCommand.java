@@ -21,6 +21,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -120,7 +121,7 @@ public class ArenaCommand {
     private static int setLobbyPos(CommandContext<CommandSourceStack> ctx) {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         BlockPos pos = BlockPosArgument.getBlockPos(ctx, "position");
-        data.lobbyPos = pos;
+        data.lobbyPos = GlobalPos.of(ctx.getSource().getLevel().dimension(), pos);
         ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.set_lobby_pos", pos.toShortString()).withStyle(ChatFormatting.GREEN), true);
         return 1;
     }

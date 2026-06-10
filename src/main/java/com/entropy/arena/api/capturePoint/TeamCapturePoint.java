@@ -56,7 +56,7 @@ public class TeamCapturePoint extends CapturePoint {
             if (tryIncrementCapture(level)) {
                 if (setTeam(team)) {
                     Notification.toAll(Component.translatable("arena.message.team_capture_point_taken", team.getColoredName()).withStyle(ChatFormatting.GREEN));
-                    ArenaUtils.playSoundForEveryone(level, SoundEvents.BEACON_ACTIVATE, SoundSource.AMBIENT);
+                    ArenaUtils.playSoundForEveryone(level.getServer(), SoundEvents.BEACON_ACTIVATE, SoundSource.AMBIENT);
                 }
             }
         }

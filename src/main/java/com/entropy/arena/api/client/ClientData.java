@@ -1,14 +1,19 @@
 package com.entropy.arena.api.client;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
+import com.entropy.arena.api.gamemode.ArenaGamemode;
+import com.entropy.arena.api.map.ArenaMap;
+import com.entropy.arena.api.map.ArenaMapInfo;
 import com.entropy.arena.api.util.ArenaGameType;
 import com.entropy.arena.api.util.Notification;
-import com.entropy.arena.api.gamemode.ArenaGamemode;
-import com.entropy.arena.api.map.ArenaMapInfo;
 import com.entropy.arena.client.PingIcon;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class ClientData {
@@ -19,7 +24,6 @@ public class ClientData {
     public static String currentMap;
     public static long lastRespawn = 0;
     public static ArenaGamemode currentGamemode;
-    public static boolean allowBlocks = true;
 
     public static List<ArenaMapInfo> votableMaps = new ArrayList<>();
     public static Map<ArenaGameType, Integer> typeVotes = new HashMap<>();
@@ -28,4 +32,5 @@ public class ClientData {
     public static ArrayList<Component> scoreList = new ArrayList<>();
     public static CopyOnWriteArraySet<PingIcon> pings = new CopyOnWriteArraySet<>();
     public static HashMap<Integer, Vec3> entitiesToUnlerp = new HashMap<>();
+    public static Map<ArenaMap.ConfigKey, CommentedConfig> configOverrides = new HashMap<>();
 }

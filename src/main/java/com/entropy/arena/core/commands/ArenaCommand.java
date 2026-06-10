@@ -1,5 +1,7 @@
 package com.entropy.arena.core.commands;
 
+import com.electronwill.nightconfig.core.Config;
+import com.electronwill.nightconfig.toml.TomlParser;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
 import com.entropy.arena.api.map.ArenaMap;
@@ -9,11 +11,11 @@ import com.entropy.arena.core.network.toClient.TakeScreenshotPacket;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.entropy.arena.core.registry.ArenaItems;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
@@ -22,7 +24,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.config.ModConfigs;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforgespi.language.IModInfo;
+
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -31,57 +41,60 @@ public class ArenaCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(literal("arena")
                 .requires(ctx -> ctx.hasPermission(2))
-                .then(literal("start")
-                        .executes(ArenaCommand::start))
-                .then(literal("stop")
-                        .executes(ArenaCommand::stop))
+                .then(literal("start").executes(ArenaCommand::start))
+                .then(literal("stop").executes(ArenaCommand::stop))
                 .then(literal("setLobbyPos")
                         .then(argument("position", BlockPosArgument.blockPos())
                                 .executes(ArenaCommand::setLobbyPos)))
                 .then(literal("flag")
                         .requires(CommandSourceStack::isPlayer)
                         .then(argument("team", StringArgumentType.word())
-                                .suggests(TEAM_SUGGESTIONS)
+                                .suggests(TEAMS)
                                 .then(argument("index", IntegerArgumentType.integer(0))
                                         .executes(ArenaCommand::getFlag))))
                 .then(literal("map")
                         .then(literal("create")
                                 .then(argument("name", StringArgumentType.string())
                                         .then(argument("gamemode", ResourceLocationArgument.id())
-                                                .suggests(GAMEMODE_SUGGESTIONS)
+                                                .suggests(GAMEMODES)
                                                 .then(argument("corner1", BlockPosArgument.blockPos())
                                                         .then(argument("corner2", BlockPosArgument.blockPos())
                                                                 .executes(ArenaCommand::createMap))))))
                         .then(literal("remove")
                                 .then(argument("name", StringArgumentType.string())
-                                        .suggests(ALL_MAP_SUGGESTIONS)
+                                        .suggests(ALL_MAPS)
                                         .executes(ArenaCommand::removeMap)))
                         .then(literal("update")
                                 .then(argument("name", StringArgumentType.string())
-                                        .suggests(ALL_MAP_SUGGESTIONS)
+                                        .suggests(ALL_MAPS)
                                         .executes(ArenaCommand::updateMap)))
-                        .then(literal("overrides")
+                        .then(literal("config")
                                 .then(argument("name", StringArgumentType.string())
-                                        .suggests(ALL_MAP_SUGGESTIONS)
-                                        .then(argument("timer", IntegerArgumentType.integer(0, 1800))
-                                                .then(argument("score", IntegerArgumentType.integer(0, 1000))
-                                                        .executes(ArenaCommand::updateMapOverrides)))))
+                                        .suggests(ALL_MAPS)
+                                        .then(argument("modID", StringArgumentType.string())
+                                                .suggests(ALL_MOD_IDS)
+                                                .then(argument("key", StringArgumentType.string())
+                                                        .suggests(CONFIG_KEYS)
+                                                        .then(argument("value", StringArgumentType.string())
+                                                                .executes(ArenaCommand::updateMapOverrides))))))
+                        .then(literal("configReset")
+                                .then(argument("name", StringArgumentType.string())
+                                        .suggests(ALL_MAPS)
+                                        .then(argument("modID", StringArgumentType.string())
+                                                .suggests(ALL_MOD_IDS)
+                                                .then(argument("key", StringArgumentType.string())
+                                                        .suggests(CURRENT_CONFIG_OVERRIDES)
+                                                        .executes(ArenaCommand::removeMapOverride)))))
                         .then(literal("load")
                                 .then(argument("name", StringArgumentType.string())
-                                        .suggests(ALL_MAP_SUGGESTIONS)
-                                        .executes(ArenaCommand::loadMap)))
-                        .then(literal("allowBlocks")
-                                .then(argument("name", StringArgumentType.string())
-                                        .suggests(ALL_MAP_SUGGESTIONS)
-                                        .then(argument("allow", BoolArgumentType.bool())
-                                                .executes(ArenaCommand::allowBlocks))))
+                                        .suggests(ALL_MAPS).executes(ArenaCommand::loadMap)))
                         .then(literal("enable")
                                 .then(argument("name", StringArgumentType.string())
-                                        .suggests(DISABLED_MAP_SUGGESTIONS)
+                                        .suggests(DISABLED_MAPS)
                                         .executes(ctx -> setMapEnabled(ctx, true))))
                         .then(literal("disable")
                                 .then(argument("name", StringArgumentType.string())
-                                        .suggests(ENABLED_MAP_SUGGESTIONS)
+                                        .suggests(ENABLED_MAPS)
                                         .executes(ctx -> setMapEnabled(ctx, false))))
                         .then(literal("list")
                                 .executes(ArenaCommand::listMaps))));
@@ -154,16 +167,57 @@ public class ArenaCommand {
         return 0;
     }
 
+    private static <T, V> boolean isCorrectType(T example, V value) {
+        return example.getClass().equals(value.getClass());
+    }
+
     private static int updateMapOverrides(CommandContext<CommandSourceStack> ctx) {
         String name = StringArgumentType.getString(ctx, "name");
-        int timer = IntegerArgumentType.getInteger(ctx, "timer");
-        int score = IntegerArgumentType.getInteger(ctx, "score");
+        String modID = StringArgumentType.getString(ctx, "modID");
+        String key = StringArgumentType.getString(ctx, "key");
+        String value = StringArgumentType.getString(ctx, "value");
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         ArenaMap map = data.mapList.getMap(name);
         if (map != null) {
-            map.setOverrides(timer, score);
-            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.updated_map_overrides", name).withStyle(ChatFormatting.GREEN), true);
-            return 1;
+            Optional<ModConfig> optionalConfig = ModConfigs.getModConfigs(modID).stream().filter(config -> config.getLoadedConfig() != null).filter(config -> config.getLoadedConfig().config().get(key) != null).findFirst();
+            AtomicInteger returnCode = new AtomicInteger();
+            optionalConfig.ifPresentOrElse(config -> {
+                try {
+                    Object valueObj = new TomlParser().parse(key + " = " + value).get(key);
+                    if (config.getLoadedConfig() == null) {
+                        ctx.getSource().sendFailure(Component.literal("Loaded config is null, cannot check value type!"));
+                        return;
+                    }
+                    if (isCorrectType(config.getLoadedConfig().config().get(key), valueObj)) {
+                        map.setConfigOverride(key, valueObj, config.getType(), config.getModId());
+                        ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.updated_map_config", name, key, value).withStyle(ChatFormatting.GREEN), true);
+                        returnCode.set(1);
+                    } else {
+                        ctx.getSource().sendFailure(Component.translatable("arena.error.invalid_config_value", value).withStyle(ChatFormatting.RED));
+                    }
+                } catch (Exception e) {
+                    ctx.getSource().sendFailure(Component.translatable("arena.error.invalid_config_value", value).withStyle(ChatFormatting.RED));
+                }
+            }, () -> ctx.getSource().sendFailure(Component.translatable("arena.error.no_config", key, modID).withStyle(ChatFormatting.RED)));
+            return returnCode.get();
+        }
+        ctx.getSource().sendFailure(Component.translatable("arena.error.map_not_found", name).withStyle(ChatFormatting.DARK_RED));
+        return 0;
+    }
+
+    private static int removeMapOverride(CommandContext<CommandSourceStack> ctx) {
+        String name = StringArgumentType.getString(ctx, "name");
+        String modID = StringArgumentType.getString(ctx, "modID");
+        String key = StringArgumentType.getString(ctx, "key");
+        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
+        ArenaMap map = data.mapList.getMap(name);
+        if (map != null) {
+            Optional<ModConfig> optionalConfig = ModConfigs.getModConfigs(modID).stream().filter(config -> config.getLoadedConfig() != null).filter(config -> config.getLoadedConfig().config().get(key) != null).findFirst();
+            optionalConfig.ifPresentOrElse(config -> {
+                map.resetConfigOverride(key, config.getType(), config.getModId());
+                ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.reset_map_config", name, key).withStyle(ChatFormatting.GREEN), true);
+            }, () -> ctx.getSource().sendFailure(Component.translatable("arena.error.no_config", key, modID).withStyle(ChatFormatting.RED)));
+            return optionalConfig.isPresent() ? 1 : 0;
         }
         ctx.getSource().sendFailure(Component.translatable("arena.error.map_not_found", name).withStyle(ChatFormatting.DARK_RED));
         return 0;
@@ -179,20 +233,6 @@ public class ArenaCommand {
                 ctx.getSource().getPlayer().teleportTo(map.getCenter().x, map.getCenter().y, map.getCenter().z);
             }
             ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.loaded_map", name).withStyle(ChatFormatting.GREEN), true);
-            return 1;
-        }
-        ctx.getSource().sendFailure(Component.translatable("arena.error.map_not_found", name).withStyle(ChatFormatting.DARK_RED));
-        return 0;
-    }
-
-    private static int allowBlocks(CommandContext<CommandSourceStack> ctx) {
-        String name = StringArgumentType.getString(ctx, "name");
-        boolean allowBlocks = BoolArgumentType.getBool(ctx, "allow");
-        ArenaData data = ArenaData.get(ctx.getSource().getLevel());
-        ArenaMap map = data.mapList.getMap(name);
-        if (map != null) {
-            map.allowBlocks(allowBlocks);
-            ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.map_%sallowed_blocks".formatted(allowBlocks ? "" : "dis"), name).withStyle(ChatFormatting.GREEN), true);
             return 1;
         }
         ctx.getSource().sendFailure(Component.translatable("arena.error.map_not_found", name).withStyle(ChatFormatting.DARK_RED));
@@ -241,36 +281,91 @@ public class ArenaCommand {
         return 0;
     }
 
-    private static final SuggestionProvider<CommandSourceStack> ALL_MAP_SUGGESTIONS = (ctx, builder) -> {
+    private static String getFilterText(SuggestionsBuilder builder) {
+        return builder.getInput().substring(builder.getStart());
+    }
+
+    private static boolean isValidSuggestion(SuggestionsBuilder builder, String suggestion) {
+        return suggestion.contains(getFilterText(builder));
+    }
+
+    private static void trySuggest(SuggestionsBuilder builder, String suggestion) {
+        if (isValidSuggestion(builder, suggestion)) {
+            builder.suggest(suggestion);
+        }
+    }
+
+    private static void forEachConfigKey(Config config, Consumer<String> consumer, String base) {
+        config.entrySet().forEach(entry -> {
+            if (entry.getValue() instanceof Config subConfig) {
+                forEachConfigKey(subConfig, consumer, base + entry.getKey() + ".");
+            } else {
+                consumer.accept(base + entry.getKey());
+            }
+        });
+    }
+
+    private static final SuggestionProvider<CommandSourceStack> ALL_MAPS = (ctx, builder) -> {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
-        data.mapList.forEachMap(map -> builder.suggest("\"" + map.getName() + "\""));
+        data.mapList.forEachMap(map -> trySuggest(builder, "\"" + map.getName() + "\""));
         return builder.buildFuture();
     };
 
-    private static final SuggestionProvider<CommandSourceStack> ENABLED_MAP_SUGGESTIONS = (ctx, builder) -> {
+    private static final SuggestionProvider<CommandSourceStack> ENABLED_MAPS = (ctx, builder) -> {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
-        data.mapList.getEnabledMaps().forEach(map -> builder.suggest("\"" + map.getName() + "\""));
+        data.mapList.getEnabledMaps().forEach(map -> trySuggest(builder, "\"" + map.getName() + "\""));
         return builder.buildFuture();
     };
 
-    private static final SuggestionProvider<CommandSourceStack> DISABLED_MAP_SUGGESTIONS = (ctx, builder) -> {
+    private static final SuggestionProvider<CommandSourceStack> DISABLED_MAPS = (ctx, builder) -> {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         data.mapList.forEachMap(map -> {
             if (!map.isEnabled()) {
-                builder.suggest("\"" + map.getName() + "\"");
+                trySuggest(builder, "\"" + map.getName() + "\"");
             }
         });
         return builder.buildFuture();
     };
 
-    private static final SuggestionProvider<CommandSourceStack> GAMEMODE_SUGGESTIONS = (ctx, builder) -> {
-        GamemodeRegistry.forEach(mode -> builder.suggest(mode.getRegistryID().toString()));
+    private static final SuggestionProvider<CommandSourceStack> GAMEMODES = (ctx, builder) -> {
+        GamemodeRegistry.forEach(mode -> {
+            trySuggest(builder, mode.getRegistryID().toString());
+        });
         return builder.buildFuture();
     };
 
-    private static final SuggestionProvider<CommandSourceStack> TEAM_SUGGESTIONS = (ctx, builder) -> {
+    private static final SuggestionProvider<CommandSourceStack> TEAMS = (ctx, builder) -> {
         for (ArenaTeam team : ArenaTeam.values()) {
-            builder.suggest(team.getSerializedName());
+            trySuggest(builder, team.getSerializedName());
+        }
+        return builder.buildFuture();
+    };
+
+    private static final SuggestionProvider<CommandSourceStack> ALL_MOD_IDS = (ctx, builder) -> {
+        for (IModInfo mod : ModList.get().getMods()) {
+            trySuggest(builder, mod.getModId());
+        }
+        return builder.buildFuture();
+    };
+
+    private static final SuggestionProvider<CommandSourceStack> CONFIG_KEYS = (ctx, builder) -> {
+        String[] pieces = builder.getInput().split(" ");
+        String modID = pieces[4];
+        ModConfigs.getModConfigs(modID).forEach(config -> Optional.ofNullable(config.getLoadedConfig()).ifPresent(loadedConfig -> forEachConfigKey(loadedConfig.config(), key -> trySuggest(builder, key), "")));
+        return builder.buildFuture();
+    };
+
+    private static final SuggestionProvider<CommandSourceStack> CURRENT_CONFIG_OVERRIDES = (ctx, builder) -> {
+        String[] pieces = builder.getInput().split(" ");
+        String modID = pieces[4];
+        String mapName = pieces[3];
+        ArenaMap map = ArenaData.get(ctx.getSource().getLevel()).mapList.getMap(mapName.replace("\"", ""));
+        if (map != null) {
+            ModConfigs.getModConfigs(modID).forEach(config -> Optional.ofNullable(config.getLoadedConfig()).ifPresent(loadedConfig -> forEachConfigKey(loadedConfig.config(), key -> {
+                if (map.hasConfigOverride(modID, key)) {
+                    trySuggest(builder, key);
+                }
+            }, "")));
         }
         return builder.buildFuture();
     };

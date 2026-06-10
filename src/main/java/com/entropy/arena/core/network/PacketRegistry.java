@@ -28,6 +28,7 @@ public class PacketRegistry {
         registrar.playToClient(RespawnPacket.TYPE, RespawnPacket.STREAM_CODEC, RespawnPacket::handle);
         registrar.playToClient(PingPacket.TYPE, PingPacket.STREAM_CODEC, PingPacket::handle);
         registrar.playToClient(InstantTeleportPacket.TYPE, InstantTeleportPacket.STREAM_CODEC, InstantTeleportPacket::handle);
+        registrar.playToClient(ConfigOverridesPacket.TYPE, ConfigOverridesPacket.STREAM_CODEC, ConfigOverridesPacket::handle);
 
         registrar.playToServer(ScreenshotPacket.TYPE, ScreenshotPacket.STREAM_CODEC, ScreenshotPacket::handle);
         registrar.playToServer(MapVotePacket.TYPE, MapVotePacket.STREAM_CODEC, MapVotePacket::handle);

@@ -10,12 +10,14 @@ import com.entropy.arena.api.loadout.LoadoutSerializer;
 import com.entropy.arena.api.loadout.LoadoutSerializerRegistry;
 import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.api.util.ArenaTeam;
+import com.entropy.arena.api.util.ArenaUtils;
 import com.entropy.arena.api.util.EventScheduler;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.CapturePointBlock;
 import com.entropy.arena.core.blocks.PedestalBlock;
 import com.entropy.arena.core.blocks.SpawnpointBlock;
 import com.entropy.arena.core.blocks.TeamBlock;
+import com.entropy.arena.core.config.ServerConfig;
 import com.entropy.arena.core.items.DisguiseItem;
 import com.entropy.arena.core.registry.ArenaDataComponents;
 import com.entropy.arena.core.registry.ArenaStatTypes;
@@ -39,6 +41,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -117,8 +120,7 @@ public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<Are
     }
 
     public void onGiveLoadout(ServerPlayer player, Loadout loadout) {
-        ArenaMap currentMap = ArenaData.get(player.serverLevel()).currentMap;
-        boolean blocksAllowed = currentMap == null || currentMap.allowBlocks();
+        boolean blocksAllowed = ArenaUtils.getPerMapConfig(ServerConfig.ALLOW_BLOCKS, ModConfig.Type.SERVER, EntropyArena.MODID, player.serverLevel());
         LoadoutSerializerRegistry.forEachStack(player, (serializer, slot, stack) -> {
             if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof TeamBlock) {
                 serializer.setStack(player, slot, blocksAllowed ? TeamBlock.getStack(getTeamForBlock(player)) : ItemStack.EMPTY);

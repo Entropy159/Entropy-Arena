@@ -1,12 +1,17 @@
 package com.entropy.arena.api.map;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
+import com.electronwill.nightconfig.core.utils.StringUtils;
+import com.electronwill.nightconfig.toml.TomlFormat;
+import com.electronwill.nightconfig.toml.TomlParser;
+import com.electronwill.nightconfig.toml.TomlWriter;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.gamemode.ArenaGamemode;
 import com.entropy.arena.api.gamemode.GamemodeRegistry;
 import com.entropy.arena.api.util.ArenaTeam;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.blocks.SpawnpointBlock;
-import com.entropy.arena.core.config.ServerConfig;
+import com.entropy.arena.core.network.toClient.ConfigOverridesPacket;
 import com.entropy.arena.core.network.toClient.TakeScreenshotPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -21,12 +26,12 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -40,16 +45,14 @@ public class ArenaMap {
     private boolean raining;
     private boolean thundering;
     private MapScreenshot screenshot;
-    private int timerOverride;
-    private int targetScoreOverride;
     protected final HashMap<Property<?>, HashMap<Object, ArrayList<BlockPos>>> blockPropertyMap = new HashMap<>();
-    private boolean allowBlocks;
+    private final Map<ConfigKey, CommentedConfig> configOverrides;
 
     public ArenaMap(ServerLevel level, String name, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2) {
-        this(name, true, gamemodeID, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), 0, 0, true);
+        this(name, true, gamemodeID, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), new HashMap<>());
     }
 
-    public ArenaMap(String name, boolean enabled, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, int timerOverride, int targetScoreOverride, boolean allowBlocks) {
+    public ArenaMap(String name, boolean enabled, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, Map<ConfigKey, CommentedConfig> configOverrides) {
         this.name = name;
         this.enabled = enabled;
         this.gamemodeID = gamemodeID;
@@ -59,17 +62,7 @@ public class ArenaMap {
         this.raining = raining;
         this.thundering = thundering;
         this.screenshot = screenshot;
-        this.timerOverride = timerOverride;
-        this.targetScoreOverride = targetScoreOverride;
-        this.allowBlocks = allowBlocks;
-    }
-
-    public boolean allowBlocks() {
-        return allowBlocks;
-    }
-
-    public void allowBlocks(boolean newValue) {
-        allowBlocks = newValue;
+        this.configOverrides = configOverrides;
     }
 
     public ArrayList<ArenaTeam> getTeams(ServerLevel level) {
@@ -120,11 +113,6 @@ public class ArenaMap {
         PacketDistributor.sendToPlayer(player, new TakeScreenshotPacket(name));
     }
 
-    public void setOverrides(int timerOverride, int targetScoreOverride) {
-        this.timerOverride = timerOverride;
-        this.targetScoreOverride = targetScoreOverride;
-    }
-
     public void setScreenshot(MapScreenshot newScreenshot) {
         screenshot = newScreenshot;
     }
@@ -132,6 +120,11 @@ public class ArenaMap {
     public void load(ServerLevel level) {
         level.setWeatherParameters(99999, 99999, raining, thundering);
         level.setDayTime(time);
+    }
+
+    public void setWorldBorder(ServerLevel level) {
+        level.getWorldBorder().setCenter(getCenter().x, getCenter().y);
+        level.getWorldBorder().setSize(Math.max(getSize().getX(), getSize().getZ()));
     }
 
     public void forEachChunk(Consumer<ChunkPos> consumer) {
@@ -151,6 +144,42 @@ public class ArenaMap {
         blockPropertyMap.clear();
     }
 
+    public <T> T getConfigValue(ModConfigSpec.ConfigValue<T> config, ModConfig.Type type, String modID) {
+        CommentedConfig commentedConfig = configOverrides.get(new ConfigKey(type, modID));
+        if (commentedConfig == null) {
+            return config.get();
+        }
+        T value = commentedConfig.get(config.getPath());
+        return value == null ? config.get() : value;
+    }
+
+    public <T> void setConfigOverride(ModConfigSpec.ConfigValue<T> config, T value, ModConfig.Type type, String modID) {
+        setConfigOverride(config.getPath(), value, type, modID);
+    }
+
+    public <T> void setConfigOverride(String path, T value, ModConfig.Type type, String modID) {
+        setConfigOverride(StringUtils.split(path, '.'), value, type, modID);
+    }
+
+    public <T> void setConfigOverride(List<String> path, T value, ModConfig.Type type, String modID) {
+        configOverrides.computeIfAbsent(new ConfigKey(type, modID), tuple -> TomlFormat.newConfig()).set(path, value);
+    }
+
+    public void resetConfigOverride(String path, ModConfig.Type type, String modID) {
+        CommentedConfig config = configOverrides.get(new ConfigKey(type, modID));
+        if (config != null) {
+            config.remove(path);
+        }
+    }
+
+    public boolean hasConfigOverride(String modID, String key) {
+        return configOverrides.entrySet().stream().anyMatch(entry -> Objects.equals(entry.getKey().modID, modID) && entry.getValue().contains(key));
+    }
+
+    public void syncConfig(ServerLevel level) {
+        PacketDistributor.sendToPlayersInDimension(level, new ConfigOverridesPacket(configOverrides));
+    }
+
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
         tag.putString("name", name);
@@ -161,9 +190,12 @@ public class ArenaMap {
         tag.putBoolean("raining", raining);
         tag.putBoolean("thundering", thundering);
         tag.putByteArray("screenshot", screenshot.getData());
-        tag.putInt("timerOverride", timerOverride);
-        tag.putInt("targetScoreOverride", targetScoreOverride);
-        tag.putBoolean("allowBlocks", allowBlocks);
+        CompoundTag configs = new CompoundTag();
+        configOverrides.forEach((tuple, config) -> {
+            String configString = new TomlWriter().writeToString(config);
+            configs.putString(tuple.toExtension(), configString);
+        });
+        tag.put("configOverrides", configs);
         return tag;
     }
 
@@ -177,10 +209,14 @@ public class ArenaMap {
         boolean raining = tag.getBoolean("raining");
         boolean thundering = tag.getBoolean("thundering");
         MapScreenshot screenshot = new MapScreenshot(name, tag.getByteArray("screenshot"));
-        int timerOverride = tag.getInt("timerOverride");
-        int targetScoreOverride = tag.getInt("targetScoreOverride");
-        boolean allowBlocks = tag.getBoolean("allowBlocks");
-        return new ArenaMap(name, enabled, gamemode, corner1, corner2, time, raining, thundering, screenshot, timerOverride, targetScoreOverride, allowBlocks);
+        Map<ConfigKey, CommentedConfig> configOverrides = new HashMap<>();
+        if (tag.contains("configOverrides")) {
+            CompoundTag configs = tag.getCompound("configOverrides");
+            for (String key : configs.getAllKeys()) {
+                configOverrides.put(ConfigKey.decode(key), new TomlParser().parse(configs.getString(key)));
+            }
+        }
+        return new ArenaMap(name, enabled, gamemode, corner1, corner2, time, raining, thundering, screenshot, configOverrides);
     }
 
     public String getName() {
@@ -189,17 +225,7 @@ public class ArenaMap {
 
     public Component toComponent() {
         ArenaGamemode gamemode = getNewGamemode();
-        return Component.literal(name).withStyle(ChatFormatting.YELLOW)
-                .append(Component.literal(" - from ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(corner1.toShortString()).withStyle(ChatFormatting.BLUE))
-                .append(Component.literal(" to ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(corner2.toShortString()).withStyle(ChatFormatting.BLUE))
-                .append(Component.literal(", gamemode: ").withStyle(ChatFormatting.GRAY))
-                .append((gamemode == null ? Component.literal("None") : gamemode.getName().copy()).withStyle(ChatFormatting.DARK_AQUA))
-                .append(Component.literal(", ").withStyle(ChatFormatting.GRAY))
-                .append(Component.translatable("arena." + (enabled ? "enabled" : "disabled")).withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED))
-                .append(Component.literal(", ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal("Allow blocks: " + allowBlocks).withStyle(ChatFormatting.AQUA));
+        return Component.literal(name).withStyle(ChatFormatting.YELLOW).append(Component.literal(" - from ").withStyle(ChatFormatting.GRAY)).append(Component.literal(corner1.toShortString()).withStyle(ChatFormatting.BLUE)).append(Component.literal(" to ").withStyle(ChatFormatting.GRAY)).append(Component.literal(corner2.toShortString()).withStyle(ChatFormatting.BLUE)).append(Component.literal(", gamemode: ").withStyle(ChatFormatting.GRAY)).append((gamemode == null ? Component.literal("None") : gamemode.getName().copy()).withStyle(ChatFormatting.DARK_AQUA)).append(Component.literal(", ").withStyle(ChatFormatting.GRAY)).append(Component.translatable("arena." + (enabled ? "enabled" : "disabled")).withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED));
     }
 
     public ArenaMapInfo getInfo(int votes) {
@@ -225,19 +251,23 @@ public class ArenaMap {
         return gamemode.validateMap(level, this);
     }
 
-    public int getTimer() {
-        return timerOverride > 0 ? timerOverride : ServerConfig.DEFAULT_ROUND_SECONDS.get();
-    }
-
-    public int getTargetScore() {
-        return targetScoreOverride > 0 ? targetScoreOverride : ServerConfig.DEFAULT_TARGET_SCORE.get();
-    }
-
     public boolean isEnabled() {
         return enabled;
     }
 
     public void setEnabled(boolean newValue) {
         enabled = newValue;
+    }
+
+    public record ConfigKey(ModConfig.Type type, String modID) {
+        public String toExtension() {
+            return modID + "-" + type.extension();
+        }
+
+        public static ConfigKey decode(String key) {
+            String modID = key.substring(0, key.lastIndexOf("-"));
+            ModConfig.Type type = ModConfig.Type.valueOf(key.substring(key.lastIndexOf("-") + 1).toUpperCase());
+            return new ConfigKey(type, modID);
+        }
     }
 }

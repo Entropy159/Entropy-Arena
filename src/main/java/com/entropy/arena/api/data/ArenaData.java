@@ -1,13 +1,13 @@
 package com.entropy.arena.api.data;
 
-import com.entropy.arena.api.util.ArenaGameType;
-import com.entropy.arena.api.util.ArenaUtils;
 import com.entropy.arena.api.gamemode.ArenaGamemode;
 import com.entropy.arena.api.loadout.ItemList;
 import com.entropy.arena.api.loadout.Loadout;
 import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.api.map.ArenaMapBackup;
 import com.entropy.arena.api.map.MapList;
+import com.entropy.arena.api.util.ArenaGameType;
+import com.entropy.arena.api.util.ArenaUtils;
 import com.entropy.arena.core.EntropyArena;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;

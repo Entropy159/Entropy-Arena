@@ -130,16 +130,18 @@ public class ArenaDatagen {
         REGISTRATE.configLang(ServerConfig.CONCURRENT_CHUNK_LOADS, "Concurrent Chunk Loads");
         REGISTRATE.configLang(ServerConfig.INTERVAL_SECONDS, "Interval Seconds");
         REGISTRATE.configLang(ServerConfig.RECAP_SECONDS, "Recap Seconds");
-        REGISTRATE.configLang(ServerConfig.DEFAULT_ROUND_SECONDS, "Default Round Seconds");
-        REGISTRATE.configLang(ServerConfig.DEFAULT_TARGET_SCORE, "Default Target Score");
+        REGISTRATE.configLang(ServerConfig.ROUND_SECONDS, "Round Seconds");
+        REGISTRATE.configLang(ServerConfig.TARGET_SCORE, "Target Score");
         REGISTRATE.configLang(ServerConfig.FRIENDLY_FIRE, "Friendly Fire");
         REGISTRATE.configLang(ServerConfig.HIDE_ENEMY_NAMETAGS, "Hide Enemy Nametags");
         REGISTRATE.configLang(ServerConfig.RESPAWN_DELAY, "Respawn Delay");
         REGISTRATE.configLang(ServerConfig.GIVE_SATURATION, "Give Saturation");
         REGISTRATE.configLang(ServerConfig.INFINITE_BLOCKS, "Infinite Blocks");
+        REGISTRATE.configLang(ServerConfig.ALLOW_BLOCKS, "Allow Blocks");
         REGISTRATE.configLang(ServerConfig.SPAWN_PROTECTION, "Spawn Protection");
         REGISTRATE.configLang(ServerConfig.MAX_HEALTH, "Max Health");
         REGISTRATE.configLang(ServerConfig.PREVENT_BLOCKS_ON_SPAWNS, "Prevent Blocks on Spawns");
+        REGISTRATE.configLang(ServerConfig.SET_WORLD_BORDER, "Set World Border");
 
         REGISTRATE.configLang(ServerConfig.DEDUCT_POINTS_ON_SELF_DEATH, "Deduct Points on Self Death");
 
@@ -178,7 +180,8 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.added_map", "Added map %s");
         REGISTRATE.addRawLang("arena.message.removed_map", "Removed map %s");
         REGISTRATE.addRawLang("arena.message.updated_map", "Updated map %s");
-        REGISTRATE.addRawLang("arena.message.updated_map_overrides", "Updated map overrides for %s");
+        REGISTRATE.addRawLang("arena.message.updated_map_config", "Updated map config for %s - %s set to %s");
+        REGISTRATE.addRawLang("arena.message.reset_map_config", "Reset map config for %s - %s");
         REGISTRATE.addRawLang("arena.message.loaded_map", "Loaded map %s");
         REGISTRATE.addRawLang("arena.message.enabled_map", "Enabled map %s");
         REGISTRATE.addRawLang("arena.message.disabled_map", "Disabled map %s");
@@ -218,8 +221,6 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.message.removed_unbreakable", "Made item breakable");
         REGISTRATE.addRawLang("arena.message.switched_team", "%s has switched to team %s");
         REGISTRATE.addRawLang("arena.message.lost_killstreak", "%s has lost their kill streak of %s");
-        REGISTRATE.addRawLang("arena.message.map_allowed_blocks", "Set blocks allowed for %s");
-        REGISTRATE.addRawLang("arena.message.map_disallowed_blocks", "Set blocks disallowed for %s");
 
         REGISTRATE.addRawLang("arena.error.already_running", "Game is already running");
         REGISTRATE.addRawLang("arena.error.no_lobby", "No lobby position found");
@@ -244,6 +245,8 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("arena.error.backing_up", "Backing up map");
         REGISTRATE.addRawLang("arena.error.restoring_backup", "Restoring map backup");
         REGISTRATE.addRawLang("arena.error.cant_switch_teams", "Can't switch teams right now!");
+        REGISTRATE.addRawLang("arena.error.no_config", "No config found with key %s and mod ID %s");
+        REGISTRATE.addRawLang("arena.error.invalid_config_value", "Invalid config value %s");
 
         REGISTRATE.addRawLang("arena.message.ctf.flag_taken", "Team %s's flag has been taken by team %s");
         REGISTRATE.addRawLang("arena.message.ctf.flag_returned", "Team %s's flag has been returned");

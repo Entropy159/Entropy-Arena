@@ -4,6 +4,7 @@ import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.data.ArenaData;
 import com.entropy.arena.api.events.*;
 import com.entropy.arena.api.map.ArenaMap;
+import com.entropy.arena.api.util.ArenaUtils;
 import com.entropy.arena.api.util.Notification;
 import com.entropy.arena.core.blocks.SpawnpointBlock;
 import com.entropy.arena.core.blocks.TeamBlock;
@@ -23,6 +24,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.LevelAccessor;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.EntityInvulnerabilityCheckEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -122,12 +124,11 @@ public class ArenaEvents {
             if (event.getHeldItem().getItem() instanceof BlockItem bi && bi.getBlock() instanceof TeamBlock) {
                 boolean isValid = !event.getState().is(ArenaTags.TEAM_BLOCK_INVALID);
                 if (event.getPlayer() instanceof ServerPlayer player) {
-                    ArenaMap map = ArenaData.get(player.serverLevel()).currentMap;
-                    if (map == null || map.allowBlocks()) {
+                    if (ArenaUtils.getPerMapConfig(ServerConfig.ALLOW_BLOCKS, ModConfig.Type.SERVER, EntropyArena.MODID, player.serverLevel())) {
                         event.setBypass(isValid);
                     }
                 } else {
-                    event.setBypass(isValid && ClientData.allowBlocks);
+                    event.setBypass(isValid && ArenaUtils.getPerMapConfig(ServerConfig.ALLOW_BLOCKS, ModConfig.Type.SERVER, EntropyArena.MODID));
                 }
             }
             if (event.getHeldItem().getItem() instanceof DisguiseItem) {

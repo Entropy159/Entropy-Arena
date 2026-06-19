@@ -87,7 +87,7 @@ public abstract class TeamGamemode extends ArenaGamemode {
     public void onDeath(ServerPlayer player, DamageSource source) {
         super.onDeath(player, source);
         ArenaTeam team = getPlayerTeam(player);
-        if (source.getEntity() instanceof ServerPlayer killer && team == getPlayerTeam(player)) {
+        if (source.getEntity() instanceof ServerPlayer killer && team == getPlayerTeam(killer) && ServerConfig.DEDUCT_POINTS_ON_SELF_DEATH.get()) {
             setScore(team, Math.max(0, getScore(team) - 1));
         }
     }

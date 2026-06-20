@@ -190,7 +190,7 @@ public class ArenaCommand {
                         return;
                     }
                     if (isCorrectType(config.getLoadedConfig().config().get(key), valueObj)) {
-                        map.setConfigOverride(key, valueObj, config.getType(), config.getModId());
+                        map.setConfigOverride(key, valueObj, config.getModId());
                         ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.updated_map_config", name, key, value).withStyle(ChatFormatting.GREEN), true);
                         returnCode.set(1);
                     } else {
@@ -215,7 +215,7 @@ public class ArenaCommand {
         if (map != null) {
             Optional<ModConfig> optionalConfig = ModConfigs.getModConfigs(modID).stream().filter(config -> config.getLoadedConfig() != null).filter(config -> config.getLoadedConfig().config().get(key) != null).findFirst();
             optionalConfig.ifPresentOrElse(config -> {
-                map.resetConfigOverride(key, config.getType(), config.getModId());
+                map.resetConfigOverride(key, config.getModId());
                 ctx.getSource().sendSuccess(() -> Component.translatable("arena.message.reset_map_config", name, key).withStyle(ChatFormatting.GREEN), true);
             }, () -> ctx.getSource().sendFailure(Component.translatable("arena.error.no_config", key, modID).withStyle(ChatFormatting.RED)));
             return optionalConfig.isPresent() ? 1 : 0;

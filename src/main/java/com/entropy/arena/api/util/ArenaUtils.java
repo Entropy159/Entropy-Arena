@@ -1,9 +1,5 @@
 package com.entropy.arena.api.util;
 
-import com.electronwill.nightconfig.core.CommentedConfig;
-import com.entropy.arena.api.client.ClientData;
-import com.entropy.arena.api.data.ArenaData;
-import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.network.toClient.InstantTeleportPacket;
 import io.netty.buffer.ByteBuf;
@@ -26,10 +22,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
@@ -149,20 +141,5 @@ public class ArenaUtils {
 
     public static void playSoundForPlayer(ServerPlayer player, SoundEvent event, SoundSource source) {
         player.connection.send(new ClientboundSoundPacket(Holder.direct(SoundEvent.createFixedRangeEvent(event.getLocation(), 16)), source, player.getEyePosition().x, player.getEyePosition().y, player.getEyePosition().z, 1, 1, player.serverLevel().getRandom().nextLong()));
-    }
-
-    public static <T> T getPerMapConfig(ModConfigSpec.ConfigValue<T> config, ModConfig.Type type, String modID, ServerLevel level) {
-        ArenaMap map = ArenaData.get(level).currentMap;
-        return map == null ? config.get() : map.getConfigValue(config, type, modID);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static <T> T getPerMapConfig(ModConfigSpec.ConfigValue<T> config, ModConfig.Type type, String modID) {
-        CommentedConfig commentedConfig = ClientData.configOverrides.get(new ArenaMap.ConfigKey(type, modID));
-        if (commentedConfig == null) {
-            return config.get();
-        }
-        T value = commentedConfig.get(config.getPath());
-        return value == null ? config.get() : value;
     }
 }

@@ -31,7 +31,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
@@ -53,13 +52,13 @@ public class ArenaMap {
     private boolean thundering;
     private MapScreenshot screenshot;
     protected final HashMap<Property<?>, HashMap<Object, ArrayList<BlockPos>>> blockPropertyMap = new HashMap<>();
-    private final Map<ConfigKey, CommentedConfig> configOverrides;
+    private final Map<String, CommentedConfig> configOverrides;
 
     public ArenaMap(ServerLevel level, String name, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2) {
         this(name, true, level.dimension(), gamemodeID, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), new HashMap<>());
     }
 
-    public ArenaMap(String name, boolean enabled, ResourceKey<Level> dimension, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, Map<ConfigKey, CommentedConfig> configOverrides) {
+    public ArenaMap(String name, boolean enabled, ResourceKey<Level> dimension, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, Map<String, CommentedConfig> configOverrides) {
         this.name = name;
         this.enabled = enabled;
         this.dimension = dimension;
@@ -161,36 +160,36 @@ public class ArenaMap {
         blockPropertyMap.clear();
     }
 
-    public <T> T getConfigValue(ModConfigSpec.ConfigValue<T> config, ModConfig.Type type, String modID) {
-        CommentedConfig commentedConfig = configOverrides.get(new ConfigKey(type, modID));
+    public <T> @Nullable T getConfigValue(List<String> path, String modID) {
+        CommentedConfig commentedConfig = configOverrides.get(modID);
         if (commentedConfig == null) {
-            return config.get();
+            return null;
         }
-        T value = commentedConfig.get(config.getPath());
-        return value == null || value instanceof Config ? config.get() : value;
+        T value = commentedConfig.get(path);
+        return value == null || value instanceof Config ? null : value;
     }
 
-    public <T> void setConfigOverride(ModConfigSpec.ConfigValue<T> config, T value, ModConfig.Type type, String modID) {
-        setConfigOverride(config.getPath(), value, type, modID);
+    public <T> void setConfigOverride(ModConfigSpec.ConfigValue<T> config, T value, String modID) {
+        setConfigOverride(config.getPath(), value, modID);
     }
 
-    public <T> void setConfigOverride(String path, T value, ModConfig.Type type, String modID) {
-        setConfigOverride(StringUtils.split(path, '.'), value, type, modID);
+    public <T> void setConfigOverride(String path, T value, String modID) {
+        setConfigOverride(StringUtils.split(path, '.'), value, modID);
     }
 
-    public <T> void setConfigOverride(List<String> path, T value, ModConfig.Type type, String modID) {
-        configOverrides.computeIfAbsent(new ConfigKey(type, modID), tuple -> TomlFormat.newConfig()).set(path, value);
+    public <T> void setConfigOverride(List<String> path, T value, String modID) {
+        configOverrides.computeIfAbsent(modID, tuple -> TomlFormat.newConfig()).set(path, value);
     }
 
-    public void resetConfigOverride(String path, ModConfig.Type type, String modID) {
-        CommentedConfig config = configOverrides.get(new ConfigKey(type, modID));
+    public void resetConfigOverride(String path, String modID) {
+        CommentedConfig config = configOverrides.get(modID);
         if (config != null) {
             config.remove(path);
         }
     }
 
     public boolean hasConfigOverride(String modID, String key) {
-        return configOverrides.entrySet().stream().anyMatch(entry -> Objects.equals(entry.getKey().modID, modID) && entry.getValue().contains(key) && !(entry.getValue().get(key) instanceof Config));
+        return configOverrides.entrySet().stream().anyMatch(entry -> Objects.equals(entry.getKey(), modID) && entry.getValue().contains(key) && !(entry.getValue().get(key) instanceof Config));
     }
 
     public void syncConfig(ServerLevel level) {
@@ -210,9 +209,9 @@ public class ArenaMap {
         tag.putBoolean("thundering", thundering);
         tag.putByteArray("screenshot", screenshot.getData());
         CompoundTag configs = new CompoundTag();
-        configOverrides.forEach((tuple, config) -> {
+        configOverrides.forEach((modID, config) -> {
             String configString = new TomlWriter().writeToString(config);
-            configs.putString(tuple.toExtension(), configString);
+            configs.putString(modID, configString);
         });
         tag.put("configOverrides", configs);
         return tag;
@@ -232,11 +231,11 @@ public class ArenaMap {
         boolean raining = tag.getBoolean("raining");
         boolean thundering = tag.getBoolean("thundering");
         MapScreenshot screenshot = new MapScreenshot(name, tag.getByteArray("screenshot"));
-        Map<ConfigKey, CommentedConfig> configOverrides = new HashMap<>();
+        Map<String, CommentedConfig> configOverrides = new HashMap<>();
         if (tag.contains("configOverrides")) {
             CompoundTag configs = tag.getCompound("configOverrides");
             for (String key : configs.getAllKeys()) {
-                configOverrides.put(ConfigKey.decode(key), new TomlParser().parse(configs.getString(key)));
+                configOverrides.put(key, new TomlParser().parse(configs.getString(key)));
             }
         }
         return new ArenaMap(name, enabled, dimension, gamemode, corner1, corner2, time, raining, thundering, screenshot, configOverrides);
@@ -300,17 +299,5 @@ public class ArenaMap {
 
     public ResourceKey<Level> getDimension() {
         return dimension;
-    }
-
-    public record ConfigKey(ModConfig.Type type, String modID) {
-        public String toExtension() {
-            return modID + "-" + type.extension();
-        }
-
-        public static ConfigKey decode(String key) {
-            String modID = key.substring(0, key.lastIndexOf("-"));
-            ModConfig.Type type = ModConfig.Type.valueOf(key.substring(key.lastIndexOf("-") + 1).toUpperCase());
-            return new ConfigKey(type, modID);
-        }
     }
 }

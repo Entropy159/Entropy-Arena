@@ -28,7 +28,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.GameType;
-import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
@@ -204,12 +203,12 @@ public class ArenaLogic {
         data.lobby = false;
         data.currentMap.load(currentLevel);
         data.currentMap.syncConfig(currentLevel);
-        if (ArenaUtils.getPerMapConfig(ServerConfig.SET_WORLD_BORDER, ModConfig.Type.SERVER, EntropyArena.MODID)) {
+        if (ServerConfig.SET_WORLD_BORDER.get()) {
             data.currentMap.setWorldBorder(currentLevel);
         }
         Notification.toAll(Component.translatable("arena.message.map_info", data.currentMap.getName()).withStyle(ChatFormatting.YELLOW).append(data.currentGamemode.getName()));
         if (data.gameType == ArenaGameType.TIMED) {
-            data.timer = ArenaUtils.getPerMapConfig(ServerConfig.ROUND_SECONDS, ModConfig.Type.SERVER, EntropyArena.MODID);
+            data.timer = ServerConfig.ROUND_SECONDS.get();
         }
         PacketDistributor.sendToAllPlayers(GameInfoPacket.fromData(data));
         data.currentGamemode.onMatchStart(currentLevel);
@@ -290,7 +289,7 @@ public class ArenaLogic {
         }
         if (data.inGame()) {
             data.currentGamemode.onLevelTick(currentLevel);
-            if (data.currentGamemode.shouldWin(currentLevel, data.gameType.isTimed(), data.timer, ArenaUtils.getPerMapConfig(ServerConfig.TARGET_SCORE, ModConfig.Type.SERVER, EntropyArena.MODID))) {
+            if (data.currentGamemode.shouldWin(currentLevel, data.gameType.isTimed(), data.timer, ServerConfig.TARGET_SCORE.get())) {
                 EntropyArena.LOGGER.info("Ending game!");
                 endMatch();
             }
@@ -301,15 +300,15 @@ public class ArenaLogic {
     }
 
     public void onEntityTick(Entity entity) {
-        if (data.running && entity instanceof ServerPlayer player && ArenaUtils.getPerMapConfig(ServerConfig.GIVE_SATURATION, ModConfig.Type.SERVER, EntropyArena.MODID)) {
+        if (data.running && entity instanceof ServerPlayer player && ServerConfig.GIVE_SATURATION.get()) {
             player.getFoodData().setFoodLevel(20);
         }
         if (data.inGame()) {
             if (entity instanceof ServerPlayer player && data.respawnTimes.containsKey(player.getUUID())) {
-                if (data.respawnTimes.get(player.getUUID()) + ArenaUtils.getPerMapConfig(ServerConfig.RESPAWN_DELAY, ModConfig.Type.SERVER, EntropyArena.MODID) * 20L < currentLevel.getGameTime()) {
+                if (data.respawnTimes.get(player.getUUID()) + ServerConfig.RESPAWN_DELAY.get() * 20L < currentLevel.getGameTime()) {
                     respawn(player);
                 } else {
-                    long secondsUntilRespawn = ArenaUtils.getPerMapConfig(ServerConfig.RESPAWN_DELAY, ModConfig.Type.SERVER, EntropyArena.MODID) - (currentLevel.getGameTime() - data.respawnTimes.get(player.getUUID())) / 20;
+                    long secondsUntilRespawn = ServerConfig.RESPAWN_DELAY.get() - (currentLevel.getGameTime() - data.respawnTimes.get(player.getUUID())) / 20;
                     player.displayClientMessage(Component.translatable("arena.message.respawning", secondsUntilRespawn).withStyle(ChatFormatting.RED), true);
                 }
             }
@@ -326,7 +325,7 @@ public class ArenaLogic {
 
     public void onRespawn(ServerPlayer player) {
         if (data.inGame()) {
-            if (ArenaUtils.getPerMapConfig(ServerConfig.RESPAWN_DELAY, ModConfig.Type.SERVER, EntropyArena.MODID) > 0) {
+            if (ServerConfig.RESPAWN_DELAY.get() > 0) {
                 data.respawnTimes.put(player.getUUID(), currentLevel.getGameTime());
                 player.setGameMode(GameType.SPECTATOR);
             } else {
@@ -340,7 +339,7 @@ public class ArenaLogic {
         player.setGameMode(GameType.ADVENTURE);
         AttributeInstance attribute = player.getAttributes().getInstance(Attributes.MAX_HEALTH);
         if (attribute != null) {
-            attribute.setBaseValue(ArenaUtils.getPerMapConfig(ServerConfig.MAX_HEALTH, ModConfig.Type.SERVER, EntropyArena.MODID));
+            attribute.setBaseValue(ServerConfig.MAX_HEALTH.get());
         }
         player.setHealth(player.getMaxHealth());
         if (data.running && data.lobby && data.lobbyPos != null) {
@@ -404,6 +403,6 @@ public class ArenaLogic {
     }
 
     public boolean isSpawnProtected(ServerPlayer player) {
-        return data.running && (data.lobby || data.spawnProtection.getOrDefault(player.getUUID(), 0L) + ArenaUtils.getPerMapConfig(ServerConfig.SPAWN_PROTECTION, ModConfig.Type.SERVER, EntropyArena.MODID) * 20L >= currentLevel.getGameTime());
+        return data.running && (data.lobby || data.spawnProtection.getOrDefault(player.getUUID(), 0L) + ServerConfig.SPAWN_PROTECTION.get() * 20L >= currentLevel.getGameTime());
     }
 }

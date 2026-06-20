@@ -2,7 +2,6 @@ package com.entropy.arena.core.network.toClient;
 
 import com.entropy.arena.api.client.ClientData;
 import com.entropy.arena.api.data.ArenaData;
-import com.entropy.arena.api.util.ArenaUtils;
 import com.entropy.arena.client.MusicData;
 import com.entropy.arena.core.EntropyArena;
 import com.entropy.arena.core.config.ServerConfig;
@@ -11,8 +10,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,6 +36,6 @@ public record RunningPacket(boolean running, boolean lobby, int targetScore) imp
 
     public static RunningPacket fromData(MinecraftServer server) {
         ArenaData data = ArenaData.get(server);
-        return new RunningPacket(data.running, data.lobby, data.currentMap == null ? 0 : (data.gameType.isTimed() ? 0 : ArenaUtils.getPerMapConfig(ServerConfig.TARGET_SCORE, ModConfig.Type.SERVER, EntropyArena.MODID)));
+        return new RunningPacket(data.running, data.lobby, data.currentMap == null ? 0 : (data.gameType.isTimed() ? 0 : ServerConfig.TARGET_SCORE.get()));
     }
 }

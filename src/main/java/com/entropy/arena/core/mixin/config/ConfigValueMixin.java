@@ -42,7 +42,6 @@ public abstract class ConfigValueMixin<T> implements ConfigValueAddon<T> {
     private T perMap(T original) {
         String modID = entropyArena$getModID();
         if (modID == null) {
-            if (!(path.contains("experimentalForgeLightPipelineEnabled") || path.contains("fullBoundingBoxLadders"))) EntropyArena.LOGGER.info("No mod ID for {}", path);
             return original;
         }
         switch (FMLEnvironment.dist) {
@@ -86,7 +85,6 @@ public abstract class ConfigValueMixin<T> implements ConfigValueAddon<T> {
     @Override
     public void entropyArena$setModID(String modID) {
         entropyArena$modID = modID;
-        EntropyArena.LOGGER.info("Set mod ID of {} to {}", path, modID);
     }
 
     @Override

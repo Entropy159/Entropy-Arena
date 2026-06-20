@@ -7,7 +7,6 @@
     "ItemEntityMixin",
     "PlayerMixin",
     "ServerPlayerMixin",
-    "config.ConfigTrackerMixin",
     "config.ConfigValueMixin",
     "ignoreAdventureMode.CommonHooksMixin",
     "ignoreAdventureMode.ItemStackMixin",

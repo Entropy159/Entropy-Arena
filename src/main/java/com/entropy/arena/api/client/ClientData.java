@@ -2,7 +2,6 @@ package com.entropy.arena.api.client;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.entropy.arena.api.gamemode.ArenaGamemode;
-import com.entropy.arena.api.map.ArenaMap;
 import com.entropy.arena.api.map.ArenaMapInfo;
 import com.entropy.arena.api.util.ArenaGameType;
 import com.entropy.arena.api.util.Notification;
@@ -32,5 +31,5 @@ public class ClientData {
     public static ArrayList<Component> scoreList = new ArrayList<>();
     public static CopyOnWriteArraySet<PingIcon> pings = new CopyOnWriteArraySet<>();
     public static HashMap<Integer, Vec3> entitiesToUnlerp = new HashMap<>();
-    public static Map<ArenaMap.ConfigKey, CommentedConfig> configOverrides = new HashMap<>();
+    public static Map<String, CommentedConfig> configOverrides = new HashMap<>();
 }

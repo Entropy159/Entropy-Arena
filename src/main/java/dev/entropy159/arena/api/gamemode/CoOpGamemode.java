@@ -1,0 +1,110 @@
+package dev.entropy159.arena.api.gamemode;
+
+import dev.entropy159.arena.api.util.ArenaTeam;
+import dev.entropy159.arena.api.util.Notification;
+import dev.entropy159.arena.api.map.ArenaMap;
+import dev.entropy159.arena.core.network.toClient.ScoresPacket;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class CoOpGamemode extends ArenaGamemode {
+    protected int collectiveScore = 0;
+
+    public CoOpGamemode(ResourceLocation id) {
+        super(id);
+    }
+
+    @Override
+    public int getHighestScore() {
+        return collectiveScore;
+    }
+
+    @Override
+    public void onMatchStart(ServerLevel level) {
+        super.onMatchStart(level);
+        level.players().forEach(ArenaTeam.GREEN::setThisTeam);
+    }
+
+    @Override
+    public void onJoin(ServerPlayer player) {
+        super.onJoin(player);
+        ArenaTeam.GREEN.setThisTeam(player);
+    }
+
+    @Override
+    public void onMatchEnd(ServerLevel level) {
+        super.onMatchEnd(level);
+        Notification.toAll(Component.translatable("message.arena.collective_winner", collectiveScore).withStyle(ChatFormatting.GREEN));
+    }
+
+    @Override
+    public List<ServerPlayer> getWinners(ServerLevel level) {
+        return level.players();
+    }
+
+    @Override
+    public void onDeath(ServerPlayer player, DamageSource source) {
+        super.onDeath(player, source);
+        if (source.getEntity() instanceof ServerPlayer) {
+            collectiveScore--;
+        }
+    }
+
+    @Override
+    public ArrayList<BlockPos> getValidSpawns(ServerPlayer player, ArenaMap map) {
+        ArrayList<BlockPos> list = new ArrayList<>();
+        list.addAll(map.getSpawns(player.serverLevel()).get(ArenaTeam.NONE));
+        list.addAll(map.getSpawns(player.serverLevel()).get(ArenaTeam.GREEN));
+        return list;
+    }
+
+    @Override
+    public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
+        Component failureMessage = super.validateMap(level, arenaMap);
+        if (failureMessage != null) return failureMessage;
+        if (!arenaMap.getSpawns(level).containsKey(ArenaTeam.NONE)) {
+            return Component.translatable("error.arena.no_spawns");
+        }
+        return null;
+    }
+
+    public void setScore(int value) {
+        collectiveScore = value;
+        PacketDistributor.sendToAllPlayers(new ScoresPacket(getScoreText(null)));
+    }
+
+    public int getScore() {
+        return collectiveScore;
+    }
+
+    public void incrementScore() {
+        setScore(getScore() + 1);
+    }
+
+    @Override
+    public List<Component> getScoreText(ServerLevel level) {
+        return List.of(Component.translatable("hud.arena.score_value", getScore()).withStyle(ChatFormatting.GREEN));
+    }
+
+    public void encodeData(ByteBuf buffer) {
+        super.encodeData(buffer);
+        ByteBufCodecs.INT.encode(buffer, collectiveScore);
+    }
+
+    public void decodeData(ByteBuf buffer) {
+        super.decodeData(buffer);
+        collectiveScore = ByteBufCodecs.INT.decode(buffer);
+    }
+}

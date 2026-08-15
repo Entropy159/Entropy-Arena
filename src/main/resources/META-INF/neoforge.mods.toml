@@ -48,3 +48,10 @@ type = "required"
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
+
+[[dependencies.${ mod_id }]]
+modId = "entropylib"
+type = "required"
+versionRange = "[${entropylib_version},)"
+ordering = "NONE"
+side = "BOTH"

@@ -35,6 +35,10 @@ repositories {
             includeGroup "maven.modrinth"
         }
     }
+
+    flatDir {
+        dirs "libs"
+    }
 }
 
 base {
@@ -113,6 +117,8 @@ jarJar {
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
+    implementation "dev.entropy159:entropylib:${entropylib_version}"
+
     implementation "com.tterrag.registrate:Registrate:${registrate_version}"
     jarJar(group: 'com.tterrag.registrate', name: 'Registrate', version: "[${registrate_version},)")
 
@@ -137,6 +143,7 @@ tasks.withType(ProcessResources).configureEach {
             mod_name               : mod_name,
             mod_license            : mod_license,
             mod_version            : mod_version,
+            entropylib_version     : entropylib_version,
     ]
     inputs.properties replaceProperties
 

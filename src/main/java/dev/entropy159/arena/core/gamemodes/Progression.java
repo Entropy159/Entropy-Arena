@@ -1,0 +1,60 @@
+package dev.entropy159.arena.core.gamemodes;
+
+import dev.entropy159.arena.api.data.ArenaData;
+import dev.entropy159.arena.api.gamemode.FFAGamemode;
+import dev.entropy159.arena.api.loadout.ItemList;
+import dev.entropy159.arena.api.loadout.Loadout;
+import dev.entropy159.arena.api.map.ArenaMap;
+import dev.entropy159.arena.core.ArenaLogic;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
+
+public class Progression extends FFAGamemode {
+    public Progression(ResourceLocation id) {
+        super(id);
+    }
+
+    @Override
+    public void onDeath(ServerPlayer player, DamageSource source) {
+        super.onDeath(player, source);
+        if (source.getEntity() instanceof ServerPlayer killer && player.getUUID() != killer.getUUID()) {
+            incrementScore(killer);
+            setScore(player, getScore(player) - 1);
+            ArenaLogic.get(player.serverLevel()).giveStarterGear(player);
+        }
+    }
+
+    @Override
+    public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
+        if (ArenaData.get(level).loadouts.values().stream().noneMatch(loadout -> loadout.getItemLists(level).stream().anyMatch(this::isValidItemList))) {
+            return Component.translatable("error.arena.no_ordered_item_lists");
+        }
+        return super.validateMap(level, arenaMap);
+    }
+
+    @Override
+    public void incrementScore(ServerPlayer player) {
+        super.incrementScore(player);
+        ArenaLogic.get(player.serverLevel()).giveStarterGear(player);
+    }
+
+    @Override
+    public ItemStack getItemFromList(ServerPlayer player, ItemList list) {
+        return list.get(Math.min(getScore(player), list.size() - 1));
+    }
+
+    @Override
+    public boolean isValidLoadout(ServerPlayer player, Loadout loadout) {
+        return super.isValidLoadout(player, loadout) && !loadout.getItemLists(player.serverLevel()).isEmpty();
+    }
+
+    @Override
+    public boolean isValidItemList(ItemList list) {
+        return !list.isRandom();
+    }
+}

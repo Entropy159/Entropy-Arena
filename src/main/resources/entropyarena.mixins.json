@@ -1,16 +1,11 @@
 {
   "required": true,
-  "package": "com.entropy.arena.core.mixin",
+  "package": "dev.entropy159.arena.core.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "BlockItemMixin",
-    "ItemEntityMixin",
     "PlayerMixin",
     "ServerPlayerMixin",
     "config.ConfigValueMixin",
-    "ignoreAdventureMode.CommonHooksMixin",
-    "ignoreAdventureMode.ItemStackMixin",
-    "ignoreAdventureMode.PlayerMixin",
     "pingwheel.PingViewMixin",
     "team.EntityMixin",
     "team.PlayerTeamMixin"
@@ -22,13 +17,9 @@
     "requireAnnotations": true
   },
   "client": [
-    "ClientLevelMixin",
-    "ClientPacketListenerMixin",
-    "LevelRendererMixin",
     "LivingEntityRendererMixin",
     "MusicManagerMixin",
-    "PlayerRendererMixin",
-    "ignoreAdventureMode.ShowOutlineMixin"
+    "PlayerRendererMixin"
   ],
   "server": [
   ],

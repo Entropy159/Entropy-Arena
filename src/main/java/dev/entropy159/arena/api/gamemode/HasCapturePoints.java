@@ -1,0 +1,22 @@
+package dev.entropy159.arena.api.gamemode;
+
+import dev.entropy159.arena.api.capturePoint.CapturePoint;
+import dev.entropy159.arena.core.blocks.CapturePointBlock;
+import dev.entropy159.arena.api.map.ArenaMap;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+
+public interface HasCapturePoints<T extends CapturePoint> {
+    default ArrayList<T> calculateCapturePoints(ServerLevel level, ArenaMap currentMap, Function<BlockPos, T> getter) {
+        return new ArrayList<>(currentMap.getBlockPropertyMap(level, CapturePointBlock.VISIBLE).values().stream().reduce(new ArrayList<>(), (list, obj) -> {
+            list.addAll(obj);
+            return list;
+        }).stream().map(getter).toList());
+    }
+
+    List<T> getCapturePoints();
+}

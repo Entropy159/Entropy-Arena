@@ -1,0 +1,110 @@
+package dev.entropy159.arena.core.capturePoint;
+
+import dev.entropy159.arena.api.util.Notification;
+import dev.entropy159.arena.api.capturePoint.CapturePoint;
+import dev.entropy159.arena.core.gamemodes.KingOfTheHill;
+import dev.entropy159.entropylib.client.util.RenderingUtils;
+import dev.entropy159.entropylib.util.Utils;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.UUID;
+
+public class KOTHCapturePoint extends CapturePoint {
+    public static final StreamCodec<ByteBuf, KOTHCapturePoint> STREAM_CODEC = StreamCodec.of((buffer, point) -> point.encodeData(buffer), KOTHCapturePoint::decodeData);
+
+    private UUID king;
+
+    public KOTHCapturePoint(BlockPos pos) {
+        super(pos);
+    }
+
+    public @Nullable UUID getKing() {
+        return king;
+    }
+
+    public boolean setKing(UUID newKing) {
+        if (king != newKing) {
+            king = newKing;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int getCaptureRadius() {
+        return 7;
+    }
+
+    @Override
+    public float getCaptureIncrement() {
+        return super.getCaptureIncrement() * 2;
+    }
+
+    @Override
+    public void onLevelTick(ServerLevel level) {
+        super.onLevelTick(level);
+        List<ServerPlayer> contestants = getPlayersInRadius(level);
+        level.players().forEach(player -> player.setGlowingTag(contestants.contains(player)));
+        if (contestants.isEmpty()) {
+            resetCaptureProgress();
+            Player oldKing = getKing() == null ? null : level.getPlayerByUUID(getKing());
+            if (setKing(null) && oldKing != null) {
+                Notification.toAll(Component.translatable("message.arena.koth.hill_lost", oldKing.getDisplayName()).withStyle(ChatFormatting.RED));
+                Utils.playSoundForEveryone(level.getServer(), SoundEvents.BEACON_DEACTIVATE, SoundSource.AMBIENT);
+            }
+        } else if (contestants.size() == 1) {
+            if (tryIncrementCapture(level)) {
+                if (setKing(contestants.getFirst().getUUID())) {
+                    Notification.toAll(Component.translatable("message.arena.koth.new_king", contestants.getFirst().getDisplayName()).withStyle(ChatFormatting.GREEN));
+                    Utils.playSoundForEveryone(level.getServer(), SoundEvents.BEACON_ACTIVATE, SoundSource.AMBIENT);
+                }
+            }
+        }
+    }
+
+    @Override
+    public int getColor() {
+        boolean inPoint = isLocalPlayerInPoint();
+        boolean hasKing = getKing() != null;
+        boolean isKing = hasKing && Minecraft.getInstance().isLocalPlayer(getKing());
+        if (isKing) {
+            return KingOfTheHill.KING_COLOR;
+        }
+        float alpha = isBeingTaken() || isContested() || inPoint ? RenderingUtils.sineFromZeroToOne(6) : 0;
+        return Utils.lerpColors(0xFFFFFFFF, hasKing ? 0xFFFF0000 : KingOfTheHill.KING_COLOR, alpha);
+    }
+
+    public void encodeData(ByteBuf buffer) {
+        super.encodeData(buffer);
+        ByteBufCodecs.BOOL.encode(buffer, getKing() != null);
+        if (getKing() != null) UUIDUtil.STREAM_CODEC.encode(buffer, getKing());
+    }
+
+    public static KOTHCapturePoint decodeData(ByteBuf buffer) {
+        KOTHCapturePoint point = new KOTHCapturePoint(null);
+        point.decode(buffer);
+        if (ByteBufCodecs.BOOL.decode(buffer)) {
+            point.setKing(UUIDUtil.STREAM_CODEC.decode(buffer));
+        }
+        return point;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj) && obj instanceof KOTHCapturePoint other && other.getKing() == getKing();
+    }
+}

@@ -1,0 +1,32 @@
+package dev.entropy159.arena.core.mixin.team;
+
+import dev.entropy159.arena.api.util.ArenaTeam;
+import dev.entropy159.arena.core.registry.ArenaDataComponents;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.scores.PlayerTeam;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+
+import javax.annotation.Nullable;
+
+@Mixin(Entity.class)
+public abstract class EntityMixin {
+    @Shadow
+    @Nullable
+    public abstract PlayerTeam getTeam();
+
+    @ModifyReturnValue(method = "getTeamColor", at = @At("RETURN"))
+    private int correctColor(int original) {
+        ArenaTeam team = ArenaTeam.fromTeam(getTeam());
+        if ((Entity) (Object) this instanceof ItemEntity itemEntity) {
+            team = itemEntity.getItem().get(ArenaDataComponents.TEAM);
+        }
+        if (team != null) {
+            return team.getColor();
+        }
+        return original;
+    }
+}

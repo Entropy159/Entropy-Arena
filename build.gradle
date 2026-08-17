@@ -36,8 +36,14 @@ repositories {
         }
     }
 
-    flatDir {
-        dirs "libs"
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/entropy159/Entropy-Lib")
+
+        credentials {
+            username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user")
+            password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.token")
+        }
     }
 }
 
@@ -110,17 +116,12 @@ configurations {
     runtimeClasspath.extendsFrom localRuntime
 }
 
-jarJar {
-    enable()
-}
-
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
-    implementation "dev.entropy159:entropylib:${entropylib_version}"
+    implementation "dev.entropy159:entropylib:${entropylib_version}-+"
 
     implementation "com.tterrag.registrate:Registrate:${registrate_version}"
-    jarJar(group: 'com.tterrag.registrate', name: 'Registrate', version: "[${registrate_version},)")
 
     implementation "top.theillusivec4.curios:curios-neoforge:9.5.1+1.21.1"
 

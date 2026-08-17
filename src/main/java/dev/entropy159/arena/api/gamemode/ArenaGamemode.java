@@ -9,6 +9,7 @@ import dev.entropy159.arena.api.loadout.Loadout;
 import dev.entropy159.arena.api.loadout.LoadoutSerializer;
 import dev.entropy159.arena.api.loadout.LoadoutSerializerRegistry;
 import dev.entropy159.arena.api.map.ArenaMap;
+import dev.entropy159.arena.api.util.ArenaGameType;
 import dev.entropy159.arena.api.util.ArenaTeam;
 import dev.entropy159.arena.core.EntropyArena;
 import dev.entropy159.arena.core.blocks.CapturePointBlock;
@@ -104,10 +105,17 @@ public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<Are
         killStreak.put(player.getUUID(), 0);
         EventScheduler.schedule(1, () -> NeoForge.EVENT_BUS.post(new KillStreakEvent(player, oldValue, 0)));
         if (source.getEntity() instanceof ServerPlayer killer) {
+            if (killer == player) {
+                selfDeath(player);
+            }
             int oldKillerValue = killStreak.getOrDefault(killer.getUUID(), 0);
             killStreak.put(killer.getUUID(), oldKillerValue + 1);
             EventScheduler.schedule(1, () -> NeoForge.EVENT_BUS.post(new KillStreakEvent(killer, oldKillerValue, killStreak.get(killer.getUUID()))));
         }
+    }
+
+    public void selfDeath(ServerPlayer player) {
+
     }
 
     public Predicate<ItemStack> shouldDropOnDeath() {
@@ -167,8 +175,8 @@ public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<Are
         return list.isRandom();
     }
 
-    public boolean shouldWin(ServerLevel level, boolean timed, int timer, int targetScore) {
-        return timed ? timer == 0 : getHighestScore() >= targetScore;
+    public boolean shouldWin(ServerLevel level, ArenaGameType type, int timer, int targetScore) {
+        return type.isTimed() ? timer == 0 : getHighestScore() >= targetScore;
     }
 
     public void onJoin(ServerPlayer player) {

@@ -1,14 +1,14 @@
 package dev.entropy159.arena.client;
 
-import dev.entropy159.arena.api.util.Notification;
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.entropy159.arena.api.map.MapScreenshot;
+import dev.entropy159.arena.api.util.Notification;
 import dev.entropy159.arena.client.screen.LoadoutScreen;
 import dev.entropy159.arena.client.screen.VotingScreen;
 import dev.entropy159.arena.core.EntropyArena;
 import dev.entropy159.arena.core.config.ServerConfig;
 import dev.entropy159.arena.core.network.toServer.ScreenshotPacket;
 import dev.entropy159.arena.core.registry.ArenaDataComponents;
-import com.mojang.blaze3d.platform.InputConstants;
 import dev.entropy159.entropylib.client.util.RenderingUtils;
 import dev.entropy159.entropylib.client.util.ScreenAnchorPoint;
 import net.minecraft.ChatFormatting;
@@ -128,7 +128,7 @@ public class EntropyArenaClient {
     }
 
     private static Component getTimerText() {
-        return targetScore > 0 ? Component.translatable("hud.arena.target_score", targetScore) : Component.translatable((inLobby ? "hud.arena.interval" : "hud.arena.timer"), String.format("%02d:%02d", timer / 60, timer % 60));
+        return gameType.isTimed() ? Component.translatable((inLobby ? "hud.arena.interval" : "hud.arena.timer"), String.format("%02d:%02d", timer / 60, timer % 60)) : Component.translatable("hud.arena.target_score", targetScore);
     }
 
     private static void renderScores(GuiGraphics graphics) {

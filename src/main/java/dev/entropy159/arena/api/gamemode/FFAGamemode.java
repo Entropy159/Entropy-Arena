@@ -1,8 +1,9 @@
 package dev.entropy159.arena.api.gamemode;
 
+import dev.entropy159.arena.api.map.ArenaMap;
 import dev.entropy159.arena.api.util.ArenaTeam;
 import dev.entropy159.arena.api.util.Notification;
-import dev.entropy159.arena.api.map.ArenaMap;
+import dev.entropy159.arena.core.config.ServerConfig;
 import dev.entropy159.arena.core.network.toClient.ScoresPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
@@ -14,7 +15,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +37,7 @@ public abstract class FFAGamemode extends ArenaGamemode {
     @Override
     public void onMatchStart(ServerLevel level) {
         super.onMatchStart(level);
-        level.players().forEach(player -> scoreMap.put(player.getUUID(), 0));
+        level.players().forEach(player -> scoreMap.put(player.getUUID(), defaultScore(player)));
     }
 
     @Override
@@ -54,10 +54,10 @@ public abstract class FFAGamemode extends ArenaGamemode {
     }
 
     @Override
-    public void onDeath(ServerPlayer player, DamageSource source) {
-        super.onDeath(player, source);
-        if (source.getEntity() == player) {
-            setScore(player, Math.max(0, getScore(player) - 1));
+    public void selfDeath(ServerPlayer player) {
+        super.selfDeath(player);
+        if (ServerConfig.DEDUCT_POINTS_ON_SELF_DEATH.get()) {
+            incrementScore(player, -1);
         }
     }
 
@@ -84,7 +84,7 @@ public abstract class FFAGamemode extends ArenaGamemode {
     @Override
     public void onJoin(ServerPlayer player) {
         super.onJoin(player);
-        scoreMap.put(player.getUUID(), 0);
+        scoreMap.put(player.getUUID(), defaultScore(player));
     }
 
     @Override
@@ -93,7 +93,18 @@ public abstract class FFAGamemode extends ArenaGamemode {
         scoreMap.remove(player.getUUID());
     }
 
+    public int defaultScore(ServerPlayer player) {
+        return 0;
+    }
+
+    public boolean clampScore(ServerPlayer player) {
+        return true;
+    }
+
     public void setScore(ServerPlayer player, int score) {
+        if (score < 0 && clampScore(player)) {
+            score = 0;
+        }
         scoreMap.put(player.getUUID(), score);
         PacketDistributor.sendToAllPlayers(new ScoresPacket(getScoreText(player.serverLevel())));
     }
@@ -103,7 +114,11 @@ public abstract class FFAGamemode extends ArenaGamemode {
     }
 
     public void incrementScore(ServerPlayer player) {
-        setScore(player, getScore(player) + 1);
+        incrementScore(player, 1);
+    }
+
+    public void incrementScore(ServerPlayer player, int amount) {
+        setScore(player, getScore(player) + amount);
     }
 
     public List<Component> getScoreText(ServerLevel level) {

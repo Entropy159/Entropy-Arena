@@ -19,6 +19,7 @@ public class ClientData {
     public static boolean inLobby = true;
     public static int timer = 0;
     public static int targetScore = 0;
+    public static ArenaGameType gameType = ArenaGameType.TIMED;
     public static String currentMap;
     public static long lastRespawn = 0;
     public static ArenaGamemode currentGamemode;

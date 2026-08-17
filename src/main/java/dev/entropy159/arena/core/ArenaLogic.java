@@ -289,7 +289,7 @@ public class ArenaLogic {
         }
         if (data.inGame()) {
             data.currentGamemode.onLevelTick(currentLevel);
-            if (data.currentGamemode.shouldWin(currentLevel, data.gameType.isTimed(), data.timer, ServerConfig.TARGET_SCORE.get())) {
+            if (data.currentGamemode.shouldWin(currentLevel, data.gameType, data.timer, ServerConfig.TARGET_SCORE.get())) {
                 EntropyArena.LOGGER.info("Ending game!");
                 endMatch();
             }

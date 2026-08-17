@@ -120,14 +120,11 @@ dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
     implementation "dev.entropy159:entropylib:${entropylib_version}-+"
-
     implementation "com.tterrag.registrate:Registrate:${registrate_version}"
 
-    implementation "top.theillusivec4.curios:curios-neoforge:9.5.1+1.21.1"
-
-    implementation "maven.modrinth:ping-wheel:${ping_wheel_version}"
-
-    runtimeOnly "maven.modrinth:auth-me:v9.0.1+1.21.1-neoforge"
+    compileOnly "top.theillusivec4.curios:curios-neoforge:9.5.1+1.21.1"
+    compileOnly "maven.modrinth:ping-wheel:${ping_wheel_version}"
+    localRuntime "maven.modrinth:auth-me:v9.0.1+1.21.1-neoforge"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

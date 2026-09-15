@@ -14,6 +14,7 @@ import dev.entropy159.arena.core.registry.ArenaTags;
 import dev.entropy159.entropylib.events.IgnoreAdventureModeEvent;
 import dev.entropy159.entropylib.events.ItemEntityExplosionEvent;
 import dev.entropy159.entropylib.events.ShouldBlockBeInfiniteEvent;
+import dev.entropy159.entropylib.registry.EntropyComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -141,7 +142,7 @@ public class ArenaEvents {
 
     @SubscribeEvent
     public static void allowComponents(LoadoutComponentEvent event) {
-        List<DataComponentType<?>> allowedComponents = List.of(DataComponents.UNBREAKABLE, DataComponents.ENCHANTMENTS);
+        List<DataComponentType<?>> allowedComponents = List.of(DataComponents.UNBREAKABLE, DataComponents.ENCHANTMENTS, EntropyComponents.INFINITE.get());
 
         if (allowedComponents.contains(event.getComponent().type())) {
             event.setAllowed(true);

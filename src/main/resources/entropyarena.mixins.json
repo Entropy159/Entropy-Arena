@@ -18,7 +18,6 @@
   },
   "client": [
     "LivingEntityRendererMixin",
-    "MusicManagerMixin",
     "PlayerRendererMixin"
   ],
   "server": [

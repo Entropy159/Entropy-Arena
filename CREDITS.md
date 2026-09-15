@@ -1,7 +1,6 @@
 ## Code
-- Custom music logic adapted from [Music Control](https://github.com/sf-inc/music_control) mod
 - Disguise gamemode functionality from [Block Hunters](https://github.com/Scarlet-Demens/BlockHunters)
-- World to screen logic from [Ping Wheel](https://github.com/LukenSkyne/Minecraft-Ping-Wheel) mod
+- World to screen logic from [Ping Wheel](https://github.com/LukenSkyne/Minecraft-Ping-Wheel)
 
 ## Music
 Music found on Pixabay under Creative Commons license:

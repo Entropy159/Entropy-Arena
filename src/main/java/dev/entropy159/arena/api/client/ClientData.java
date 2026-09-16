@@ -2,6 +2,7 @@ package dev.entropy159.arena.api.client;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import dev.entropy159.arena.api.gamemode.ArenaGamemode;
+import dev.entropy159.arena.api.map.ArenaMap;
 import dev.entropy159.arena.api.map.ArenaMapInfo;
 import dev.entropy159.arena.api.util.ArenaGameType;
 import dev.entropy159.arena.api.util.Notification;
@@ -20,7 +21,7 @@ public class ClientData {
     public static int timer = 0;
     public static int targetScore = 0;
     public static ArenaGameType gameType = ArenaGameType.TIMED;
-    public static String currentMap;
+    public static ArenaMap currentMap;
     public static long lastRespawn = 0;
     public static ArenaGamemode currentGamemode;
 

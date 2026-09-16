@@ -65,7 +65,7 @@ public class ArenaData extends SavedData {
         } else {
             data.backupState = ArenaMapBackup.BackupState.NO_BACKUP;
         }
-        data.mapList.loadFromTag(tag.getCompound("mapList"));
+        data.mapList.loadFromTag(tag.getList("mapList", Tag.TAG_COMPOUND));
         data.loadouts = Utils.tagToHashMap(tag.getCompound("loadouts"), s -> s, t -> new Loadout((CompoundTag) t));
         data.itemLists = Utils.tagToHashMap(tag.getCompound("itemLists"), s -> s, t -> new ItemList((CompoundTag) t, provider));
         if (tag.contains("lobbyPos", CompoundTag.TAG_COMPOUND)) {
@@ -97,6 +97,9 @@ public class ArenaData extends SavedData {
     }
 
     public static ArenaData get(MinecraftServer server) {
+        if (server == null) {
+            return new ArenaData(null);
+        }
         ArenaData data = server.overworld().getDataStorage().computeIfAbsent(new Factory<>(() -> new ArenaData(server), (tag, registries) -> ArenaData.load(server, tag, registries)), EntropyArena.MODID);
         data.setDirty();
         return data;

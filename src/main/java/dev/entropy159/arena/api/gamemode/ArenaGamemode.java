@@ -9,6 +9,8 @@ import dev.entropy159.arena.api.loadout.Loadout;
 import dev.entropy159.arena.api.loadout.LoadoutSerializer;
 import dev.entropy159.arena.api.loadout.LoadoutSerializerRegistry;
 import dev.entropy159.arena.api.map.ArenaMap;
+import dev.entropy159.arena.api.randomizer.ItemRandomizer;
+import dev.entropy159.arena.api.randomizer.ItemRandomizerRegistry;
 import dev.entropy159.arena.api.util.ArenaGameType;
 import dev.entropy159.arena.api.util.ArenaTeam;
 import dev.entropy159.arena.core.EntropyArena;
@@ -16,8 +18,6 @@ import dev.entropy159.arena.core.blocks.CapturePointBlock;
 import dev.entropy159.arena.core.blocks.PedestalBlock;
 import dev.entropy159.arena.core.blocks.SpawnpointBlock;
 import dev.entropy159.arena.core.blocks.TeamBlock;
-import dev.entropy159.arena.core.config.ServerConfig;
-import dev.entropy159.arena.core.items.DisguiseItem;
 import dev.entropy159.arena.core.registry.ArenaDataComponents;
 import dev.entropy159.arena.core.registry.ArenaStatTypes;
 import dev.entropy159.entropylib.util.EventScheduler;
@@ -126,13 +126,22 @@ public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<Are
     }
 
     public void onGiveLoadout(ServerPlayer player, Loadout loadout) {
-        boolean blocksAllowed = ServerConfig.ALLOW_BLOCKS.get();
+        boolean blocksAllowed = ArenaData.get(player.server).currentMap.allowBlocks();
         LoadoutSerializerRegistry.forEachStack(player, (serializer, slot, stack) -> {
             if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof TeamBlock) {
                 serializer.setStack(player, slot, blocksAllowed ? TeamBlock.getStack(getTeamForBlock(player)) : ItemStack.EMPTY);
             }
             if (stack.has(ArenaDataComponents.ITEM_LIST)) {
                 applyItemList(player, serializer, slot, stack, 0);
+            }
+            var randomizers = stack.get(ArenaDataComponents.ITEM_RANDOMIZERS);
+            if (randomizers != null) {
+                for (ResourceLocation id : randomizers) {
+                    ItemRandomizer randomizer = ItemRandomizerRegistry.get(id);
+                    if (randomizer != null) {
+                        applyRandomizer(player, randomizer, serializer, slot, stack);
+                    }
+                }
             }
         });
     }
@@ -159,6 +168,10 @@ public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<Are
         }
     }
 
+    public void applyRandomizer(ServerPlayer player, ItemRandomizer randomizer, LoadoutSerializer serializer, int slot, ItemStack stack) {
+        randomizer.randomize(new ItemRandomizer.Context(player, stack, slot, serializer));
+    }
+
     public boolean isComponentAllowed(TypedDataComponent<?> component, ItemStack stack) {
         return NeoForge.EVENT_BUS.post(new LoadoutComponentEvent(component, stack)).isAllowed();
     }
@@ -168,11 +181,11 @@ public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<Are
     }
 
     public boolean isValidLoadout(ServerPlayer player, Loadout loadout) {
-        return !loadout.contains(player.serverLevel(), stack -> stack.getItem() instanceof DisguiseItem) && (loadout.getItemLists(player.serverLevel()).stream().anyMatch(this::isValidItemList) || loadout.getItemLists(player.serverLevel()).isEmpty());
+        return loadout.getItemLists(player.serverLevel()).stream().anyMatch(this::isValidItemList) || loadout.getItemLists(player.serverLevel()).isEmpty();
     }
 
     public boolean isValidItemList(ItemList list) {
-        return list.isRandom();
+        return list.getMode() != ItemList.Mode.ORDERED;
     }
 
     public boolean shouldWin(ServerLevel level, ArenaGameType type, int timer, int targetScore) {

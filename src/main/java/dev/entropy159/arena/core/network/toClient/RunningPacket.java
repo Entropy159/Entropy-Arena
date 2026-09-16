@@ -5,8 +5,7 @@ import dev.entropy159.arena.api.client.MusicControls;
 import dev.entropy159.arena.api.data.ArenaData;
 import dev.entropy159.arena.api.util.ArenaGameType;
 import dev.entropy159.arena.core.EntropyArena;
-import dev.entropy159.arena.core.config.ServerConfig;
-import io.netty.buffer.ByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -17,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 public record RunningPacket(boolean running, boolean lobby, int targetScore,
                             ArenaGameType gameType) implements CustomPacketPayload {
     public static final Type<RunningPacket> TYPE = new Type<>(EntropyArena.id("running"));
-    public static final StreamCodec<ByteBuf, RunningPacket> STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.BOOL, RunningPacket::running, ByteBufCodecs.BOOL, RunningPacket::lobby, ByteBufCodecs.INT, RunningPacket::targetScore, ArenaGameType.STREAM_CODEC, RunningPacket::gameType, RunningPacket::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, RunningPacket> STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.BOOL, RunningPacket::running, ByteBufCodecs.BOOL, RunningPacket::lobby, ByteBufCodecs.INT, RunningPacket::targetScore, ArenaGameType.STREAM_CODEC, RunningPacket::gameType, RunningPacket::new);
 
     @Override
     public @NotNull Type<? extends CustomPacketPayload> type() {
@@ -39,6 +38,6 @@ public record RunningPacket(boolean running, boolean lobby, int targetScore,
 
     public static RunningPacket fromData(MinecraftServer server) {
         ArenaData data = ArenaData.get(server);
-        return new RunningPacket(data.running, data.lobby, data.currentMap == null ? 0 : ServerConfig.TARGET_SCORE.get(), data.gameType);
+        return new RunningPacket(data.running, data.lobby, data.currentMap == null ? 0 : data.currentMap.getTargetScore(), data.gameType);
     }
 }

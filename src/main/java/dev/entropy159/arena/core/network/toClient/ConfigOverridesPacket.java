@@ -6,6 +6,7 @@ import com.electronwill.nightconfig.toml.TomlWriter;
 import dev.entropy159.arena.api.client.ClientData;
 import dev.entropy159.arena.core.EntropyArena;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -17,22 +18,8 @@ import java.util.Map;
 public record ConfigOverridesPacket(
         Map<String, CommentedConfig> overrides) implements CustomPacketPayload {
     public static final Type<ConfigOverridesPacket> TYPE = new Type<>(EntropyArena.id("config_overrides"));
-    public static final StreamCodec<FriendlyByteBuf, ConfigOverridesPacket> STREAM_CODEC = StreamCodec.of((buf, val) -> {
-        buf.writeInt(val.overrides.size());
-        val.overrides.forEach((modID, config) -> {
-            buf.writeUtf(modID);
-            buf.writeUtf(new TomlWriter().writeToString(config));
-        });
-    }, buf -> {
-        int size = buf.readInt();
-        Map<String, CommentedConfig> overrides = new HashMap<>();
-        for (int i = 0; i < size; i++) {
-            String modID = buf.readUtf();
-            String data = buf.readUtf();
-            overrides.put(modID, new TomlParser().parse(data));
-        }
-        return new ConfigOverridesPacket(overrides);
-    });
+    public static final StreamCodec<FriendlyByteBuf, Map<String, CommentedConfig>> CONFIG_MAP_STREAM_CODEC = ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, StreamCodec.of((buf, val) -> buf.writeUtf(new TomlWriter().writeToString(val)), buf -> new TomlParser().parse(buf.readUtf())));
+    public static final StreamCodec<FriendlyByteBuf, ConfigOverridesPacket> STREAM_CODEC = StreamCodec.composite(CONFIG_MAP_STREAM_CODEC, ConfigOverridesPacket::overrides, ConfigOverridesPacket::new);
 
     @Override
     public @NotNull Type<? extends CustomPacketPayload> type() {

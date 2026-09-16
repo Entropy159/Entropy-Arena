@@ -2,10 +2,7 @@ package dev.entropy159.arena.core.network;
 
 import dev.entropy159.arena.api.gamemode.GamemodeRegistry;
 import dev.entropy159.arena.core.network.toClient.*;
-import dev.entropy159.arena.core.network.toServer.LoadoutSelectPacket;
-import dev.entropy159.arena.core.network.toServer.MapVotePacket;
-import dev.entropy159.arena.core.network.toServer.ScreenshotPacket;
-import dev.entropy159.arena.core.network.toServer.TypeVotePacket;
+import dev.entropy159.arena.core.network.toServer.*;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -33,6 +30,10 @@ public class PacketRegistry {
         registrar.playToServer(MapVotePacket.TYPE, MapVotePacket.STREAM_CODEC, MapVotePacket::handle);
         registrar.playToServer(TypeVotePacket.TYPE, TypeVotePacket.STREAM_CODEC, TypeVotePacket::handle);
         registrar.playToServer(LoadoutSelectPacket.TYPE, LoadoutSelectPacket.STREAM_CODEC, LoadoutSelectPacket::handle);
+        registrar.playToServer(AdminMenuPacket.TYPE, AdminMenuPacket.STREAM_CODEC, AdminMenuPacket::handle);
+        registrar.playToServer(UpdateMapPacket.TYPE, UpdateMapPacket.STREAM_CODEC, UpdateMapPacket::handle);
+        registrar.playToServer(UpdateLoadoutPacket.TYPE, UpdateLoadoutPacket.STREAM_CODEC, UpdateLoadoutPacket::handle);
+        registrar.playToServer(LoadoutEditPacket.TYPE, LoadoutEditPacket.STREAM_CODEC, LoadoutEditPacket::handle);
 
         GamemodeRegistry.forEach(gamemode -> gamemode.registerPacket(registrar));
     }

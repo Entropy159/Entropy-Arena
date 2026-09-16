@@ -1,5 +1,7 @@
 package dev.entropy159.arena.core;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.logging.LogUtils;
 import dev.entropy159.arena.api.gamemode.GamemodeRegistry;
 import dev.entropy159.arena.api.registrate.ArenaRegistrate;
 import dev.entropy159.arena.core.commands.ArenaCommand;
@@ -9,9 +11,12 @@ import dev.entropy159.arena.core.commands.TeamSwitchCommand;
 import dev.entropy159.arena.core.config.ClientConfig;
 import dev.entropy159.arena.core.config.CommonConfig;
 import dev.entropy159.arena.core.config.ServerConfig;
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.logging.LogUtils;
 import dev.entropy159.arena.core.registry.*;
+import dev.entropy159.arena.core.ui.*;
+import dev.entropy159.arena.core.ui.loadout.LoadoutInfoUI;
+import dev.entropy159.arena.core.ui.loadout.LoadoutListUI;
+import dev.entropy159.arena.core.ui.map.MapInfoUI;
+import dev.entropy159.arena.core.ui.map.MapListUI;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
@@ -40,7 +45,9 @@ public class EntropyArena {
         ArenaDataComponents.init(bus);
         ArenaGamemodes.init();
         ArenaLoadoutSerializers.init();
+        ArenaItemRandomizers.init();
         ArenaStatTypes.init(bus);
+        ArenaMenuRegistry.init();
 
         container.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         container.registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC);

@@ -1,9 +1,8 @@
 package dev.entropy159.arena.core.gamemodes;
 
-import dev.entropy159.arena.api.util.ArenaTeam;
 import dev.entropy159.arena.api.gamemode.TeamGamemode;
 import dev.entropy159.arena.api.loadout.Loadout;
-import dev.entropy159.arena.core.items.DisguiseItem;
+import dev.entropy159.arena.api.util.ArenaTeam;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.UUIDUtil;
@@ -51,7 +50,7 @@ public class Disguise extends TeamGamemode {
 
     @Override
     public boolean isValidLoadout(ServerPlayer player, Loadout loadout) {
-        return getPlayerTeam(player) == ArenaTeam.RED ? super.isValidLoadout(player, loadout) : loadout.contains(player.serverLevel(), stack -> stack.getItem() instanceof DisguiseItem);
+        return getPlayerTeam(player) == ArenaTeam.RED ? super.isValidLoadout(player, loadout) : loadout.hasTag("disguised");
     }
 
     @Override

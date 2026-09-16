@@ -1,5 +1,6 @@
 package dev.entropy159.arena.core;
 
+import dev.entropy159.arena.api.client.ClientData;
 import dev.entropy159.arena.api.data.ArenaData;
 import dev.entropy159.arena.api.events.KillStreakEvent;
 import dev.entropy159.arena.api.events.LoadoutComponentEvent;
@@ -122,12 +123,13 @@ public class ArenaEvents {
         if (event.isPlacing()) {
             if (event.getHeldItem().getItem() instanceof BlockItem bi && bi.getBlock() instanceof TeamBlock) {
                 boolean isValid = !event.getState().is(ArenaTags.TEAM_BLOCK_INVALID);
-                if (event.getPlayer() instanceof ServerPlayer) {
-                    if (ServerConfig.ALLOW_BLOCKS.get()) {
+                if (event.getPlayer() instanceof ServerPlayer serverPlayer) {
+                    var map = ArenaData.get(serverPlayer.server).currentMap;
+                    if (map != null && map.allowBlocks()) {
                         event.setBypass(isValid);
                     }
                 } else {
-                    event.setBypass(isValid && ServerConfig.ALLOW_BLOCKS.get());
+                    event.setBypass(isValid && ClientData.currentMap != null && ClientData.currentMap.allowBlocks());
                 }
             }
             if (event.getHeldItem().getItem() instanceof DisguiseItem) {

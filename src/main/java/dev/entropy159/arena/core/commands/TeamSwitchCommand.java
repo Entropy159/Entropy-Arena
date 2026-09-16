@@ -19,7 +19,7 @@ import static net.minecraft.commands.Commands.literal;
 
 public class TeamSwitchCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(literal("switch").requires(CommandSourceStack::isPlayer).then(argument("team", StringArgumentType.word()).suggests(TEAM_SUGGESTIONS).executes(ctx -> {
+        dispatcher.register(literal("switchteam").requires(CommandSourceStack::isPlayer).then(argument("team", StringArgumentType.word()).suggests(TEAM_SUGGESTIONS).executes(ctx -> {
             ServerPlayer player = ctx.getSource().getPlayer();
             if (player != null) {
                 try {

@@ -112,9 +112,12 @@ public class ArenaDatagen {
         }
 
         REGISTRATE.addRawLang("key.categories." + MODID, "Entropy Arena");
-        REGISTRATE.addRawLang("key.next_music", "Next Music");
         REGISTRATE.addRawLang("key.map_voting", "Map Voting");
         REGISTRATE.addRawLang("key.loadouts", "Loadouts");
+        REGISTRATE.addRawLang("key.admin_menu", "Admin Menu");
+
+        REGISTRATE.addRawLang("randomizer." + MODID + ".enchantment", "Enchantment");
+        REGISTRATE.addRawLang("randomizer." + MODID + ".durability", "Durability");
 
         REGISTRATE.configLang("title", "Entropy Arena");
 
@@ -129,14 +132,13 @@ public class ArenaDatagen {
         REGISTRATE.configLang(ServerConfig.CONCURRENT_CHUNK_LOADS, "Concurrent Chunk Loads");
         REGISTRATE.configLang(ServerConfig.INTERVAL_SECONDS, "Interval Seconds");
         REGISTRATE.configLang(ServerConfig.RECAP_SECONDS, "Recap Seconds");
-        REGISTRATE.configLang(ServerConfig.ROUND_SECONDS, "Round Seconds");
-        REGISTRATE.configLang(ServerConfig.TARGET_SCORE, "Target Score");
+        REGISTRATE.configLang(ServerConfig.DEFAULT_ROUND_SECONDS, "Default Round Seconds");
+        REGISTRATE.configLang(ServerConfig.DEFAULT_TARGET_SCORE, "Default Target Score");
         REGISTRATE.configLang(ServerConfig.FRIENDLY_FIRE, "Friendly Fire");
         REGISTRATE.configLang(ServerConfig.HIDE_ENEMY_NAMETAGS, "Hide Enemy Nametags");
         REGISTRATE.configLang(ServerConfig.RESPAWN_DELAY, "Respawn Delay");
         REGISTRATE.configLang(ServerConfig.GIVE_SATURATION, "Give Saturation");
         REGISTRATE.configLang(ServerConfig.INFINITE_BLOCKS, "Infinite Blocks");
-        REGISTRATE.configLang(ServerConfig.ALLOW_BLOCKS, "Allow Blocks");
         REGISTRATE.configLang(ServerConfig.SPAWN_PROTECTION, "Spawn Protection");
         REGISTRATE.configLang(ServerConfig.MAX_HEALTH, "Max Health");
         REGISTRATE.configLang(ServerConfig.PREVENT_BLOCKS_ON_SPAWNS, "Prevent Blocks on Spawns");

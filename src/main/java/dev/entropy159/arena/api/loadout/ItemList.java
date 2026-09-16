@@ -24,9 +24,9 @@ import java.util.Random;
 public class ItemList {
     private final ArrayList<ItemStack> stacks = new ArrayList<>();
     private @Nullable TagKey<Item> tagKey = null;
-    private boolean isRandom = true;
+    private Mode mode = Mode.RANDOM;
 
-    public ItemList(ServerLevel level, BlockPos pos, boolean random, @Nullable TagKey<Item> tag) {
+    public ItemList(ServerLevel level, BlockPos pos, Mode mode, @Nullable TagKey<Item> tag) {
         if (tag != null) {
             tagKey = tag;
         } else {
@@ -35,11 +35,11 @@ public class ItemList {
                 saveFromBlock(handler);
             }
         }
-        isRandom = random;
+        this.mode = mode;
     }
 
     public ItemList(CompoundTag tag, HolderLookup.Provider provider) {
-        isRandom = tag.getBoolean("random");
+        mode = Mode.valueOf(tag.getString("mode").toUpperCase());
         if (tag.contains("tagKey")) {
             tagKey = TagKey.create(Registries.ITEM, ResourceLocation.parse(tag.getString("tagKey")));
         } else {
@@ -49,7 +49,7 @@ public class ItemList {
 
     public CompoundTag toTag(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
-        tag.putBoolean("random", isRandom);
+        tag.putString("mode", mode.name().toLowerCase());
         if (tagKey != null) {
             tag.putString("tagKey", tagKey.location().toString());
         } else {
@@ -65,7 +65,7 @@ public class ItemList {
             List<Holder<Item>> items = BuiltInRegistries.ITEM.getOrCreateTag(tagKey).stream().toList();
             return new ItemStack(items.get(new Random().nextInt(items.size())));
         }
-        return stacks.get(isRandom ? new Random().nextInt(stacks.size()) : index).copy();
+        return stacks.get(index).copy();
     }
 
     public int size() {
@@ -75,8 +75,8 @@ public class ItemList {
         return stacks.size();
     }
 
-    public boolean isRandom() {
-        return isRandom;
+    public Mode getMode() {
+        return mode;
     }
 
     public boolean isTag() {
@@ -103,5 +103,11 @@ public class ItemList {
         }
         stack.set(ArenaDataComponents.ITEM_LIST, name);
         return stack;
+    }
+
+    public enum Mode {
+        BOTH,
+        RANDOM,
+        ORDERED
     }
 }

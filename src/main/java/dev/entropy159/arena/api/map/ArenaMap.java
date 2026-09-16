@@ -6,21 +6,34 @@ import com.electronwill.nightconfig.core.utils.StringUtils;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.electronwill.nightconfig.toml.TomlParser;
 import com.electronwill.nightconfig.toml.TomlWriter;
+import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
+import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigSearch;
+import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.configurator.ui.SearchComponentConfigurator;
+import com.lowdragmc.lowdraglib2.utils.search.IResultHandler;
 import dev.entropy159.arena.api.data.ArenaData;
 import dev.entropy159.arena.api.gamemode.ArenaGamemode;
 import dev.entropy159.arena.api.gamemode.GamemodeRegistry;
+import dev.entropy159.arena.api.loadout.Loadout;
 import dev.entropy159.arena.api.util.ArenaTeam;
 import dev.entropy159.arena.core.EntropyArena;
 import dev.entropy159.arena.core.blocks.SpawnpointBlock;
+import dev.entropy159.arena.core.config.ServerConfig;
 import dev.entropy159.arena.core.network.toClient.ConfigOverridesPacket;
 import dev.entropy159.arena.core.network.toClient.TakeScreenshotPacket;
+import dev.entropy159.entropylib.util.Utils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -34,31 +47,91 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class ArenaMap {
-    private boolean enabled;
+public class ArenaMap implements IConfigurable {
+    public static final StreamCodec<RegistryFriendlyByteBuf, ArenaMap> STREAM_CODEC = StreamCodec.of((buf, map) -> {
+        buf.writeUtf(map.name);
+        buf.writeBoolean(map.enabled);
+        buf.writeResourceKey(map.dimension);
+        buf.writeResourceLocation(map.gamemodeID);
+        buf.writeBlockPos(map.corner1);
+        buf.writeBlockPos(map.corner2);
+        buf.writeLong(map.time);
+        buf.writeBoolean(map.raining);
+        buf.writeBoolean(map.thundering);
+        MapScreenshot.STREAM_CODEC.encode(buf, map.screenshot);
+        ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()).encode(buf, map.loadoutTagWhitelist);
+        ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()).encode(buf, map.loadoutTagBlacklist);
+        buf.writeUtf(map.loadoutTagMode.name());
+        ConfigOverridesPacket.CONFIG_MAP_STREAM_CODEC.encode(buf, map.configOverrides);
+        buf.writeInt(map.timer);
+        buf.writeInt(map.targetScore);
+        buf.writeBoolean(map.allowBlocks);
+    }, buf -> {
+        String name = buf.readUtf();
+        boolean enabled = buf.readBoolean();
+        ResourceKey<Level> dimension = buf.readResourceKey(Registries.DIMENSION);
+        ResourceLocation gamemode = buf.readResourceLocation();
+        BlockPos corner1 = buf.readBlockPos();
+        BlockPos corner2 = buf.readBlockPos();
+        long time = buf.readLong();
+        boolean raining = buf.readBoolean();
+        boolean thundering = buf.readBoolean();
+        MapScreenshot screenshot = MapScreenshot.STREAM_CODEC.decode(buf);
+        List<String> loadoutTagWhitelist = ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()).decode(buf);
+        List<String> loadoutTagBlacklist = ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()).decode(buf);
+        Loadout.TagMode loadoutTagMode = Loadout.TagMode.valueOf(buf.readUtf());
+        Map<String, CommentedConfig> configOverrides = ConfigOverridesPacket.CONFIG_MAP_STREAM_CODEC.decode(buf);
+        int timer = buf.readInt();
+        int targetScore = buf.readInt();
+        boolean allowBlocks = buf.readBoolean();
+        return new ArenaMap(name, enabled, dimension, gamemode, corner1, corner2, time, raining, thundering, screenshot, configOverrides, loadoutTagWhitelist, loadoutTagBlacklist, loadoutTagMode, timer, targetScore, allowBlocks);
+    });
+
     private final String name;
+    @Configurable(name = "Enabled")
+    private boolean enabled;
+    @Configurable(name = "Gamemode")
+    @ConfigSearch(searchConfiguratorMethod = "gamemodeConfigSearch")
+    private ResourceLocation gamemodeID;
+    @Configurable(name = "Corner 1")
+    private BlockPos corner1;
+    @Configurable(name = "Corner 2")
+    private BlockPos corner2;
     private final ResourceKey<Level> dimension;
-    private final ResourceLocation gamemodeID;
-    private final BlockPos corner1;
-    private final BlockPos corner2;
+    @Configurable(name = "Day Time")
     private long time;
+    @Configurable(name = "Raining")
     private boolean raining;
+    @Configurable(name = "Thundering")
     private boolean thundering;
+    @Configurable(name = "Loadout Tag Whitelist")
+    private List<String> loadoutTagWhitelist;
+    @Configurable(name = "Loadout Tag Blacklist")
+    private List<String> loadoutTagBlacklist;
+    @Configurable(name = "Loadout Tag Match")
+    private Loadout.TagMode loadoutTagMode;
+    @Configurable(name = "Timer")
+    private int timer;
+    @Configurable(name = "Target Score")
+    private int targetScore;
+    @Configurable(name = "Allow Blocks")
+    private boolean allowBlocks;
     private MapScreenshot screenshot;
     protected final HashMap<Property<?>, HashMap<Object, ArrayList<BlockPos>>> blockPropertyMap = new HashMap<>();
     private final Map<String, CommentedConfig> configOverrides;
 
     public ArenaMap(ServerLevel level, String name, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2) {
-        this(name, true, level.dimension(), gamemodeID, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), new HashMap<>());
+        this(name, true, level.dimension(), gamemodeID, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), new HashMap<>(), List.of("global"), List.of(), Loadout.TagMode.ANY, -1, -1, true);
     }
 
-    public ArenaMap(String name, boolean enabled, ResourceKey<Level> dimension, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, Map<String, CommentedConfig> configOverrides) {
+    public ArenaMap(String name, boolean enabled, ResourceKey<Level> dimension, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, Map<String, CommentedConfig> configOverrides, List<String> tagWhitelist, List<String> tagBlacklist, Loadout.TagMode tagMode, int timer, int targetScore, boolean allowBlocks) {
         this.name = name;
         this.enabled = enabled;
         this.dimension = dimension;
@@ -70,6 +143,12 @@ public class ArenaMap {
         this.thundering = thundering;
         this.screenshot = screenshot;
         this.configOverrides = configOverrides;
+        loadoutTagWhitelist = tagWhitelist;
+        loadoutTagBlacklist = tagBlacklist;
+        loadoutTagMode = tagMode;
+        this.timer = timer;
+        this.targetScore = targetScore;
+        this.allowBlocks = allowBlocks;
     }
 
     public @Nullable ServerLevel getLevel() {
@@ -131,6 +210,10 @@ public class ArenaMap {
 
     public void setScreenshot(MapScreenshot newScreenshot) {
         screenshot = newScreenshot;
+    }
+
+    public MapScreenshot getScreenshot() {
+        return screenshot;
     }
 
     public void load(ServerLevel level) {
@@ -214,6 +297,12 @@ public class ArenaMap {
             configs.putString(modID, configString);
         });
         tag.put("configOverrides", configs);
+        tag.putString("loadoutTagMode", loadoutTagMode.name().toLowerCase());
+        tag.put("loadoutTagWhitelist", Utils.listToTag(loadoutTagWhitelist, StringTag::valueOf));
+        tag.put("loadoutTagBlacklist", Utils.listToTag(loadoutTagBlacklist, StringTag::valueOf));
+        tag.putInt("timer", timer);
+        tag.putInt("targetScore", targetScore);
+        tag.putBoolean("allowBlocks", allowBlocks);
         return tag;
     }
 
@@ -238,7 +327,18 @@ public class ArenaMap {
                 configOverrides.put(key, new TomlParser().parse(configs.getString(key)));
             }
         }
-        return new ArenaMap(name, enabled, dimension, gamemode, corner1, corner2, time, raining, thundering, screenshot, configOverrides);
+        List<String> tagWhitelist = Utils.tagToArrayList(tag.getList("loadoutTagWhitelist", CompoundTag.TAG_STRING), Tag::getAsString);
+        List<String> tagBlacklist = Utils.tagToArrayList(tag.getList("loadoutTagBlacklist", CompoundTag.TAG_STRING), Tag::getAsString);
+        Loadout.TagMode tagMode = Loadout.TagMode.ANY;
+        try {
+            tagMode = Loadout.TagMode.valueOf(tag.getString("loadoutTagMode").toUpperCase());
+        } catch (IllegalArgumentException e) {
+            EntropyArena.LOGGER.error("Found invalid loadout tag mode loading map {}", name);
+        }
+        int timer = tag.getInt("timer");
+        int targetScore = tag.getInt("targetScore");
+        boolean allowblocks = tag.getBoolean("allowBlocks");
+        return new ArenaMap(name, enabled, dimension, gamemode, corner1, corner2, time, raining, thundering, screenshot, configOverrides, tagWhitelist, tagBlacklist, tagMode, timer, targetScore, allowblocks);
     }
 
     public String getName() {
@@ -257,9 +357,7 @@ public class ArenaMap {
                 .append(Component.literal(", dimension: ").withStyle(ChatFormatting.GRAY))
                 .append(Component.literal(dimension.location().toString()))
                 .append(Component.literal(", ").withStyle(ChatFormatting.GRAY))
-                .append(Component.translatable("arena." + (enabled ? "enabled" : "disabled")).withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED))
-                .append(Component.literal(", config overrides: ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(configOverrides.values().stream().map(config -> config.entrySet().stream().filter(entry -> !(entry.getValue() instanceof Config)).toList().size()).reduce(0, Integer::sum).toString()).withStyle(ChatFormatting.DARK_PURPLE));
+                .append(Component.translatable("arena." + (enabled ? "enabled" : "disabled")).withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED));
     }
 
     public ArenaMapInfo getInfo(int votes) {
@@ -299,5 +397,51 @@ public class ArenaMap {
 
     public ResourceKey<Level> getDimension() {
         return dimension;
+    }
+
+    public boolean validLoadoutTag(String tag) {
+        return loadoutTagWhitelist.contains(tag.toLowerCase()) && !loadoutTagBlacklist.contains(tag.toLowerCase());
+    }
+
+    public boolean isValidLoadout(Loadout value) {
+        return switch (loadoutTagMode) {
+            case ANY -> value.getTags().stream().anyMatch(this::validLoadoutTag);
+            case ALL -> value.getTags().stream().allMatch(this::validLoadoutTag);
+        };
+    }
+
+    public int getTimer() {
+        return timer < 0 ? ServerConfig.DEFAULT_ROUND_SECONDS.get() : timer;
+    }
+
+    public int getTargetScore() {
+        return targetScore < 0 ? ServerConfig.DEFAULT_TARGET_SCORE.get() : targetScore;
+    }
+
+    public boolean allowBlocks() {
+        return allowBlocks;
+    }
+
+    private SearchComponentConfigurator.ISearchConfigurator<ResourceLocation> gamemodeConfigSearch() {
+        return new SearchComponentConfigurator.ISearchConfigurator<>() {
+            @Override
+            public @NotNull ResourceLocation defaultValue() {
+                return GamemodeRegistry.NONE_ID;
+            }
+
+            @Override
+            public @NotNull String resultText(@NotNull ResourceLocation value) {
+                return Optional.ofNullable(GamemodeRegistry.REGISTRY.get(value)).map(mode -> mode.getName().getString()).orElse("Invalid!");
+            }
+
+            @Override
+            public void search(String word, IResultHandler<ResourceLocation> searchHandler) {
+                GamemodeRegistry.forEach(gamemode -> {
+                    if (gamemode.getRegistryID().toString().contains(word)) {
+                        searchHandler.accept(gamemode.getRegistryID());
+                    }
+                });
+            }
+        };
     }
 }

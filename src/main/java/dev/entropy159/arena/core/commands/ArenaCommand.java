@@ -2,6 +2,12 @@ package dev.entropy159.arena.core.commands;
 
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.toml.TomlParser;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.entropy159.arena.api.data.ArenaData;
 import dev.entropy159.arena.api.gamemode.GamemodeRegistry;
 import dev.entropy159.arena.api.map.ArenaMap;
@@ -10,12 +16,7 @@ import dev.entropy159.arena.core.ArenaLogic;
 import dev.entropy159.arena.core.network.toClient.TakeScreenshotPacket;
 import dev.entropy159.arena.core.registry.ArenaDataComponents;
 import dev.entropy159.arena.core.registry.ArenaItems;
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import dev.entropy159.arena.core.ui.OverviewUI;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
@@ -42,6 +43,7 @@ public class ArenaCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(literal("arena")
                 .requires(ctx -> ctx.hasPermission(2))
+                .then(literal("menu").executes(ArenaCommand::openMenu))
                 .then(literal("start").executes(ArenaCommand::start))
                 .then(literal("stop").executes(ArenaCommand::stop))
                 .then(literal("setLobbyPos")
@@ -280,6 +282,13 @@ public class ArenaCommand {
             }
         }
         return 0;
+    }
+
+    private static int openMenu(CommandContext<CommandSourceStack> ctx) {
+        if (ctx.getSource().getPlayer() != null) {
+            OverviewUI.open(ctx.getSource().getPlayer());
+        }
+        return 1;
     }
 
     private static String getFilterText(SuggestionsBuilder builder) {

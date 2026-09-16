@@ -14,9 +14,10 @@ import java.util.function.Predicate;
 public class LoadoutSerializerRegistry {
     private static final HashMap<String, LoadoutSerializer> REGISTRY = new HashMap<>();
 
-    public static void addSerializer(String name, LoadoutSerializer serializer) {
-        if (REGISTRY.containsKey(name)) return;
+    public static boolean addSerializer(String name, LoadoutSerializer serializer) {
+        if (REGISTRY.containsKey(name)) return false;
         REGISTRY.put(name, serializer);
+        return true;
     }
 
     public static void forEach(BiConsumer<String, LoadoutSerializer> consumer) {

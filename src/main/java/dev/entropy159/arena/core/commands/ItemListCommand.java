@@ -1,11 +1,11 @@
 package dev.entropy159.arena.core.commands;
 
-import dev.entropy159.arena.api.data.ArenaData;
-import dev.entropy159.arena.api.loadout.ItemList;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import dev.entropy159.arena.api.data.ArenaData;
+import dev.entropy159.arena.api.loadout.ItemList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
@@ -29,16 +29,12 @@ public class ItemListCommand {
                 .then(literal("add")
                         .then(argument("name", StringArgumentType.string())
                                 .then(argument("pos", BlockPosArgument.blockPos())
-                                        .executes(ctx -> addList(ctx, true, null)))))
-                .then(literal("addOrdered")
-                        .then(argument("name", StringArgumentType.string())
-                                .then(argument("pos", BlockPosArgument.blockPos())
-                                        .executes(ctx -> addList(ctx, false, null)))))
+                                        .executes(ctx -> addList(ctx, ItemList.Mode.BOTH, null)))))
                 .then(literal("addTag")
                         .then(argument("name", StringArgumentType.string())
                                 .then(argument("tag", ResourceLocationArgument.id())
                                         .suggests(ITEM_TAGS)
-                                        .executes(ctx -> addList(ctx, true, ResourceLocationArgument.getId(ctx, "tag"))))))
+                                        .executes(ctx -> addList(ctx, ItemList.Mode.RANDOM, ResourceLocationArgument.getId(ctx, "tag"))))))
                 .then(literal("remove")
                         .then(argument("name", StringArgumentType.string())
                                 .suggests(ITEM_LISTS)
@@ -60,13 +56,13 @@ public class ItemListCommand {
                                 .executes(ItemListCommand::getListItem))));
     }
 
-    private static int addList(CommandContext<CommandSourceStack> ctx, boolean random, @Nullable ResourceLocation tagLocation) {
+    private static int addList(CommandContext<CommandSourceStack> ctx, ItemList.Mode mode, @Nullable ResourceLocation tagLocation) {
         String name = StringArgumentType.getString(ctx, "name");
         BlockPos pos = tagLocation == null ? BlockPosArgument.getBlockPos(ctx, "pos") : null;
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         TagKey<Item> tagKey = tagLocation == null ? null : TagKey.create(Registries.ITEM, tagLocation);
         if (!data.itemLists.containsKey(name)) {
-            data.itemLists.put(name, new ItemList(ctx.getSource().getLevel(), pos, random, tagKey));
+            data.itemLists.put(name, new ItemList(ctx.getSource().getLevel(), pos, mode, tagKey));
             ctx.getSource().sendSuccess(() -> Component.translatable("message.arena.added_item_list", name).withStyle(ChatFormatting.GREEN), true);
             return 1;
         }

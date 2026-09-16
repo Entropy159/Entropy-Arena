@@ -55,6 +55,6 @@ public class Progression extends FFAGamemode {
 
     @Override
     public boolean isValidItemList(ItemList list) {
-        return !list.isRandom();
+        return list.getMode() != ItemList.Mode.RANDOM;
     }
 }

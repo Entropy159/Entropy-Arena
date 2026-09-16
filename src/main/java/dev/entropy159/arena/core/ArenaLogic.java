@@ -148,7 +148,6 @@ public class ArenaLogic {
         }
         PacketDistributor.sendToAllPlayers(RunningPacket.fromData(server));
         PacketDistributor.sendToAllPlayers(GameInfoPacket.fromData(data));
-        Utils.playSoundForEveryone(server, SoundEvents.PLAYER_LEVELUP, SoundSource.AMBIENT);
         NeoForge.EVENT_BUS.post(new MatchEndEvent.Post(currentLevel));
         if (data.lobbyPos != null) {
             ServerLevel lobbyLevel = server.getLevel(data.lobbyPos.dimension());
@@ -208,7 +207,7 @@ public class ArenaLogic {
         }
         Notification.toAll(Component.translatable("message.arena.map_info", data.currentMap.getName()).withStyle(ChatFormatting.YELLOW).append(data.currentGamemode.getName()));
         if (data.gameType == ArenaGameType.TIMED) {
-            data.timer = ServerConfig.ROUND_SECONDS.get();
+            data.timer = data.currentMap.getTimer();
         }
         PacketDistributor.sendToAllPlayers(GameInfoPacket.fromData(data));
         data.currentGamemode.onMatchStart(currentLevel);
@@ -289,7 +288,7 @@ public class ArenaLogic {
         }
         if (data.inGame()) {
             data.currentGamemode.onLevelTick(currentLevel);
-            if (data.currentGamemode.shouldWin(currentLevel, data.gameType, data.timer, ServerConfig.TARGET_SCORE.get())) {
+            if (data.currentGamemode.shouldWin(currentLevel, data.gameType, data.timer, data.currentMap.getTargetScore())) {
                 EntropyArena.LOGGER.info("Ending game!");
                 endMatch();
             }
@@ -366,6 +365,10 @@ public class ArenaLogic {
     public void giveStarterGear(ServerPlayer player) {
         if (data.running && !data.lobby) {
             Map<String, Loadout> validLoadouts = getValidLoadouts(player);
+            if (validLoadouts.isEmpty()) {
+                EntropyArena.LOGGER.error("No valid loadouts for {}! Map {}, gamemode {}", player.getScoreboardName(), data.currentMap.getName(), data.currentGamemode.getName().getString());
+                return;
+            }
             Loadout loadout = validLoadouts.get(data.loadoutSelections.getOrDefault(player.getUUID(), validLoadouts.keySet().stream().collect(Collectors.collectingAndThen(Collectors.toList(), l -> {
                 Collections.shuffle(l);
                 return l;
@@ -377,7 +380,7 @@ public class ArenaLogic {
     }
 
     public Map<String, Loadout> getValidLoadouts(ServerPlayer player) {
-        return data.loadouts.entrySet().stream().filter(entry -> entry.getValue().isEnabled() && data.currentGamemode.isValidLoadout(player, entry.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return data.loadouts.entrySet().stream().filter(entry -> entry.getValue().isEnabled() && data.currentMap.isValidLoadout(entry.getValue()) && data.currentGamemode.isValidLoadout(player, entry.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public void onJoin(ServerPlayer player) {
@@ -404,5 +407,13 @@ public class ArenaLogic {
 
     public boolean isSpawnProtected(ServerPlayer player) {
         return data.running && (data.lobby || data.spawnProtection.getOrDefault(player.getUUID(), 0L) + ServerConfig.SPAWN_PROTECTION.get() * 20L >= currentLevel.getGameTime());
+    }
+
+    public void updateMap(ArenaMap newMap) {
+        data.mapList.replaceMap(newMap);
+    }
+
+    public void updateLoadout(String name, Loadout loadout) {
+        data.loadouts.get(name).updateFrom(loadout);
     }
 }

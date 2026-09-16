@@ -7,6 +7,7 @@ import dev.entropy159.arena.client.screen.LoadoutScreen;
 import dev.entropy159.arena.client.screen.VotingScreen;
 import dev.entropy159.arena.core.EntropyArena;
 import dev.entropy159.arena.core.config.ServerConfig;
+import dev.entropy159.arena.core.network.toServer.AdminMenuPacket;
 import dev.entropy159.arena.core.network.toServer.ScreenshotPacket;
 import dev.entropy159.arena.core.registry.ArenaDataComponents;
 import dev.entropy159.entropylib.client.util.RenderingUtils;
@@ -16,6 +17,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -43,6 +45,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static dev.entropy159.arena.api.client.ClientData.*;
@@ -57,6 +60,7 @@ public class EntropyArenaClient {
 
     public static final Lazy<KeyMapping> MAP_VOTING = Lazy.of(() -> new KeyMapping("key.map_voting", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, "key.categories." + EntropyArena.MODID));
     public static final Lazy<KeyMapping> LOADOUTS = Lazy.of(() -> new KeyMapping("key.loadouts", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_L, "key.categories." + EntropyArena.MODID));
+    public static final Lazy<KeyMapping> ADMIN_MENU = Lazy.of(() -> new KeyMapping("key.admin_menu", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_BACKSLASH, "key.categories." + EntropyArena.MODID));
 
     public EntropyArenaClient(ModContainer container) {
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
@@ -66,6 +70,7 @@ public class EntropyArenaClient {
     public static void keybinds(RegisterKeyMappingsEvent event) {
         event.register(MAP_VOTING.get());
         event.register(LOADOUTS.get());
+        event.register(ADMIN_MENU.get());
     }
 
     @SubscribeEvent
@@ -80,12 +85,21 @@ public class EntropyArenaClient {
                 openLoadoutScreen();
             }
         }
+        while (ADMIN_MENU.get().consumeClick()) {
+            PacketDistributor.sendToServer(new AdminMenuPacket());
+        }
     }
 
     @SubscribeEvent
     public static void modifyTooltips(ItemTooltipEvent event) {
         if (event.getItemStack().has(ArenaDataComponents.ITEM_LIST)) {
             event.getToolTip().add(Component.translatable("tooltip.arena.item_list", event.getItemStack().get(ArenaDataComponents.ITEM_LIST)));
+        }
+        List<ResourceLocation> randomizers = event.getItemStack().get(ArenaDataComponents.ITEM_RANDOMIZERS);
+        if (randomizers != null) {
+            for (ResourceLocation id : randomizers) {
+                event.getToolTip().add(Component.literal("Randomizer: ").withStyle(ChatFormatting.GRAY).append(Component.literal(id.toString()).withStyle(ChatFormatting.YELLOW)));
+            }
         }
     }
 
@@ -111,7 +125,7 @@ public class EntropyArenaClient {
                 RenderingUtils.renderText(graphics, getTimerText(), ScreenAnchorPoint.TOP_LEFT);
                 renderScores(graphics);
                 if (currentMap != null && currentGamemode != null) {
-                    RenderingUtils.renderText(graphics, Component.literal(currentMap).withStyle(ChatFormatting.AQUA), ScreenAnchorPoint.BOTTOM_LEFT);
+                    RenderingUtils.renderText(graphics, Component.literal(currentMap.getName()).withStyle(ChatFormatting.AQUA), ScreenAnchorPoint.BOTTOM_LEFT);
                     RenderingUtils.renderText(graphics, currentGamemode.getName().copy().withStyle(ChatFormatting.YELLOW), ScreenAnchorPoint.BOTTOM_LEFT);
                     currentGamemode.onClientRender(graphics, tracker);
                 }
@@ -128,7 +142,7 @@ public class EntropyArenaClient {
     }
 
     private static Component getTimerText() {
-        return gameType.isTimed() ? Component.translatable((inLobby ? "hud.arena.interval" : "hud.arena.timer"), String.format("%02d:%02d", timer / 60, timer % 60)) : Component.translatable("hud.arena.target_score", targetScore);
+        return gameType.isTimed() || inLobby ? Component.translatable((inLobby ? "hud.arena.interval" : "hud.arena.timer"), String.format("%02d:%02d", timer / 60, timer % 60)) : Component.translatable("hud.arena.target_score", targetScore);
     }
 
     private static void renderScores(GuiGraphics graphics) {

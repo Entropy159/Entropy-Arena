@@ -17,7 +17,9 @@ version = mod_version
 group = mod_group_id
 
 repositories {
-    maven { url = "https://maven.ithundxr.dev/snapshots" }
+    maven { url = "https://maven.ithundxr.dev/snapshots" } //Registrate
+
+    maven { url = "https://maven.firstdark.dev/snapshots" } //LDLib
 
     maven {
         name = "Illusive Soulworks maven"
@@ -121,6 +123,7 @@ dependencies {
 
     implementation "dev.entropy159:entropylib:${entropylib_version}-+"
     implementation "com.tterrag.registrate:Registrate:${registrate_version}"
+    implementation "com.lowdragmc.ldlib2:ldlib2-neoforge-${minecraft_version}:${ldlib_version}:all"
 
     compileOnly "top.theillusivec4.curios:curios-neoforge:9.5.1+1.21.1"
     compileOnly "maven.modrinth:ping-wheel:${ping_wheel_version}"
@@ -142,6 +145,7 @@ tasks.withType(ProcessResources).configureEach {
             mod_license            : mod_license,
             mod_version            : mod_version,
             entropylib_version     : entropylib_version,
+            ldlib_version          : ldlib_version,
     ]
     inputs.properties replaceProperties
 

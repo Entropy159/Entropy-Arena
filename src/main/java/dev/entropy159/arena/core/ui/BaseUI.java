@@ -12,11 +12,12 @@ import com.lowdragmc.lowdraglib2.gui.ui.styletemplate.Sprites;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class BaseUI {
     public static ModularUI createDefaulted(Player player, String title, Consumer<UIElement> children) {
-        return createDefaulted(player, Component.literal(title), children);
+        return createDefaulted(player, Optional.ofNullable(title).map(Component::literal).orElse(null), children);
     }
 
     public static ModularUI createDefaulted(Player player, Component title, Consumer<UIElement> children) {

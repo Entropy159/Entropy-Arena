@@ -6,39 +6,41 @@ import com.lowdragmc.lowdraglib2.gui.ui.elements.Inspector;
 import com.lowdragmc.lowdraglib2.utils.TagBuilder;
 import dev.entropy159.arena.api.data.ArenaData;
 import dev.entropy159.arena.api.map.ArenaMap;
+import dev.entropy159.arena.api.ui.PlayerUIWithData;
 import dev.entropy159.arena.core.ArenaLogic;
 import dev.entropy159.arena.core.EntropyArena;
-import dev.entropy159.arena.core.network.toServer.UpdateMapPacket;
 import dev.entropy159.arena.core.ui.BaseUI;
-import dev.entropy159.entropylib.ui.CustomPlayerUIMenuType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
-public class MapInfoUI extends CustomPlayerUIMenuType.CustomPlayerUIHolder {
+public class MapInfoUI extends PlayerUIWithData.DataUIHolder {
     private static final ResourceLocation ID = EntropyArena.id("mapinfo");
 
-    private ArenaMap map;
+    private final ArenaMap map;
+
+    public MapInfoUI(Player player, RegistryFriendlyByteBuf buf) {
+        super(Component.literal("Map Info"));
+        map = ArenaMap.STREAM_CODEC.decode(buf);
+    }
 
     @Override
     public @NotNull ModularUI createUI(@NotNull Player player) {
         if (map == null) {
-            return BaseUI.createDefaulted(player, "Null", root -> {
+            return BaseUI.createDefaulted(player, root -> {
             });
         }
-        return BaseUI.createDefaulted(player, map.getName(), root -> {
+        return BaseUI.createDefaulted(player, root -> {
             var inspector = new Inspector();
             root.addChild(inspector);
-            inspector.inspect(map, configurator -> {
-                if (FMLEnvironment.dist.isClient()) {
-                    PacketDistributor.sendToServer(new UpdateMapPacket(map));
-                } else {
-                    ArenaLogic.get(ServerLifecycleHooks.getCurrentServer()).updateMap(map);
+            inspector.inspect(map, configurator -> inspector.sendMessage("update", TagBuilder.compound().add("map", map.toTag()).build()));
+            inspector.onMessage("update", tag -> {
+                if (player instanceof ServerPlayer serverPlayer) {
+                    ArenaLogic.get(serverPlayer.getServer()).updateMap(ArenaMap.fromTag(tag.getCompound("map")));
                 }
             });
 
@@ -71,20 +73,13 @@ public class MapInfoUI extends CustomPlayerUIMenuType.CustomPlayerUIHolder {
         });
     }
 
-    @Override
-    public void loadData(@NotNull RegistryFriendlyByteBuf buf) {
-        map = ArenaMap.STREAM_CODEC.decode(buf);
-    }
-
-    public static void write(ArenaMap map, RegistryFriendlyByteBuf buf) {
-        ArenaMap.STREAM_CODEC.encode(buf, map);
-    }
-
     public static void open(Player player, ArenaMap map) {
-        CustomPlayerUIMenuType.openUI(player, ID, buf -> write(map, buf));
+        PlayerUIWithData.openUI(player, ID, buf -> {
+            ArenaMap.STREAM_CODEC.encode(buf, map);
+        });
     }
 
     public static void register() {
-        CustomPlayerUIMenuType.register(ID, player -> new MapInfoUI());
+        PlayerUIWithData.register(ID, MapInfoUI::new);
     }
 }

@@ -11,8 +11,8 @@ import java.util.Random;
 
 public class ArenaItemRandomizers {
     public static void init() {
-        ItemRandomizerRegistry.addRandomizer(EntropyArena.id("enchantment"), ComponentRandomizer.fromRange(DataComponents.ENCHANTMENTS, ctx -> ctx.player().level().registryAccess().registry(Registries.ENCHANTMENT).map(registry -> registry.holders().filter(ctx.stack()::supportsEnchantment).map(enchant -> {
-            var enchants = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+        ItemRandomizerRegistry.addRandomizer(EntropyArena.id("enchantment"), ComponentRandomizer.fromRange(DataComponents.ENCHANTMENTS, ctx -> ctx.player().level().registryAccess().registry(Registries.ENCHANTMENT).map(registry -> registry.holders().filter(ctx.stack()::supportsEnchantment).filter(enchant -> ctx.stack().getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY).getLevel(enchant) == 0).map(enchant -> {
+            var enchants = new ItemEnchantments.Mutable(ctx.stack().getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY));
             enchants.set(enchant, new Random().nextInt(enchant.value().getMaxLevel()) + 1);
             return enchants.toImmutable();
         }).toList()).orElse(null)));

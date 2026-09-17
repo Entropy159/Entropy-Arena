@@ -31,9 +31,6 @@ public class PacketRegistry {
         registrar.playToServer(TypeVotePacket.TYPE, TypeVotePacket.STREAM_CODEC, TypeVotePacket::handle);
         registrar.playToServer(LoadoutSelectPacket.TYPE, LoadoutSelectPacket.STREAM_CODEC, LoadoutSelectPacket::handle);
         registrar.playToServer(AdminMenuPacket.TYPE, AdminMenuPacket.STREAM_CODEC, AdminMenuPacket::handle);
-        registrar.playToServer(UpdateMapPacket.TYPE, UpdateMapPacket.STREAM_CODEC, UpdateMapPacket::handle);
-        registrar.playToServer(UpdateLoadoutPacket.TYPE, UpdateLoadoutPacket.STREAM_CODEC, UpdateLoadoutPacket::handle);
-        registrar.playToServer(LoadoutEditPacket.TYPE, LoadoutEditPacket.STREAM_CODEC, LoadoutEditPacket::handle);
 
         GamemodeRegistry.forEach(gamemode -> gamemode.registerPacket(registrar));
     }

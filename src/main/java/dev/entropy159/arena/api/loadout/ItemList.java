@@ -8,6 +8,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
@@ -22,11 +25,44 @@ import java.util.List;
 import java.util.Random;
 
 public class ItemList {
-    private final ArrayList<ItemStack> stacks = new ArrayList<>();
+    public static final StreamCodec<RegistryFriendlyByteBuf, ItemList> STREAM_CODEC = StreamCodec.of((buf, val) -> {
+        buf.writeUtf(val.name);
+        buf.writeEnum(val.mode);
+        boolean hasTag = val.tagKey != null;
+        buf.writeBoolean(hasTag);
+        if (hasTag) {
+            buf.writeResourceLocation(val.tagKey.location());
+        }
+        ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, val.stacks);
+    }, buf -> {
+        String name = buf.readUtf();
+        Mode mode = buf.readEnum(Mode.class);
+        TagKey<Item> tagKey = null;
+        if (buf.readBoolean()) {
+            tagKey = TagKey.create(Registries.ITEM, buf.readResourceLocation());
+        }
+        List<ItemStack> stacks = ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
+        return new ItemList(stacks, name, tagKey, mode);
+    });
+
+    private final String name;
+    private List<ItemStack> stacks = new ArrayList<>();
     private @Nullable TagKey<Item> tagKey = null;
     private Mode mode = Mode.RANDOM;
 
-    public ItemList(ServerLevel level, BlockPos pos, Mode mode, @Nullable TagKey<Item> tag) {
+    private ItemList(List<ItemStack> stacks, String name, @Nullable TagKey<Item> tagKey, Mode mode) {
+        this.name = name;
+        this.stacks = stacks;
+        this.tagKey = tagKey;
+        this.mode = mode;
+    }
+
+    public ItemList(String name, Mode mode, @Nullable TagKey<Item> tagKey) {
+        this(new ArrayList<>(), name, tagKey, mode);
+    }
+
+    public ItemList(ServerLevel level, String name, BlockPos pos, Mode mode, @Nullable TagKey<Item> tag) {
+        this.name = name;
         if (tag != null) {
             tagKey = tag;
         } else {
@@ -39,6 +75,7 @@ public class ItemList {
     }
 
     public ItemList(CompoundTag tag, HolderLookup.Provider provider) {
+        name = tag.getString("name");
         mode = Mode.valueOf(tag.getString("mode").toUpperCase());
         if (tag.contains("tagKey")) {
             tagKey = TagKey.create(Registries.ITEM, ResourceLocation.parse(tag.getString("tagKey")));
@@ -79,8 +116,16 @@ public class ItemList {
         return mode;
     }
 
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
+
     public boolean isTag() {
         return tagKey != null;
+    }
+
+    public ResourceLocation getTag() {
+        return tagKey == null ? null : tagKey.location();
     }
 
     public void loadToBlock(IItemHandler handler) {

@@ -12,11 +12,6 @@ import dev.entropy159.arena.core.config.ClientConfig;
 import dev.entropy159.arena.core.config.CommonConfig;
 import dev.entropy159.arena.core.config.ServerConfig;
 import dev.entropy159.arena.core.registry.*;
-import dev.entropy159.arena.core.ui.*;
-import dev.entropy159.arena.core.ui.loadout.LoadoutInfoUI;
-import dev.entropy159.arena.core.ui.loadout.LoadoutListUI;
-import dev.entropy159.arena.core.ui.map.MapInfoUI;
-import dev.entropy159.arena.core.ui.map.MapListUI;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
@@ -47,7 +42,7 @@ public class EntropyArena {
         ArenaLoadoutSerializers.init();
         ArenaItemRandomizers.init();
         ArenaStatTypes.init(bus);
-        ArenaMenuRegistry.init();
+        ArenaMenuRegistry.init(bus);
 
         container.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         container.registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC);

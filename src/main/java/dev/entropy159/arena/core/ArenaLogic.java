@@ -132,6 +132,7 @@ public class ArenaLogic {
             data.currentGamemode = null;
         }
         PacketDistributor.sendToAllPlayers(new ConfigOverridesPacket(new HashMap<>()));
+        Utils.playSoundForEveryone(server, SoundEvents.PLAYER_LEVELUP, SoundSource.AMBIENT);
         if (data.currentMap != null) {
             data.currentMap.reset(currentLevel, this::afterMapReset);
         } else {
@@ -411,9 +412,5 @@ public class ArenaLogic {
 
     public void updateMap(ArenaMap newMap) {
         data.mapList.replaceMap(newMap);
-    }
-
-    public void updateLoadout(String name, Loadout loadout) {
-        data.loadouts.get(name).updateFrom(loadout);
     }
 }

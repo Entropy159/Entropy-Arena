@@ -28,14 +28,12 @@ public class MapListUI {
             maps = new ArrayList<>();
         }
 
-        return BaseUI.createDefaulted(player, "Maps", root -> {
-            var scroll = BaseUI.scrollView();
-            scroll.addScrollViewChildren(maps.stream().map(map -> new Button()
+        return BaseUI.createDefaulted(player, root -> {
+            root.addChildren(maps.stream().map(map -> new Button()
                     .setText(map.getName())
                     .setOnServerClick(e -> MapInfoUI.open(player, map))
                     .style(style -> style.color(map.isEnabled() ? 0xFF00FF00 : 0xFFFF0000))
             ).toArray(UIElement[]::new));
-            root.addChild(scroll);
         });
     }
 

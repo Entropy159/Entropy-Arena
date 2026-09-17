@@ -1,5 +1,6 @@
 package dev.entropy159.arena.client;
 
+import com.lowdragmc.lowdraglib2.gui.holder.ModularUIContainerScreen;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.entropy159.arena.api.map.MapScreenshot;
 import dev.entropy159.arena.api.util.Notification;
@@ -10,6 +11,7 @@ import dev.entropy159.arena.core.config.ServerConfig;
 import dev.entropy159.arena.core.network.toServer.AdminMenuPacket;
 import dev.entropy159.arena.core.network.toServer.ScreenshotPacket;
 import dev.entropy159.arena.core.registry.ArenaDataComponents;
+import dev.entropy159.arena.core.registry.ArenaMenuRegistry;
 import dev.entropy159.entropylib.client.util.RenderingUtils;
 import dev.entropy159.entropylib.client.util.ScreenAnchorPoint;
 import net.minecraft.ChatFormatting;
@@ -28,6 +30,7 @@ import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -101,6 +104,11 @@ public class EntropyArenaClient {
                 event.getToolTip().add(Component.literal("Randomizer: ").withStyle(ChatFormatting.GRAY).append(Component.literal(id.toString()).withStyle(ChatFormatting.YELLOW)));
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void registerScreens(RegisterMenuScreensEvent event) {
+        event.register(ArenaMenuRegistry.PLAYER_UI_DATA.get(), ModularUIContainerScreen::new);
     }
 
     @SubscribeEvent

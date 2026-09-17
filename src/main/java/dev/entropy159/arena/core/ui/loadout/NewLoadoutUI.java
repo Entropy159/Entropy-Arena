@@ -22,7 +22,7 @@ public class NewLoadoutUI {
     private static final ResourceLocation ID = EntropyArena.id("new_loadout");
 
     private static ModularUI create(Player player) {
-        return BaseUI.createDefaulted(player, "New Loadout", root -> {
+        return BaseUI.createDefaulted(player, root -> {
             AtomicReference<String> name = new AtomicReference<>("");
 
             root.addChildren(

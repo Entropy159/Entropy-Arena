@@ -14,16 +14,14 @@ public class ItemRandomizerListUI {
 
     private static ModularUI create(Player player) {
         var randomizers = ItemRandomizerRegistry.getAll();
-        return BaseUI.createDefaulted(player, "Item Randomizers", root -> {
-            var scroll = BaseUI.scrollView();
+        return BaseUI.createDefaulted(player, root -> {
             randomizers.forEach((id, randomizer) -> {
-                scroll.addScrollViewChild(
+                root.addChild(
                         new Button()
                                 .setText(randomizer.getName())
                                 .setOnServerClick(e -> ItemRandomizerUI.open(player, id))
                 );
             });
-            root.addChild(scroll);
         });
     }
 

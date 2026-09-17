@@ -62,7 +62,7 @@ public class ItemListCommand {
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         TagKey<Item> tagKey = tagLocation == null ? null : TagKey.create(Registries.ITEM, tagLocation);
         if (!data.itemLists.containsKey(name)) {
-            data.itemLists.put(name, new ItemList(ctx.getSource().getLevel(), pos, mode, tagKey));
+            data.itemLists.put(name, new ItemList(ctx.getSource().getLevel(), name, pos, mode, tagKey));
             ctx.getSource().sendSuccess(() -> Component.translatable("message.arena.added_item_list", name).withStyle(ChatFormatting.GREEN), true);
             return 1;
         }

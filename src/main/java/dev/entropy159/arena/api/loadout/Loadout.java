@@ -2,6 +2,11 @@ package dev.entropy159.arena.api.loadout;
 
 import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.AccessorRegistries;
+import com.lowdragmc.lowdraglib2.syncdata.accessor.IAccessor;
+import com.lowdragmc.lowdraglib2.syncdata.field.ManagedKey;
+import com.lowdragmc.lowdraglib2.syncdata.ref.IRef;
+import com.mojang.serialization.DynamicOps;
 import dev.entropy159.arena.api.data.ArenaData;
 import dev.entropy159.arena.core.registry.ArenaDataComponents;
 import dev.entropy159.entropylib.util.Utils;
@@ -10,11 +15,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,13 +110,51 @@ public class Loadout implements IConfigurable {
         tags.remove(tag);
     }
 
-    public void updateFrom(Loadout loadout) {
-        enabled = loadout.enabled;
-        tags = loadout.tags;
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 
     public enum TagMode {
         ANY,
         ALL
+    }
+
+    static {
+        AccessorRegistries.registerAccessor(new IAccessor<Loadout>() {
+            @Override
+            public <T> T readField(DynamicOps<T> op, IRef<Loadout> ref) {
+                return null;
+            }
+
+            @Override
+            public <T> void writeField(DynamicOps<T> op, IRef<Loadout> ref, T payload) {
+
+            }
+
+            @Override
+            public void readFieldToStream(RegistryFriendlyByteBuf buffer, IRef<Loadout> ref) {
+
+            }
+
+            @Override
+            public void writeFieldFromStream(RegistryFriendlyByteBuf buffer, IRef<Loadout> ref) {
+
+            }
+
+            @Override
+            public IRef<Loadout> createRef(ManagedKey managedKey, @NotNull Object holder) {
+                return null;
+            }
+
+            @Override
+            public boolean isReadOnly() {
+                return false;
+            }
+
+            @Override
+            public boolean test(Class<?> type) {
+                return type == Loadout.class;
+            }
+        });
     }
 }

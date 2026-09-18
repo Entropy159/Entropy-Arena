@@ -14,7 +14,7 @@ public class ItemRandomizerListUI {
 
     private static ModularUI create(Player player) {
         var randomizers = ItemRandomizerRegistry.getAll();
-        return BaseUI.createDefaulted(player, root -> {
+        return BaseUI.defaultScroll(player, root -> {
             randomizers.keySet().stream().sorted((a, b) -> a.toString().compareToIgnoreCase(b.toString())).forEach(id -> {
                 var randomizer = randomizers.get(id);
                 root.addChild(

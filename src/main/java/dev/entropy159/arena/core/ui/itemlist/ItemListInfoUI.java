@@ -31,7 +31,7 @@ public class ItemListInfoUI extends PlayerUIWithData.DataUIHolder {
 
     @Override
     public @NotNull ModularUI createUI(@NotNull Player player) {
-        return BaseUI.createDefaulted(player, root -> {
+        return BaseUI.defaultScroll(player, root -> {
             root.layout(layout -> layout.minWidth(100));
 
             if (itemList.isTag()) {

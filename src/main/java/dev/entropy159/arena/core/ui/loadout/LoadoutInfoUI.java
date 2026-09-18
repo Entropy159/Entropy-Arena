@@ -34,7 +34,7 @@ public class LoadoutInfoUI extends PlayerUIWithData.DataUIHolder {
 
     @Override
     public @NotNull ModularUI createUI(@NotNull Player player) {
-        return BaseUI.createDefaulted(player, root -> {
+        return BaseUI.defaultScroll(player, root -> {
             var inspector = new Inspector();
             inspector.inspect(loadout, configurator -> inspector.sendMessage("update", TagBuilder.compound().add("enabled", loadout.isEnabled()).add("tags", Utils.listToTag(loadout.getTags(), StringTag::valueOf)).build()));
             inspector.onMessage("update", tag -> {

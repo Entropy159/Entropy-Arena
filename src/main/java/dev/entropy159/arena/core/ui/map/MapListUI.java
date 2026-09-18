@@ -30,7 +30,7 @@ public class MapListUI extends PlayerUIWithData.DataUIHolder {
 
     @Override
     public @NotNull ModularUI createUI(@NotNull Player player) {
-        return BaseUI.createDefaulted(player, root -> {
+        return BaseUI.defaultScroll(player, root -> {
             root.addChildren(maps.stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).map(map -> new Button()
                     .setText(map.getName())
                     .setOnServerClick(e -> MapInfoUI.open(player, map))

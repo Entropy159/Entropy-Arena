@@ -34,7 +34,7 @@ public class ItemListEditorUI extends PlayerUIWithData.DataUIHolder {
         if (player instanceof ServerPlayer serverPlayer) {
             itemList = ArenaData.get(serverPlayer.getServer()).itemLists.get(itemList.getName());
         }
-        return BaseUI.createDefaulted(player, root -> {
+        return BaseUI.defaultScroll(player, root -> {
             var panel = new UIElement().layout(layout -> layout.flexDirection(FlexDirection.ROW).flexWrap(FlexWrap.WRAP));
             for (int index = 0; index <= itemList.size(); index++) {
                 addSlot(panel, index);

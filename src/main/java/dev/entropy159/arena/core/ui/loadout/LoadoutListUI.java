@@ -30,7 +30,7 @@ public class LoadoutListUI extends PlayerUIWithData.DataUIHolder {
 
     @Override
     public @NotNull ModularUI createUI(@NotNull Player player) {
-        return BaseUI.createDefaulted(player, root -> {
+        return BaseUI.defaultScroll(player, root -> {
             loadouts.keySet().stream().sorted(String::compareToIgnoreCase).forEach(name -> {
                 var loadout = loadouts.get(name);
                 root.addChild(

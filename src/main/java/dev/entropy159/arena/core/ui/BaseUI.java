@@ -14,18 +14,32 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import java.util.function.Consumer;
 
 public class BaseUI {
-    public static ModularUI createDefaulted(Player player, Consumer<UIElement> children) {
-        var root = new ScrollerView();
-        root.scrollerStyle(style -> style.mode(ScrollerMode.VERTICAL));
-        root.viewContainer.layout(layout -> layout.gapAll(5).paddingAll(7));
+    public static ModularUI defaultScroll(Player player, Consumer<UIElement> children) {
+        var root = createBaseScroll();
         root.addClass("panel_bg");
-        root.viewContainer.layout(layout -> layout.maxHeight(200));
         children.accept(root.viewContainer);
+        return createBase(player, root);
+    }
+
+    public static ModularUI createBase(Player player, UIElement root) {
         ResourceLocation theme = StylesheetManager.GDP;
         if (FMLEnvironment.dist.isClient()) {
             theme = ResourceLocation.parse(ClientConfig.UI_THEME.get());
         }
         var ui = UI.of(root, theme);
         return ModularUI.of(ui, player);
+    }
+
+    public static UIElement createBasePanel() {
+        var element = new UIElement();
+        element.layout(layout -> layout.gapAll(5).paddingAll(7).maxHeight(200).maxWidth(600));
+        return element;
+    }
+
+    public static ScrollerView createBaseScroll() {
+        var element = new ScrollerView();
+        element.scrollerStyle(style -> style.mode(ScrollerMode.VERTICAL));
+        element.viewContainer.layout(layout -> layout.gapAll(5).paddingAll(7).maxHeight(200).maxWidth(600));
+        return element;
     }
 }

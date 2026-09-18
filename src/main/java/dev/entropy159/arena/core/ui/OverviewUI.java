@@ -22,7 +22,7 @@ public class OverviewUI {
     private static ModularUI create(Player player) {
         boolean running = SidedDataUtils.running();
 
-        return BaseUI.createDefaulted(player, root -> {
+        return BaseUI.defaultScroll(player, root -> {
             root.addChildren(
                     new Button().setText(running ? "Stop" : "Start").setOnServerClick(e -> {
                         var server = ServerLifecycleHooks.getCurrentServer();

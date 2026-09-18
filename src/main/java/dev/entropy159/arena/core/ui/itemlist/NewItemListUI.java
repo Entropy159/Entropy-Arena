@@ -27,7 +27,7 @@ public class NewItemListUI {
     private static final ResourceLocation ID = EntropyArena.id("new_item_list");
 
     private static ModularUI create(Player player) {
-        return BaseUI.createDefaulted(player, root -> {
+        return BaseUI.defaultScroll(player, root -> {
             root.layout(layout -> layout.minWidth(100));
 
             AtomicReference<String> name = new AtomicReference<>("");

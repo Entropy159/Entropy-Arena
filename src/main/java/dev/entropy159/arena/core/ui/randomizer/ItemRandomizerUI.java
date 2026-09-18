@@ -27,7 +27,7 @@ public class ItemRandomizerUI extends PlayerUIWithData.DataUIHolder {
 
     @Override
     public @NotNull ModularUI createUI(@NotNull Player player) {
-        return BaseUI.createDefaulted(player, root -> {
+        return BaseUI.defaultScroll(player, root -> {
             root.addChildren(
                     new Button().setText("Apply").setOnClick(e -> e.currentElement.sendMessage("apply")).onMessage("apply", tag -> {
                         if (player instanceof ServerPlayer serverPlayer) {

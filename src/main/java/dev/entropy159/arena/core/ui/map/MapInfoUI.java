@@ -31,10 +31,10 @@ public class MapInfoUI extends PlayerUIWithData.DataUIHolder {
     @Override
     public @NotNull ModularUI createUI(@NotNull Player player) {
         if (map == null) {
-            return BaseUI.createDefaulted(player, root -> {
+            return BaseUI.defaultScroll(player, root -> {
             });
         }
-        return BaseUI.createDefaulted(player, root -> {
+        return BaseUI.defaultScroll(player, root -> {
             var inspector = new Inspector();
             root.addChild(inspector);
             inspector.inspect(map, configurator -> inspector.sendMessage("update", TagBuilder.compound().add("map", map.toTag()).build()));

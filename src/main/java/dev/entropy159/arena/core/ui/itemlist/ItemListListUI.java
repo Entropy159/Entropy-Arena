@@ -30,7 +30,7 @@ public class ItemListListUI extends PlayerUIWithData.DataUIHolder {
 
     @Override
     public @NotNull ModularUI createUI(@NotNull Player player) {
-        return BaseUI.createDefaulted(player, root -> {
+        return BaseUI.defaultScroll(player, root -> {
             itemLists.keySet().stream().sorted(String::compareToIgnoreCase).forEach(name -> {
                 var itemList = itemLists.get(name);
                 root.addChild(

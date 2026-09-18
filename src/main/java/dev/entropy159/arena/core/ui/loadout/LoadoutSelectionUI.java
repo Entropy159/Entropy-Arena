@@ -28,7 +28,7 @@ public class LoadoutSelectionUI extends PlayerUIWithData.DataUIHolder {
 
     @Override
     public @NotNull ModularUI createUI(@NotNull Player player) {
-        return BaseUI.createDefaulted(player, root -> {
+        return BaseUI.defaultScroll(player, root -> {
             loadouts.stream().sorted(String::compareToIgnoreCase).forEach(loadout -> {
                 root.addChild(new Button().setText(loadout).setOnServerClick(e -> {
                     player.closeContainer();

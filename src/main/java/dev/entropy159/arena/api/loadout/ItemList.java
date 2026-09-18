@@ -18,6 +18,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -74,9 +76,10 @@ public class ItemList {
         this.mode = mode;
     }
 
-    public ItemList(CompoundTag tag, HolderLookup.Provider provider) {
-        name = tag.getString("name");
-        mode = Mode.valueOf(tag.getString("mode").toUpperCase());
+    public ItemList(String name, CompoundTag tag, HolderLookup.Provider provider) {
+        this.name = name;
+        String modeName = tag.getString("mode").toUpperCase();
+        mode = modeName.isBlank() ? Mode.RANDOM : Mode.valueOf(modeName);
         if (tag.contains("tagKey")) {
             tagKey = TagKey.create(Registries.ITEM, ResourceLocation.parse(tag.getString("tagKey")));
         } else {
@@ -102,7 +105,18 @@ public class ItemList {
             List<Holder<Item>> items = BuiltInRegistries.ITEM.getOrCreateTag(tagKey).stream().toList();
             return new ItemStack(items.get(new Random().nextInt(items.size())));
         }
+        if (index >= size()) {
+            return ItemStack.EMPTY;
+        }
         return stacks.get(index).copy();
+    }
+
+    public ItemStack getRandom() {
+        int index = 0;
+        if (stacks != null) {
+            index = new Random().nextInt(stacks.size());
+        }
+        return get(index);
     }
 
     public int size() {
@@ -141,8 +155,8 @@ public class ItemList {
         }
     }
 
-    public ItemStack getItem(String name) {
-        ItemStack stack = get(0);
+    public ItemStack getItem() {
+        ItemStack stack = getRandom();
         if (stack.isEmpty()) {
             return ItemStack.EMPTY;
         }
@@ -150,9 +164,45 @@ public class ItemList {
         return stack;
     }
 
+    public void setStack(ItemStack stack, int index) {
+        if (index >= stacks.size()) {
+            stacks.add(stack);
+        } else {
+            stacks.set(index, stack);
+        }
+        stacks.removeIf(ItemStack::isEmpty);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public IItemHandlerModifiable getHandler() {
+        return new StackHandler(this);
+    }
+
     public enum Mode {
         BOTH,
         RANDOM,
         ORDERED
+    }
+
+    public static class StackHandler extends ItemStackHandler {
+        private final ItemList list;
+
+        public StackHandler(ItemList list) {
+            super(list.size() + 1);
+            this.list = list;
+            for (int i = 0; i < list.size(); i++) {
+                setStackInSlot(i, list.get(i));
+            }
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            super.onContentsChanged(slot);
+            ItemStack stack = getStackInSlot(slot);
+            list.setStack(stack.copy(), slot);
+        }
     }
 }

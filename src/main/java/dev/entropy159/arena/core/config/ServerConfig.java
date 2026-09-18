@@ -22,6 +22,7 @@ public class ServerConfig {
     public static final ModConfigSpec.IntValue MAX_HEALTH = BUILDER.comment("The max player health").defineInRange("maxHealth", 20, 1, 10000);
     public static final ModConfigSpec.BooleanValue PREVENT_BLOCKS_ON_SPAWNS = BUILDER.comment("Whether to prevent placing blocks on top of spawns").define("preventBlocksOnSpawns", true);
     public static final ModConfigSpec.BooleanValue SET_WORLD_BORDER = BUILDER.comment("If enabled, sets the vanilla world border to the map's area on load").define("setWorldBorder", false);
+    public static final ModConfigSpec.IntValue TEAM_SWITCH_COOLDOWN = BUILDER.comment("The duration in seconds to prevent switching teams again").defineInRange("teamSwitchCooldown", 15, 0, 120);
 
     public static final ModConfigSpec.BooleanValue DEDUCT_POINTS_ON_SELF_DEATH = BUILDER.comment("If enabled, a self-kill (or a team kill) will subtract a point from your score").define("deductPointsOnSelfDeath", true);
 
@@ -33,7 +34,6 @@ public class ServerConfig {
     }}, () -> "0: %s has a %s kill streak", obj -> obj instanceof String string && string.matches("[0-9]*: .*"));
 
     public static final ModConfigSpec.BooleanValue REQUIRE_GEM_TO_SCORE = BUILDER.comment("Whether scoring on a pedestal requires that pedestal's gem to be present").define("ctf.requireGemToScore", false);
-    public static final ModConfigSpec.IntValue TEAM_SWITCH_COOLDOWN = BUILDER.comment("The duration in seconds to prevent switching teams again").defineInRange("ctf.teamSwitchCooldown", 15, 0, 120);
     public static final ModConfigSpec.BooleanValue GLOWING_FOR_FLAG = BUILDER.comment("Whether to use glowing for flag locations instead of ping icons").define("ctf.glowingForFlag", false);
     public static final ModConfigSpec.BooleanValue RETURN_ALL_GEMS = BUILDER.comment("Whether clicking a pedestal will score/return all gems instead of just the held one").define("ctf.returnAllGems", true);
     public static final ModConfigSpec.IntValue FLAG_EXPIRATION_SECONDS = BUILDER.comment("How many seconds a flag can be on the ground before getting returned").defineInRange("ctf.flagExpirationSeconds", 120, 0, 600);

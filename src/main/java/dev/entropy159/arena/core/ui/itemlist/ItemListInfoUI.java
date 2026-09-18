@@ -44,7 +44,7 @@ public class ItemListInfoUI extends PlayerUIWithData.DataUIHolder {
                     new Selector<ItemList.Mode>().bind(DataBindingBuilder.enumVal(ItemList.Mode.class, itemList::getMode, itemList::setMode).build()),
                     new Button().setText("Give Item").setOnClick(e -> e.currentElement.sendMessage("give")).onMessage("give", tag -> {
                         if (player instanceof ServerPlayer serverPlayer) {
-                            serverPlayer.addItem(itemList.getItem(name));
+                            serverPlayer.addItem(itemList.getItem());
                         }
                     }),
                     new Button().setText("Delete").setOnClick(e -> e.currentElement.sendMessage("delete")).style(style -> style.color(0xFFFF0000)).onMessage("delete", tag -> {

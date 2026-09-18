@@ -4,11 +4,11 @@ import com.lowdragmc.lowdraglib2.gui.holder.ModularUIContainerScreen;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.entropy159.arena.api.map.MapScreenshot;
 import dev.entropy159.arena.api.util.Notification;
-import dev.entropy159.arena.client.screen.LoadoutScreen;
 import dev.entropy159.arena.client.screen.VotingScreen;
 import dev.entropy159.arena.core.EntropyArena;
 import dev.entropy159.arena.core.config.ServerConfig;
 import dev.entropy159.arena.core.network.toServer.AdminMenuPacket;
+import dev.entropy159.arena.core.network.toServer.OpenLoadoutsPacket;
 import dev.entropy159.arena.core.network.toServer.ScreenshotPacket;
 import dev.entropy159.arena.core.registry.ArenaDataComponents;
 import dev.entropy159.arena.core.registry.ArenaMenuRegistry;
@@ -248,7 +248,7 @@ public class EntropyArenaClient {
     }
 
     public static void openLoadoutScreen() {
-        client.setScreen(new LoadoutScreen());
+        PacketDistributor.sendToServer(new OpenLoadoutsPacket());
     }
 
     public static void sendChatMessage(Component message) {

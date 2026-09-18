@@ -28,6 +28,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class ArenaData extends SavedData {
     private final MinecraftServer server;
@@ -67,7 +69,7 @@ public class ArenaData extends SavedData {
         }
         data.mapList.loadFromTag(tag.getList("mapList", Tag.TAG_COMPOUND));
         data.loadouts = Utils.tagToHashMap(tag.getCompound("loadouts"), s -> s, t -> new Loadout((CompoundTag) t));
-        data.itemLists = Utils.tagToHashMap(tag.getCompound("itemLists"), s -> s, t -> new ItemList((CompoundTag) t, provider));
+        data.itemLists = tagToHashMap(tag.getCompound("itemLists"), s -> s, (s, t) -> new ItemList(s, (CompoundTag) t, provider));
         if (tag.contains("lobbyPos", CompoundTag.TAG_COMPOUND)) {
             CompoundTag lobbyTag = tag.getCompound("lobbyPos");
             data.lobbyPos = GlobalPos.of(ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(lobbyTag.getString("dimension"))), BlockPos.of(lobbyTag.getLong("pos")));
@@ -75,6 +77,15 @@ public class ArenaData extends SavedData {
             data.lobbyPos = GlobalPos.of(Level.OVERWORLD, BlockPos.of(tag.getLong("lobbyPos")));
         }
         return data;
+    }
+
+    private static <T, P> HashMap<T, P> tagToHashMap(CompoundTag tag, Function<String, T> keyConverter, BiFunction<String, Tag, P> valueConverter) {
+        HashMap<T, P> map = new HashMap<>();
+        if (tag != null) {
+            tag.getAllKeys().forEach((key) -> map.put(keyConverter.apply(key), valueConverter.apply(key, tag.get(key))));
+        }
+
+        return map;
     }
 
     @Override

@@ -122,7 +122,7 @@ public class ItemListCommand {
         String name = StringArgumentType.getString(ctx, "name");
         ArenaData data = ArenaData.get(ctx.getSource().getLevel());
         if (data.itemLists.containsKey(name) && ctx.getSource().getPlayer() != null) {
-            ctx.getSource().getPlayer().addItem(data.itemLists.get(name).getItem(name));
+            ctx.getSource().getPlayer().addItem(data.itemLists.get(name).getItem());
             ctx.getSource().sendSuccess(() -> Component.translatable("message.arena.gave_item_list", name).withStyle(ChatFormatting.GREEN), true);
             return 1;
         }

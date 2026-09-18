@@ -27,7 +27,6 @@ public class ClientData {
 
     public static List<ArenaMapInfo> votableMaps = new ArrayList<>();
     public static Map<ArenaGameType, Integer> typeVotes = new HashMap<>();
-    public static ArrayList<String> loadouts = new ArrayList<>();
     public static ArrayList<Notification> notifications = new ArrayList<>();
     public static ArrayList<Component> scoreList = new ArrayList<>();
     public static CopyOnWriteArraySet<PingIcon> pings = new CopyOnWriteArraySet<>();

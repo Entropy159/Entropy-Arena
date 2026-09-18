@@ -10,6 +10,7 @@ import dev.entropy159.arena.core.ui.itemlist.ItemListListUI;
 import dev.entropy159.arena.core.ui.itemlist.NewItemListUI;
 import dev.entropy159.arena.core.ui.loadout.LoadoutInfoUI;
 import dev.entropy159.arena.core.ui.loadout.LoadoutListUI;
+import dev.entropy159.arena.core.ui.loadout.LoadoutSelectionUI;
 import dev.entropy159.arena.core.ui.loadout.NewLoadoutUI;
 import dev.entropy159.arena.core.ui.map.MapInfoUI;
 import dev.entropy159.arena.core.ui.map.MapListUI;
@@ -43,5 +44,6 @@ public class ArenaMenuRegistry {
         ItemListInfoUI.register();
         NewItemListUI.register();
         ItemListEditorUI.register();
+        LoadoutSelectionUI.register();
     }
 }

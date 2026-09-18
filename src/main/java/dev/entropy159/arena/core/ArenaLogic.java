@@ -13,6 +13,7 @@ import dev.entropy159.arena.api.util.ArenaGameType;
 import dev.entropy159.arena.api.util.Notification;
 import dev.entropy159.arena.core.config.ServerConfig;
 import dev.entropy159.arena.core.network.toClient.*;
+import dev.entropy159.arena.core.ui.loadout.LoadoutSelectionUI;
 import dev.entropy159.entropylib.util.Utils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -223,9 +224,8 @@ public class ArenaLogic {
     }
 
     public void sendValidLoadouts(ServerPlayer player) {
-        Map<String, Loadout> validLoadouts = getValidLoadouts(player);
-        if (validLoadouts.size() > 1) {
-            PacketDistributor.sendToPlayer(player, new LoadoutsPacket(validLoadouts.keySet().stream().toList()));
+        if (getValidLoadouts(player).size() > 1) {
+            LoadoutSelectionUI.open(player);
         }
     }
 

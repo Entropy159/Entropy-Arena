@@ -21,7 +21,6 @@ public class PacketRegistry {
         registrar.playToClient(NotificationPacket.TYPE, NotificationPacket.STREAM_CODEC, NotificationPacket::handle);
         registrar.playToClient(ScoresPacket.TYPE, ScoresPacket.STREAM_CODEC, ScoresPacket::handle);
         registrar.playToClient(GameInfoPacket.TYPE, GameInfoPacket.STREAM_CODEC, GameInfoPacket::handle);
-        registrar.playToClient(LoadoutsPacket.TYPE, LoadoutsPacket.STREAM_CODEC, LoadoutsPacket::handle);
         registrar.playToClient(RespawnPacket.TYPE, RespawnPacket.STREAM_CODEC, RespawnPacket::handle);
         registrar.playToClient(PingPacket.TYPE, PingPacket.STREAM_CODEC, PingPacket::handle);
         registrar.playToClient(ConfigOverridesPacket.TYPE, ConfigOverridesPacket.STREAM_CODEC, ConfigOverridesPacket::handle);
@@ -29,8 +28,8 @@ public class PacketRegistry {
         registrar.playToServer(ScreenshotPacket.TYPE, ScreenshotPacket.STREAM_CODEC, ScreenshotPacket::handle);
         registrar.playToServer(MapVotePacket.TYPE, MapVotePacket.STREAM_CODEC, MapVotePacket::handle);
         registrar.playToServer(TypeVotePacket.TYPE, TypeVotePacket.STREAM_CODEC, TypeVotePacket::handle);
-        registrar.playToServer(LoadoutSelectPacket.TYPE, LoadoutSelectPacket.STREAM_CODEC, LoadoutSelectPacket::handle);
         registrar.playToServer(AdminMenuPacket.TYPE, AdminMenuPacket.STREAM_CODEC, AdminMenuPacket::handle);
+        registrar.playToServer(OpenLoadoutsPacket.TYPE, OpenLoadoutsPacket.STREAM_CODEC, OpenLoadoutsPacket::handle);
 
         GamemodeRegistry.forEach(gamemode -> gamemode.registerPacket(registrar));
     }

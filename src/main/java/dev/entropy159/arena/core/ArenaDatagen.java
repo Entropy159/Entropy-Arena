@@ -126,6 +126,7 @@ public class ArenaDatagen {
         REGISTRATE.configLang(ClientConfig.USE_CHAT_FOR_NOTIFICATIONS, "Use Chat For Notifications");
         REGISTRATE.configLang(ClientConfig.NOTIFICATION_FADEOUT_DELAY, "Notification Fade Out Delay");
         REGISTRATE.configLang(ClientConfig.NOTIFICATION_FADEOUT_DURATION, "Notification Fade Out Duration");
+        REGISTRATE.configLang(ClientConfig.UI_THEME, "UI Theme");
 
         REGISTRATE.configLang("section." + MODID + ".server.toml", "Server");
         REGISTRATE.configLang("section." + MODID + ".server.toml.title", "Server");

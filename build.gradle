@@ -145,7 +145,6 @@ tasks.withType(ProcessResources).configureEach {
             mod_license            : mod_license,
             mod_version            : mod_version,
             entropylib_version     : entropylib_version,
-            ldlib_version          : ldlib_version,
     ]
     inputs.properties replaceProperties
 

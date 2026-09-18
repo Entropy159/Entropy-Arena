@@ -7,7 +7,7 @@ import com.lowdragmc.lowdraglib2.gui.ui.elements.*;
 import dev.entropy159.arena.api.data.ArenaData;
 import dev.entropy159.arena.api.loadout.ItemList;
 import dev.entropy159.arena.core.EntropyArena;
-import dev.entropy159.arena.core.ui.BaseUI;
+import dev.entropy159.entropylib.ui.BaseUI;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;

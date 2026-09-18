@@ -5,7 +5,7 @@ import com.lowdragmc.lowdraglib2.gui.ui.ModularUI;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Button;
 import dev.entropy159.arena.api.randomizer.ItemRandomizerRegistry;
 import dev.entropy159.arena.core.EntropyArena;
-import dev.entropy159.arena.core.ui.BaseUI;
+import dev.entropy159.entropylib.ui.BaseUI;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 

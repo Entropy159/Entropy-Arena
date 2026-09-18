@@ -2,10 +2,10 @@ package dev.entropy159.arena.core.ui.loadout;
 
 import com.lowdragmc.lowdraglib2.gui.ui.ModularUI;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Button;
-import dev.entropy159.arena.api.ui.PlayerUIWithData;
 import dev.entropy159.arena.core.ArenaLogic;
 import dev.entropy159.arena.core.EntropyArena;
-import dev.entropy159.arena.core.ui.BaseUI;
+import dev.entropy159.entropylib.ui.BaseUI;
+import dev.entropy159.entropylib.ui.PlayerUIWithData;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;

@@ -11,6 +11,7 @@ import dev.entropy159.arena.core.ui.itemlist.ItemListListUI;
 import dev.entropy159.arena.core.ui.loadout.LoadoutListUI;
 import dev.entropy159.arena.core.ui.map.MapListUI;
 import dev.entropy159.arena.core.ui.randomizer.ItemRandomizerListUI;
+import dev.entropy159.entropylib.ui.BaseUI;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;

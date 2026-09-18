@@ -63,7 +63,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Publish to Maven
-        run: ./gradlew publish
+        run: ./gradlew publish --refresh-dependencies
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}

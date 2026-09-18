@@ -11,6 +11,7 @@ import dev.entropy159.arena.api.ui.PlayerUIWithData;
 import dev.entropy159.arena.core.EntropyArena;
 import dev.entropy159.arena.core.ui.BaseUI;
 import dev.vfyjxf.taffy.style.FlexDirection;
+import dev.vfyjxf.taffy.style.FlexWrap;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -34,7 +35,7 @@ public class ItemListEditorUI extends PlayerUIWithData.DataUIHolder {
             itemList = ArenaData.get(serverPlayer.getServer()).itemLists.get(itemList.getName());
         }
         return BaseUI.createDefaulted(player, root -> {
-            var panel = new UIElement().layout(layout -> layout.flexDirection(FlexDirection.ROW));
+            var panel = new UIElement().layout(layout -> layout.flexDirection(FlexDirection.ROW).flexWrap(FlexWrap.WRAP));
             for (int index = 0; index <= itemList.size(); index++) {
                 addSlot(panel, index);
             }

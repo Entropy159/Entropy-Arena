@@ -14,6 +14,7 @@ import dev.entropy159.arena.core.config.ServerConfig;
 import dev.entropy159.arena.core.registry.*;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -31,6 +32,8 @@ public class EntropyArena {
     public static final ArenaRegistrate REGISTRATE = ArenaRegistrate.create(MODID);
 
     public EntropyArena(IEventBus bus, ModContainer container) {
+        REGISTRATE.defaultCreativeTab(CreativeModeTabs.OP_BLOCKS);
+
         NeoForge.EVENT_BUS.register(this);
         bus.addListener(this::registerRegistries);
 

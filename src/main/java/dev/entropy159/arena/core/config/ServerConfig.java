@@ -23,6 +23,7 @@ public class ServerConfig {
     public static final ModConfigSpec.BooleanValue PREVENT_BLOCKS_ON_SPAWNS = BUILDER.comment("Whether to prevent placing blocks on top of spawns").define("preventBlocksOnSpawns", true);
     public static final ModConfigSpec.BooleanValue SET_WORLD_BORDER = BUILDER.comment("If enabled, sets the vanilla world border to the map's area on load").define("setWorldBorder", false);
     public static final ModConfigSpec.IntValue TEAM_SWITCH_COOLDOWN = BUILDER.comment("The duration in seconds to prevent switching teams again").defineInRange("teamSwitchCooldown", 15, 0, 120);
+    public static final ModConfigSpec.IntValue RESTOCK_COOLDOWN = BUILDER.comment("The delay in ticks that a restock block will be inactive").defineInRange("restockCooldown", 1200, 0, 20 * 60 * 60);
 
     public static final ModConfigSpec.BooleanValue DEDUCT_POINTS_ON_SELF_DEATH = BUILDER.comment("If enabled, a self-kill (or a team kill) will subtract a point from your score").define("deductPointsOnSelfDeath", true);
 

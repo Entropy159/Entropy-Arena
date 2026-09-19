@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "enabled=false": {
+      "model": "entropyarena:block/restock_disabled"
+    },
+    "enabled=true": {
+      "model": "entropyarena:block/restock_enabled"
+    }
+  }
+}

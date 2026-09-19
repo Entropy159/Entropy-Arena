@@ -4,7 +4,6 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.entropy159.arena.api.util.ArenaTeam;
 import dev.entropy159.arena.core.EntropyArena;
 import dev.entropy159.arena.core.blocks.*;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 
 import java.util.HashMap;
@@ -12,14 +11,11 @@ import java.util.HashMap;
 import static dev.entropy159.arena.core.EntropyArena.REGISTRATE;
 
 public class ArenaBlocks {
-    static {
-        REGISTRATE.defaultCreativeTab(CreativeModeTabs.OP_BLOCKS);
-    }
-
     public static final BlockEntry<KillBarrierBlock> KILL_BARRIER = REGISTRATE.block("kill_barrier", props -> new KillBarrierBlock()).blockstate((ctx, provider) -> provider.getVariantBuilder(ctx.get()).forAllStates(state -> new ConfiguredModel[]{new ConfiguredModel(provider.models().withExistingParent(ctx.getName(), "block/barrier").texture("particle", EntropyArena.id("item/kill_barrier")))})).item().model((ctx, provider) -> provider.generated(ctx::get)).build().register();
     public static final BlockEntry<SpawnpointBlock> SPAWNPOINT = REGISTRATE.block("spawnpoint", props -> new SpawnpointBlock()).blockstate((ctx, provider) -> provider.simpleBlock(ctx.get(), provider.models().withExistingParent(ctx.getName(), EntropyArena.id("block/base_tint_translucent")).texture("all", "entropyarena:block/spawnpoint"))).color(() -> () -> (state, level, pos, index) -> state.hasProperty(SpawnpointBlock.SPAWN_COLOR) ? state.getValue(SpawnpointBlock.SPAWN_COLOR).getColor() : 0xFFFFFFFF).simpleItem().register();
     public static final BlockEntry<CapturePointBlock> CAPTURE_POINT = REGISTRATE.block("capture_point", props -> new CapturePointBlock()).blockstate((ctx, provider) -> provider.simpleBlock(ctx.get(), provider.models().cubeAll(ctx.getName(), provider.blockTexture(ctx.get())).renderType("translucent"))).simpleItem().register();
     public static final BlockEntry<PedestalBlock> PEDESTAL = REGISTRATE.block("pedestal", props -> new PedestalBlock()).blockstate((ctx, provider) -> provider.getVariantBuilder(ctx.get()).partialState().with(PedestalBlock.HAS_GEM, true).modelForState().modelFile(provider.models().withExistingParent(ctx.getName(), EntropyArena.id("block/base_" + ctx.getName() + "_on"))).addModel().partialState().with(PedestalBlock.HAS_GEM, false).modelForState().modelFile(provider.models().withExistingParent(ctx.getName() + "_off", EntropyArena.id("block/base_" + ctx.getName() + "_off"))).addModel()).color(() -> () -> (state, level, pos, index) -> state.hasProperty(PedestalBlock.GEM_COLOR) ? state.getValue(PedestalBlock.GEM_COLOR).getColor() : 0xFFFFFFFF).simpleItem().register();
+    public static final BlockEntry<RestockBlock> RESTOCK = REGISTRATE.block("restock", props -> new RestockBlock()).blockstate((ctx, provider) -> (provider.getVariantBuilder(ctx.get()).partialState().with(RestockBlock.ENABLED, true).modelForState().modelFile(provider.models().cubeAll(ctx.getName() + "_enabled", EntropyArena.id("block/" + ctx.getName() + "_enabled"))).addModel()).partialState().with(RestockBlock.ENABLED, false).modelForState().modelFile(provider.models().cubeAll(ctx.getName() + "_disabled", EntropyArena.id("block/" + ctx.getName() + "_disabled"))).addModel()).item().model((ctx, provider) -> provider.blockItem(ctx::get, "_enabled")).build().register();
     public static final HashMap<ArenaTeam, BlockEntry<TeamBlock>> TEAM_BLOCKS = new HashMap<>();
 
     public static void init() {

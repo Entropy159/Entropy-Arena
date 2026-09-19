@@ -10,6 +10,7 @@ import dev.entropy159.arena.api.loadout.ItemList;
 import dev.entropy159.arena.core.EntropyArena;
 import dev.entropy159.entropylib.ui.BaseUI;
 import dev.entropy159.entropylib.ui.PlayerUIWithData;
+import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.FlexDirection;
 import dev.vfyjxf.taffy.style.FlexWrap;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -34,13 +35,18 @@ public class ItemListEditorUI extends PlayerUIWithData.DataUIHolder {
         if (player instanceof ServerPlayer serverPlayer) {
             itemList = ArenaData.get(serverPlayer.getServer()).itemLists.get(itemList.getName());
         }
-        return BaseUI.defaultScroll(player, root -> {
-            var panel = new UIElement().layout(layout -> layout.flexDirection(FlexDirection.ROW).flexWrap(FlexWrap.WRAP));
-            for (int index = 0; index <= itemList.size(); index++) {
-                addSlot(panel, index);
-            }
-            root.addChildren(panel, new InventorySlots());
-        });
+        var root = BaseUI.createBasePanel();
+        root.addClass("panel_bg");
+        var panel = BaseUI.createBaseScroll();
+        panel.layout(layout -> layout.maxHeight(100));
+        panel.viewContainer.layout(layout -> layout.justifyContent(AlignContent.CENTER).flexWrap(FlexWrap.WRAP).flexDirection(FlexDirection.ROW).gapAll(2));
+
+        for (int index = 0; index <= itemList.size(); index++) {
+            addSlot(panel.viewContainer, index);
+        }
+
+        root.addChildren(panel, new InventorySlots());
+        return BaseUI.createBase(player, root);
     }
 
     private void addSlot(UIElement panel, int index) {

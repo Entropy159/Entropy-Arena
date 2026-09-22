@@ -31,7 +31,7 @@ public class NewItemListUI {
             root.layout(layout -> layout.minWidth(100));
 
             AtomicReference<String> name = new AtomicReference<>("");
-            AtomicReference<ItemList.Mode> mode = new AtomicReference<>(ItemList.Mode.BOTH);
+            AtomicReference<ItemList.Mode> mode = new AtomicReference<>(ItemList.Mode.RANDOM);
             AtomicBoolean isTag = new AtomicBoolean();
             AtomicReference<String> tagKey = new AtomicReference<>("");
 

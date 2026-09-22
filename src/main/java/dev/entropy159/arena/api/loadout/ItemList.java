@@ -113,7 +113,7 @@ public class ItemList {
 
     public ItemStack getRandom() {
         int index = 0;
-        if (stacks != null) {
+        if (!stacks.isEmpty()) {
             index = new Random().nextInt(stacks.size());
         }
         return get(index);

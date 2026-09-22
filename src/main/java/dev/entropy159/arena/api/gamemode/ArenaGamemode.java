@@ -177,7 +177,7 @@ public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<Are
     }
 
     public ItemStack getItemFromList(ServerPlayer player, ItemList list) {
-        return list.get(0);
+        return list.getRandom();
     }
 
     public boolean isValidLoadout(ServerPlayer player, Loadout loadout) {

@@ -44,31 +44,29 @@ public class MapInfoUI extends PlayerUIWithData.DataUIHolder {
                 }
             });
 
+            var server = ServerLifecycleHooks.getCurrentServer();
+            var map = server == null ? this.map : ArenaData.get(server).mapList.getMap(this.map.getName());
+            assert map != null;
+
             root.addChildren(
-                    new Button().setText("Update").setOnClick(e -> e.currentElement.sendMessage("update", TagBuilder.compound().add("name", map.getName()).build())).style(style -> style.color(0xFF00FF00)).onMessage("update", tag -> {
+                    new Button().setText("Update").setOnServerClick(e -> {
                         if (player instanceof ServerPlayer serverPlayer) {
-                            var map = ArenaData.get(serverPlayer.server).mapList.getMap(tag.getString("name"));
-                            if (map != null) {
-                                player.closeContainer();
-                                map.update(serverPlayer.serverLevel(), serverPlayer);
-                            }
+                            player.closeContainer();
+                            map.update(serverPlayer.serverLevel(), serverPlayer);
+                        }
+                    }).style(style -> style.color(0xFF00FF00)),
+                    new Button().setText("Load").setOnServerClick(e -> {
+                        if (player instanceof ServerPlayer serverPlayer) {
+                            player.closeContainer();
+                            map.load(serverPlayer.serverLevel());
+                            var pos = map.getCenter();
+                            serverPlayer.teleportTo(pos.x, pos.y, pos.z);
                         }
                     }),
-                    new Button().setText("Load").setOnClick(e -> e.currentElement.sendMessage("load", TagBuilder.compound().add("name", map.getName()).build())).onMessage("update", tag -> {
-                        if (player instanceof ServerPlayer serverPlayer) {
-                            var map = ArenaData.get(serverPlayer.server).mapList.getMap(tag.getString("name"));
-                            if (map != null) {
-                                player.closeContainer();
-                                map.load(serverPlayer.serverLevel());
-                                var pos = map.getCenter();
-                                serverPlayer.teleportTo(pos.x, pos.y, pos.z);
-                            }
-                        }
-                    }),
-                    new Button().setText("Remove").setOnClick(e -> e.currentElement.sendMessage("remove", TagBuilder.compound().add("name", map.getName()).build())).style(style -> style.color(0xFFFF0000)).onMessage("remove", tag -> {
-                        ArenaData.get(ServerLifecycleHooks.getCurrentServer()).mapList.removeMap(tag.getString("name"));
+                    new Button().setText("Remove").setOnServerClick(e -> {
+                        ArenaData.get(ServerLifecycleHooks.getCurrentServer()).mapList.removeMap(map.getName());
                         player.closeContainer();
-                    })
+                    }).style(style -> style.color(0xFFFF0000))
             );
         });
     }

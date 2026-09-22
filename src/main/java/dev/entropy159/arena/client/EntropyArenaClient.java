@@ -1,6 +1,7 @@
 package dev.entropy159.arena.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import dev.entropy159.arena.api.client.MusicControls;
 import dev.entropy159.arena.api.map.MapScreenshot;
 import dev.entropy159.arena.api.util.Notification;
 import dev.entropy159.arena.client.screen.VotingScreen;
@@ -28,6 +29,7 @@ import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.SelectMusicEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -101,6 +103,11 @@ public class EntropyArenaClient {
                 event.getToolTip().add(Component.literal("Randomizer: ").withStyle(ChatFormatting.GRAY).append(Component.literal(id.toString()).withStyle(ChatFormatting.YELLOW)));
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void customMusic(SelectMusicEvent event) {
+        event.overrideMusic(MusicControls.getMusic());
     }
 
     @SubscribeEvent

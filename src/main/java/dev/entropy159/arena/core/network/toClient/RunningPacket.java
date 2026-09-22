@@ -25,7 +25,7 @@ public record RunningPacket(boolean running, boolean lobby, int targetScore,
 
     public void handle(IPayloadContext ctx) {
         if (ClientData.inLobby != lobby || ClientData.running != running) {
-            MusicControls.nextMusic();
+            MusicControls.tryNextMusic();
         }
         ClientData.running = running;
         ClientData.inLobby = lobby;

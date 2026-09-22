@@ -3,6 +3,7 @@
   "package": "dev.entropy159.arena.core.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "MusicMixin",
     "PlayerMixin",
     "ServerPlayerMixin",
     "config.ConfigValueMixin",

@@ -27,9 +27,9 @@ public class TeamCapturePoint extends CapturePoint {
         super(pos);
     }
 
-    public TeamCapturePoint(CapturePoint point, ArenaTeam team) {
-        super(point);
-        this.team = team;
+    public TeamCapturePoint(ServerLevel level, int current, int max, BlockPos pos) {
+        this(pos);
+        setSymbol((char) ('A' + current));
     }
 
     public ArenaTeam getTeam() {

@@ -2,6 +2,8 @@ package dev.entropy159.arena.api.capturePoint;
 
 import dev.entropy159.arena.core.EntropyArena;
 import dev.entropy159.entropylib.client.util.RenderingUtils;
+import dev.entropy159.entropylib.client.util.WorldToScreen;
+import dev.entropy159.entropylib.util.Utils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -15,26 +17,32 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.util.List;
 
 public abstract class CapturePoint {
+    private static final int ICON_SIZE = 16;
+
     private BlockPos pos;
     private float captureProgress;
     private boolean contested;
+    private @Nullable Character symbol;
 
     public CapturePoint(BlockPos pos) {
-        this(pos, 0, false);
+        this(pos, 0, false, null);
     }
 
-    public CapturePoint(BlockPos pos, float captureProgress, boolean contested) {
+    public CapturePoint(BlockPos pos, float captureProgress, boolean contested, @Nullable Character symbol) {
         this.pos = pos;
         this.captureProgress = captureProgress;
         this.contested = contested;
+        this.symbol = symbol;
     }
 
     public CapturePoint(CapturePoint other) {
-        this(other.pos, other.captureProgress, other.contested);
+        this(other.pos, other.captureProgress, other.contested, other.symbol);
     }
 
     public int getCaptureRadius() {
@@ -43,6 +51,14 @@ public abstract class CapturePoint {
 
     public float getCaptureIncrement() {
         return 0.005f;
+    }
+
+    public @Nullable Character getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(@Nullable Character symbol) {
+        this.symbol = symbol;
     }
 
     public void onLevelTick(ServerLevel level) {
@@ -124,17 +140,57 @@ public abstract class CapturePoint {
         BlockPos.STREAM_CODEC.encode(buffer, pos);
         ByteBufCodecs.FLOAT.encode(buffer, captureProgress);
         ByteBufCodecs.BOOL.encode(buffer, contested);
+        if (symbol != null) {
+            buffer.writeBoolean(true);
+            buffer.writeChar(symbol);
+        } else {
+            buffer.writeBoolean(false);
+        }
     }
 
     public void decode(ByteBuf buffer) {
         pos = BlockPos.STREAM_CODEC.decode(buffer);
         captureProgress = ByteBufCodecs.FLOAT.decode(buffer);
         contested = ByteBufCodecs.BOOL.decode(buffer);
+        if (buffer.readBoolean()) {
+            symbol = buffer.readChar();
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void render(GuiGraphics graphics) {
-        RenderingUtils.renderImageAtWorldPosCenterFade(graphics, getIcon(), getPos().getCenter(), 16, getColor());
+    public void render(GuiGraphics graphics, int index, int total) {
+        int padding = 4;
+        int leftPadding = 4;
+
+        renderInWorld(graphics);
+        int centerY = Minecraft.getInstance().getWindow().getGuiScaledHeight() / 2;
+        int totalPadding = padding * (total - 1);
+        int totalHeight = (ICON_SIZE * total) + totalPadding;
+        int topY = centerY - totalHeight / 2;
+
+        int x = leftPadding + ICON_SIZE / 2;
+        int y = topY + (index * (ICON_SIZE + padding));
+        renderInGUI(graphics, x, y, 255);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void renderInWorld(GuiGraphics graphics) {
+        var pos = WorldToScreen.worldToScreen(getPos().getCenter());
+        if (WorldToScreen.inFrontOfCamera(pos)) {
+            renderInGUI(graphics, (int) pos.x, (int) pos.y, (int) (RenderingUtils.centerTransparency(pos.x, pos.y) * 255));
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void renderInGUI(GuiGraphics graphics, int x, int y, int alpha) {
+        RenderingUtils.renderImageWithDefaultPath(graphics, getIcon(), x, y, ICON_SIZE, Utils.multiplyAlpha(getColor(), alpha / 255f));
+        if (symbol != null) {
+            var font = Minecraft.getInstance().font;
+            var text = String.valueOf(getSymbol());
+            var color = new Color(getColor());
+            var inverted = new Color(255 - color.getRed(), 255 - color.getGreen(), 255 - color.getBlue(), alpha);
+            graphics.drawString(font, text, x - font.width(text) / 2, y - font.lineHeight / 2, inverted.getRGB(), false);
+        }
     }
 
     @OnlyIn(Dist.CLIENT)

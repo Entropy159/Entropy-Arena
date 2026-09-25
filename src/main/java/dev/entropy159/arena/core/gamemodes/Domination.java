@@ -67,7 +67,7 @@ public class Domination extends TeamGamemode implements HasCapturePoints<TeamCap
     @Override
     public void onClientRender(GuiGraphics graphics, DeltaTracker tracker) {
         super.onClientRender(graphics, tracker);
-        capturePoints.forEach(point -> point.render(graphics));
+        capturePoints.forEach(point -> point.render(graphics, capturePoints.indexOf(point), capturePoints.size()));
     }
 
     public void encodeData(ByteBuf buffer) {

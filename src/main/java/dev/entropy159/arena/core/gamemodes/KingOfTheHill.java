@@ -91,7 +91,7 @@ public class KingOfTheHill extends FFAGamemode implements HasCapturePoints<KOTHC
     @Override
     public void onClientRender(GuiGraphics graphics, DeltaTracker tracker) {
         super.onClientRender(graphics, tracker);
-        if (capturePoint != null) capturePoint.render(graphics);
+        if (capturePoint != null) capturePoint.render(graphics, 0, 1);
     }
 
     public void encodeData(ByteBuf buffer) {

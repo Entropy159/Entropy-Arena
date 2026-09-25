@@ -1,7 +1,7 @@
 package dev.entropy159.arena.core.capturePoint;
 
-import dev.entropy159.arena.api.util.Notification;
 import dev.entropy159.arena.api.capturePoint.CapturePoint;
+import dev.entropy159.arena.api.util.Notification;
 import dev.entropy159.arena.core.gamemodes.KingOfTheHill;
 import dev.entropy159.entropylib.client.util.RenderingUtils;
 import dev.entropy159.entropylib.util.Utils;
@@ -30,6 +30,10 @@ public class KOTHCapturePoint extends CapturePoint {
 
     public KOTHCapturePoint(BlockPos pos) {
         super(pos);
+    }
+
+    public KOTHCapturePoint(ServerLevel level, int current, int total, BlockPos pos) {
+        this(pos);
     }
 
     public @Nullable UUID getKing() {

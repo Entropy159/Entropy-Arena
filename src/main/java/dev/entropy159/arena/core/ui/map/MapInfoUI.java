@@ -55,12 +55,16 @@ public class MapInfoUI extends PlayerUIWithData.DataUIHolder {
                             map.update(serverPlayer.serverLevel(), serverPlayer);
                         }
                     }).style(style -> style.color(0xFF00FF00)),
-                    new Button().setText("Load").setOnServerClick(e -> {
+                    new Button().setText("Teleport").setOnServerClick(e -> {
                         if (player instanceof ServerPlayer serverPlayer) {
                             player.closeContainer();
-                            map.load(serverPlayer.serverLevel());
                             var pos = map.getCenter();
                             serverPlayer.teleportTo(pos.x, pos.y, pos.z);
+                        }
+                    }),
+                    new Button().setText("Load").setOnServerClick(e -> {
+                        if (player instanceof ServerPlayer serverPlayer) {
+                            map.load(serverPlayer.serverLevel());
                         }
                     }),
                     new Button().setText("Remove").setOnServerClick(e -> {

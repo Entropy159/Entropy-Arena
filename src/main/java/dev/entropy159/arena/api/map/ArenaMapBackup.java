@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.common.NeoForge;
 
@@ -102,7 +103,7 @@ public class ArenaMapBackup {
     }
 
     private static File getBackupFolder(ServerLevel level) {
-        File backupFolder = level.getServer().getFile("arena_backup").resolve(level.dimension().location().toLanguageKey()).toFile();
+        File backupFolder = level.getServer().getWorldPath(LevelResource.LEVEL_DATA_FILE).getParent().resolve("arena_backup").resolve(level.dimension().location().toLanguageKey()).toFile();
         if (!backupFolder.exists() && !backupFolder.mkdirs()) {
             EntropyArena.LOGGER.error("Failed to create map backup folder!");
         }

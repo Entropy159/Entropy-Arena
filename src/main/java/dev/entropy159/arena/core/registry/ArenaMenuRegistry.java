@@ -13,6 +13,7 @@ import dev.entropy159.arena.core.ui.map.MapInfoUI;
 import dev.entropy159.arena.core.ui.map.MapListUI;
 import dev.entropy159.arena.core.ui.randomizer.ItemRandomizerListUI;
 import dev.entropy159.arena.core.ui.randomizer.ItemRandomizerUI;
+import dev.entropy159.arena.core.ui.voting.MapVotingUI;
 
 public class ArenaMenuRegistry {
     public static void init() {
@@ -29,5 +30,6 @@ public class ArenaMenuRegistry {
         NewItemListUI.register();
         ItemListEditorUI.register();
         LoadoutSelectionUI.register();
+        MapVotingUI.register();
     }
 }

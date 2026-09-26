@@ -4,11 +4,11 @@ import com.mojang.blaze3d.platform.InputConstants;
 import dev.entropy159.arena.api.client.MusicControls;
 import dev.entropy159.arena.api.map.MapScreenshot;
 import dev.entropy159.arena.api.util.Notification;
-import dev.entropy159.arena.client.screen.VotingScreen;
 import dev.entropy159.arena.core.EntropyArena;
 import dev.entropy159.arena.core.config.ServerConfig;
 import dev.entropy159.arena.core.network.toServer.AdminMenuPacket;
 import dev.entropy159.arena.core.network.toServer.OpenLoadoutsPacket;
+import dev.entropy159.arena.core.network.toServer.OpenVotingPacket;
 import dev.entropy159.arena.core.network.toServer.ScreenshotPacket;
 import dev.entropy159.arena.core.registry.ArenaDataComponents;
 import dev.entropy159.entropylib.client.util.RenderingUtils;
@@ -79,7 +79,7 @@ public class EntropyArenaClient {
     public static void postRenderTick(ClientTickEvent.Post event) {
         while (MAP_VOTING.get().consumeClick()) {
             if (inLobby && running) {
-                openVotingScreen(true);
+                openVotingScreen();
             }
         }
         while (LOADOUTS.get().consumeClick()) {
@@ -235,15 +235,8 @@ public class EntropyArenaClient {
         pendingScreenshot = mapName;
     }
 
-    public static void openVotingScreen(boolean shouldForce) {
-        if (shouldForce) {
-            if (client.screen instanceof VotingScreen old) {
-                old.onClose();
-            }
-            client.setScreen(new VotingScreen());
-        } else if (client.screen instanceof VotingScreen screen) {
-            screen.refresh();
-        }
+    public static void openVotingScreen() {
+        PacketDistributor.sendToServer(new OpenVotingPacket());
     }
 
     public static void openLoadoutScreen() {

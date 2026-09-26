@@ -5,6 +5,7 @@ import dev.entropy159.arena.api.loadout.ItemList;
 import dev.entropy159.arena.api.loadout.Loadout;
 import dev.entropy159.arena.api.map.ArenaMap;
 import dev.entropy159.arena.api.map.ArenaMapBackup;
+import dev.entropy159.arena.api.map.ArenaMapInfo;
 import dev.entropy159.arena.api.map.MapList;
 import dev.entropy159.arena.api.util.ArenaGameType;
 import dev.entropy159.arena.core.EntropyArena;
@@ -25,8 +26,8 @@ import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -125,6 +126,20 @@ public class ArenaData extends SavedData {
 
     public boolean inGame() {
         return running && !lobby && currentMap != null && currentGamemode != null;
+    }
+
+    public List<ArenaMapInfo> getVoteInfos() {
+        return votableMaps.entrySet().stream().map(entry -> mapList.getMap(entry.getKey()).getInfo(entry.getValue(), mapVotes.values().stream().filter(entry.getKey()::equals).toList().size())).toList();
+    }
+
+    public HashMap<ArenaGameType, Integer> getTypeVotes() {
+        return typeVotes.values().stream().reduce(new HashMap<>(), (map, type) -> {
+            map.put(type, map.getOrDefault(type, 0) + 1);
+            return map;
+        }, (a, b) -> {
+            a.putAll(b);
+            return a;
+        });
     }
 
     public void backup(Runnable after) {

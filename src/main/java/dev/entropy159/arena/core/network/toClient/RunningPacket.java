@@ -31,9 +31,6 @@ public record RunningPacket(boolean running, boolean lobby, int targetScore,
         ClientData.inLobby = lobby;
         ClientData.gameType = gameType;
         ClientData.targetScore = targetScore;
-        if (!lobby || !running) {
-            ClientData.votableMaps.clear();
-        }
     }
 
     public static RunningPacket fromData(MinecraftServer server) {

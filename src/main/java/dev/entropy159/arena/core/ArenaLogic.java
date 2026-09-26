@@ -15,6 +15,7 @@ import dev.entropy159.arena.api.util.Notification;
 import dev.entropy159.arena.core.config.ServerConfig;
 import dev.entropy159.arena.core.network.toClient.*;
 import dev.entropy159.arena.core.ui.loadout.LoadoutSelectionUI;
+import dev.entropy159.arena.core.ui.voting.MapVotingUI;
 import dev.entropy159.entropylib.util.Utils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -170,7 +171,7 @@ public class ArenaLogic {
             ResourceLocation gamemode = map.getRandomGamemode();
             data.votableMaps.put(map.getName(), gamemode);
         }
-        sendMapVotes(true);
+        sendMapVotes();
     }
 
     public void startMatch() {
@@ -251,18 +252,18 @@ public class ArenaLogic {
         data.mapVotes.put(player.getUUID(), mapName);
         Notification.toPlayer(Component.translatable("message.arena.voted_for_map", mapName).withStyle(ChatFormatting.GREEN), player);
         Utils.playSoundForPlayer(player, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.AMBIENT);
-        sendMapVotes(false);
+        sendMapVotes();
     }
 
     public void voteForType(ServerPlayer player, ArenaGameType type) {
         data.typeVotes.put(player.getUUID(), type);
         Notification.toPlayer(type.getVotedComponent().withStyle(ChatFormatting.GREEN), player);
         Utils.playSoundForPlayer(player, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.AMBIENT);
-        sendMapVotes(false);
+        sendMapVotes();
     }
 
-    private void sendMapVotes(boolean force) {
-        PacketDistributor.sendToAllPlayers(VotableMapsPacket.fromData(data, force));
+    private void sendMapVotes() {
+        currentLevel.players().forEach(player -> MapVotingUI.open(player, data));
     }
 
     public void selectLoadout(ServerPlayer player, String loadout) {

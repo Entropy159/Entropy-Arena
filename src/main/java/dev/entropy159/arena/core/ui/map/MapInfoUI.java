@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 public class MapInfoUI extends PlayerUIWithData.DataUIHolder {
-    private static final ResourceLocation ID = EntropyArena.id("mapinfo");
+    private static final ResourceLocation ID = EntropyArena.id("map_info");
 
     private final ArenaMap map;
 
@@ -81,7 +81,9 @@ public class MapInfoUI extends PlayerUIWithData.DataUIHolder {
                         }
                     }),
                     new Button().setText("Remove").setOnServerClick(e -> {
-                        ArenaData.get(ServerLifecycleHooks.getCurrentServer()).mapList.removeMap(map.getName());
+                        if (ArenaData.get(ServerLifecycleHooks.getCurrentServer()).mapList.removeMap(map.getName())) {
+                            player.sendSystemMessage(Component.translatable("message.arena.removed_map", map.getName()));
+                        }
                         player.closeContainer();
                     }).style(style -> style.color(0xFFFF0000))
             );

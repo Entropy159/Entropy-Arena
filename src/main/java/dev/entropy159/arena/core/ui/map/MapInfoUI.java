@@ -18,6 +18,8 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public class MapInfoUI extends PlayerUIWithData.DataUIHolder {
     private static final ResourceLocation ID = EntropyArena.id("mapinfo");
 
@@ -53,6 +55,17 @@ public class MapInfoUI extends PlayerUIWithData.DataUIHolder {
                         if (player instanceof ServerPlayer serverPlayer) {
                             player.closeContainer();
                             map.update(serverPlayer.serverLevel(), serverPlayer);
+                        }
+                    }).style(style -> style.color(0xFF00FF00)),
+                    new Button().setText("Validate").setOnServerClick(e -> {
+                        if (player instanceof ServerPlayer serverPlayer) {
+                            player.closeContainer();
+                            if (serverPlayer.serverLevel().dimension() == map.getDimension()) {
+                                var result = map.validate(serverPlayer.serverLevel());
+                                serverPlayer.sendSystemMessage(Objects.requireNonNullElseGet(result, () -> Component.translatable("message.arena.map_validated")));
+                            } else {
+                                serverPlayer.sendSystemMessage(Component.translatable("error.arena.wrong_dimension", map.getDimension().location()));
+                            }
                         }
                     }).style(style -> style.color(0xFF00FF00)),
                     new Button().setText("Teleport").setOnServerClick(e -> {

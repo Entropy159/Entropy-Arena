@@ -222,6 +222,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("message.arena.removed_unbreakable", "Made item breakable");
         REGISTRATE.addRawLang("message.arena.switched_team", "%s has switched to team %s");
         REGISTRATE.addRawLang("message.arena.lost_killstreak", "%s has lost their kill streak of %s");
+        REGISTRATE.addRawLang("message.arena.map_validated", "Map validation successful");
 
         REGISTRATE.addRawLang("error.arena.already_running", "Game is already running");
         REGISTRATE.addRawLang("error.arena.no_lobby", "No lobby position found");
@@ -235,7 +236,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("error.arena.not_enough_teams", "Not enough team spawns found");
         REGISTRATE.addRawLang("error.arena.no_enemy_spawns", "No enemy spawns found");
         REGISTRATE.addRawLang("error.arena.no_capture_points", "No capture points found");
-        REGISTRATE.addRawLang("error.arena.too_many_capture_points", "Too many capturep points found, limit is %s");
+        REGISTRATE.addRawLang("error.arena.too_many_capture_points", "Too many capture points found, limit is %s");
         REGISTRATE.addRawLang("error.arena.no_loadouts", "No loadouts found");
         REGISTRATE.addRawLang("error.arena.loadout_already_exists", "Loadout %s already exists");
         REGISTRATE.addRawLang("error.arena.loadout_not_found", "Loadout %s not found");
@@ -250,6 +251,8 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("error.arena.no_config", "No config found with key %s and mod ID %s");
         REGISTRATE.addRawLang("error.arena.invalid_config_value", "Invalid config value %s");
         REGISTRATE.addRawLang("error.arena.no_level", "No level found with dimension %s");
+        REGISTRATE.addRawLang("error.arena.map_validation_error", "Validation error for %s: %s");
+        REGISTRATE.addRawLang("error.arena.wrong_dimension", "You are in the wrong dimension! Required: %s");
 
         REGISTRATE.addRawLang("message.arena.ctf.flag_taken", "Team %s's flag has been taken by team %s");
         REGISTRATE.addRawLang("message.arena.ctf.flag_returned", "Team %s's flag has been returned");

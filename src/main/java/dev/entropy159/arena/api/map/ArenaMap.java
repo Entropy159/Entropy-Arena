@@ -388,7 +388,7 @@ public class ArenaMap implements IConfigurable {
             if (mode != null) {
                 var result = mode.validateMap(level, this);
                 if (result != null) {
-                    return result;
+                    return Component.translatable("error.arena.map_validation_error", mode.getName(), result).withStyle(ChatFormatting.DARK_RED);
                 }
             }
         }

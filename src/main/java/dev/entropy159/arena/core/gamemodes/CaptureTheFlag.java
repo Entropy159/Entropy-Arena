@@ -1,11 +1,11 @@
 package dev.entropy159.arena.core.gamemodes;
 
-import dev.entropy159.arena.api.util.ArenaTeam;
-import dev.entropy159.arena.api.util.Notification;
 import dev.entropy159.arena.api.data.ArenaData;
 import dev.entropy159.arena.api.gamemode.TeamGamemode;
 import dev.entropy159.arena.api.loadout.LoadoutSerializerRegistry;
 import dev.entropy159.arena.api.map.ArenaMap;
+import dev.entropy159.arena.api.util.ArenaTeam;
+import dev.entropy159.arena.api.util.Notification;
 import dev.entropy159.arena.core.EntropyArena;
 import dev.entropy159.arena.core.blocks.PedestalBlock;
 import dev.entropy159.arena.core.config.ServerConfig;
@@ -52,7 +52,7 @@ public class CaptureTheFlag extends TeamGamemode {
     @Override
     public void onMatchStart(ServerLevel level) {
         super.onMatchStart(level);
-        pedestalPositions = ArenaData.get(level).currentMap.getBlockPropertyMap(level, PedestalBlock.GEM_COLOR);
+        pedestalPositions = getPedestals(level, ArenaData.get(level).currentMap);
         pedestalPositions.values().forEach(list -> list.forEach(pos -> pedestalValueMap.put(pos, true)));
         sendToAll();
     }
@@ -106,12 +106,16 @@ public class CaptureTheFlag extends TeamGamemode {
     }
 
     @Override
-    public @Nullable Component validateMap(ServerLevel level, ArenaMap arenaMap) {
-        Component failureMessage = super.validateMap(level, arenaMap);
+    public @Nullable Component validateMap(ServerLevel level, ArenaMap map) {
+        Component failureMessage = super.validateMap(level, map);
         if (failureMessage != null) return failureMessage;
-        if (pedestalPositions.size() > arenaMap.getSpawns(level).size())
+        if (getPedestals(level, map).size() > map.getSpawns(level).size())
             return Component.translatable("error.arena.ctf.not_enough_pedestals");
         return null;
+    }
+
+    protected HashMap<ArenaTeam, ArrayList<BlockPos>> getPedestals(ServerLevel level, ArenaMap map) {
+        return map.getBlockPropertyMap(level, PedestalBlock.GEM_COLOR);
     }
 
     protected int getPedestalIndex(ArenaTeam team, BlockPos pos) {

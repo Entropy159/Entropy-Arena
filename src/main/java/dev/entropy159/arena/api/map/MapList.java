@@ -32,7 +32,7 @@ public class MapList {
         if (getMap(name) != null) {
             return Component.translatable("error.arena.map_already_exists", name);
         }
-        ArenaMap map = new ArenaMap(level, name, gamemode, one, two);
+        ArenaMap map = new ArenaMap(level, name, List.of(gamemode), one, two);
         Component failureMessage = map.validate(level);
         if (failureMessage == null) maps.add(map);
         return failureMessage;

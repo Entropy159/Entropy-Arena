@@ -7,10 +7,10 @@ import com.electronwill.nightconfig.toml.TomlFormat;
 import com.electronwill.nightconfig.toml.TomlParser;
 import com.electronwill.nightconfig.toml.TomlWriter;
 import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigSearch;
+import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.configurator.ui.SearchComponentConfigurator;
-import com.lowdragmc.lowdraglib2.utils.search.IResultHandler;
+import com.lowdragmc.lowdraglib2.configurator.ui.Configurator;
+import com.lowdragmc.lowdraglib2.configurator.ui.SelectorConfigurator;
 import dev.entropy159.arena.api.data.ArenaData;
 import dev.entropy159.arena.api.gamemode.ArenaGamemode;
 import dev.entropy159.arena.api.gamemode.GamemodeRegistry;
@@ -47,19 +47,19 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class ArenaMap implements IConfigurable {
     public static final StreamCodec<RegistryFriendlyByteBuf, ArenaMap> STREAM_CODEC = StreamCodec.of((buf, map) -> {
         buf.writeUtf(map.name);
         buf.writeBoolean(map.enabled);
         buf.writeResourceKey(map.dimension);
-        buf.writeResourceLocation(map.gamemodeID);
+        ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, map.gamemodeIDs);
         buf.writeBlockPos(map.corner1);
         buf.writeBlockPos(map.corner2);
         buf.writeLong(map.time);
@@ -77,7 +77,7 @@ public class ArenaMap implements IConfigurable {
         String name = buf.readUtf();
         boolean enabled = buf.readBoolean();
         ResourceKey<Level> dimension = buf.readResourceKey(Registries.DIMENSION);
-        ResourceLocation gamemode = buf.readResourceLocation();
+        List<ResourceLocation> gamemodes = ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
         BlockPos corner1 = buf.readBlockPos();
         BlockPos corner2 = buf.readBlockPos();
         long time = buf.readLong();
@@ -91,15 +91,15 @@ public class ArenaMap implements IConfigurable {
         int timer = buf.readInt();
         int targetScore = buf.readInt();
         boolean allowBlocks = buf.readBoolean();
-        return new ArenaMap(name, enabled, dimension, gamemode, corner1, corner2, time, raining, thundering, screenshot, configOverrides, loadoutTagWhitelist, loadoutTagBlacklist, loadoutTagMode, timer, targetScore, allowBlocks);
+        return new ArenaMap(name, enabled, dimension, gamemodes, corner1, corner2, time, raining, thundering, screenshot, configOverrides, loadoutTagWhitelist, loadoutTagBlacklist, loadoutTagMode, timer, targetScore, allowBlocks);
     });
 
     private final String name;
     @Configurable(name = "Enabled")
     private boolean enabled;
-    @Configurable(name = "Gamemode")
-    @ConfigSearch(searchConfiguratorMethod = "gamemodeConfigSearch")
-    private ResourceLocation gamemodeID;
+    @Configurable(name = "Gamemodes")
+    @ConfigList(addDefaultMethod = "defaultGamemodeID", configuratorMethod = "gamemodeConfig")
+    private List<ResourceLocation> gamemodeIDs;
     @Configurable(name = "Corner 1")
     private BlockPos corner1;
     @Configurable(name = "Corner 2")
@@ -127,15 +127,15 @@ public class ArenaMap implements IConfigurable {
     protected final HashMap<Property<?>, HashMap<Object, ArrayList<BlockPos>>> blockPropertyMap = new HashMap<>();
     private final Map<String, CommentedConfig> configOverrides;
 
-    public ArenaMap(ServerLevel level, String name, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2) {
-        this(name, true, level.dimension(), gamemodeID, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), new HashMap<>(), List.of("global"), List.of(), Loadout.TagMode.ANY, -1, -1, true);
+    public ArenaMap(ServerLevel level, String name, List<ResourceLocation> gamemodeIDs, BlockPos corner1, BlockPos corner2) {
+        this(name, true, level.dimension(), gamemodeIDs, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), new HashMap<>(), List.of("global"), List.of(), Loadout.TagMode.ANY, -1, -1, true);
     }
 
-    public ArenaMap(String name, boolean enabled, ResourceKey<Level> dimension, ResourceLocation gamemodeID, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, Map<String, CommentedConfig> configOverrides, List<String> tagWhitelist, List<String> tagBlacklist, Loadout.TagMode tagMode, int timer, int targetScore, boolean allowBlocks) {
+    public ArenaMap(String name, boolean enabled, ResourceKey<Level> dimension, List<ResourceLocation> gamemodeIDs, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, Map<String, CommentedConfig> configOverrides, List<String> tagWhitelist, List<String> tagBlacklist, Loadout.TagMode tagMode, int timer, int targetScore, boolean allowBlocks) {
         this.name = name;
         this.enabled = enabled;
         this.dimension = dimension;
-        this.gamemodeID = gamemodeID;
+        this.gamemodeIDs = gamemodeIDs;
         this.corner1 = corner1;
         this.corner2 = corner2;
         this.time = time;
@@ -193,12 +193,17 @@ public class ArenaMap implements IConfigurable {
         return (HashMap<T, ArrayList<BlockPos>>) (HashMap<?, ?>) blockPropertyMap.get(property);
     }
 
-    public @Nullable ArenaGamemode getNewGamemode() {
-        return GamemodeRegistry.getNew(gamemodeID);
+    public List<ResourceLocation> getGamemodeIDs() {
+        return gamemodeIDs;
     }
 
-    public ResourceLocation getGamemodeID() {
-        return gamemodeID;
+    public ResourceLocation getRandomGamemode() {
+        if (gamemodeIDs.isEmpty()) {
+            EntropyArena.LOGGER.error("Map {} has no gamemodes!", getName());
+            return null;
+        }
+        int index = new Random().nextInt(gamemodeIDs.size());
+        return gamemodeIDs.get(index);
     }
 
     public void update(ServerLevel level, ServerPlayer player) {
@@ -284,7 +289,7 @@ public class ArenaMap implements IConfigurable {
         tag.putString("name", name);
         tag.putBoolean("enabled", enabled);
         tag.putString("dimension", dimension.location().toString());
-        tag.putString("gamemode", gamemodeID.toString());
+        tag.put("gamemodes", Utils.listToTag(gamemodeIDs, g -> StringTag.valueOf(g.toString())));
         tag.putLong("corner1", corner1.asLong());
         tag.putLong("corner2", corner2.asLong());
         tag.putLong("time", time);
@@ -313,7 +318,10 @@ public class ArenaMap implements IConfigurable {
         if (tag.contains("dimension")) {
             dimension = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(tag.getString("dimension")));
         }
-        ResourceLocation gamemode = ResourceLocation.tryParse(tag.getString("gamemode"));
+        List<ResourceLocation> gamemodes = Utils.tagToArrayList(tag.getList("gamemodes", Tag.TAG_STRING), s -> ResourceLocation.parse(s.getAsString()));
+        if (tag.contains("gamemode")) {
+            gamemodes.add(ResourceLocation.parse(tag.getString("gamemode")));
+        }
         BlockPos corner1 = BlockPos.of(tag.getLong("corner1"));
         BlockPos corner2 = BlockPos.of(tag.getLong("corner2"));
         long time = tag.getLong("time");
@@ -338,7 +346,7 @@ public class ArenaMap implements IConfigurable {
         int timer = tag.getInt("timer");
         int targetScore = tag.getInt("targetScore");
         boolean allowblocks = tag.getBoolean("allowBlocks");
-        return new ArenaMap(name, enabled, dimension, gamemode, corner1, corner2, time, raining, thundering, screenshot, configOverrides, tagWhitelist, tagBlacklist, tagMode, timer, targetScore, allowblocks);
+        return new ArenaMap(name, enabled, dimension, gamemodes, corner1, corner2, time, raining, thundering, screenshot, configOverrides, tagWhitelist, tagBlacklist, tagMode, timer, targetScore, allowblocks);
     }
 
     public String getName() {
@@ -346,23 +354,19 @@ public class ArenaMap implements IConfigurable {
     }
 
     public Component toComponent() {
-        ArenaGamemode gamemode = getNewGamemode();
         return Component.literal(name).withStyle(ChatFormatting.YELLOW)
                 .append(Component.literal(" - from ").withStyle(ChatFormatting.GRAY))
                 .append(Component.literal(corner1.toShortString()).withStyle(ChatFormatting.BLUE))
                 .append(Component.literal(" to ").withStyle(ChatFormatting.GRAY))
                 .append(Component.literal(corner2.toShortString()).withStyle(ChatFormatting.BLUE))
-                .append(Component.literal(", gamemode: ").withStyle(ChatFormatting.GRAY))
-                .append((gamemode == null ? Component.literal("None") : gamemode.getName().copy()).withStyle(ChatFormatting.DARK_AQUA))
                 .append(Component.literal(", dimension: ").withStyle(ChatFormatting.GRAY))
                 .append(Component.literal(dimension.location().toString()))
                 .append(Component.literal(", ").withStyle(ChatFormatting.GRAY))
                 .append(Component.translatable("arena." + (enabled ? "enabled" : "disabled")).withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED));
     }
 
-    public ArenaMapInfo getInfo(int votes) {
-        ArenaGamemode gamemode = getNewGamemode();
-        return new ArenaMapInfo(name, screenshot, gamemode == null ? EntropyArena.id("none") : gamemode.getRegistryID(), getSize(), votes);
+    public ArenaMapInfo getInfo(ResourceLocation gamemode, int votes) {
+        return new ArenaMapInfo(name, screenshot, gamemode, getSize(), votes);
     }
 
     public Vec3i getSize() {
@@ -378,9 +382,17 @@ public class ArenaMap implements IConfigurable {
     }
 
     public @Nullable Component validate(ServerLevel level) {
-        ArenaGamemode gamemode = getNewGamemode();
-        if (gamemode == null) return Component.translatable("error.arena.no_gamemode", gamemodeID.toString());
-        return gamemode.validateMap(level, this);
+        if (gamemodeIDs.isEmpty()) return Component.translatable("error.arena.no_gamemodes");
+        for (ResourceLocation gamemode : gamemodeIDs) {
+            var mode = GamemodeRegistry.getNew(gamemode);
+            if (mode != null) {
+                var result = mode.validateMap(level, this);
+                if (result != null) {
+                    return result;
+                }
+            }
+        }
+        return null;
     }
 
     public boolean isEnabled() {
@@ -388,7 +400,7 @@ public class ArenaMap implements IConfigurable {
     }
 
     public boolean isValid() {
-        return isEnabled() && getLevel() != null;
+        return isEnabled() && getLevel() != null && !gamemodeIDs.isEmpty();
     }
 
     public void setEnabled(boolean newValue) {
@@ -422,26 +434,11 @@ public class ArenaMap implements IConfigurable {
         return allowBlocks;
     }
 
-    private SearchComponentConfigurator.ISearchConfigurator<ResourceLocation> gamemodeConfigSearch() {
-        return new SearchComponentConfigurator.ISearchConfigurator<>() {
-            @Override
-            public @NotNull ResourceLocation defaultValue() {
-                return GamemodeRegistry.NONE_ID;
-            }
+    private ResourceLocation defaultGamemodeID() {
+        return GamemodeRegistry.REGISTRY.keySet().stream().findAny().orElse(GamemodeRegistry.NONE_ID);
+    }
 
-            @Override
-            public @NotNull String resultText(@NotNull ResourceLocation value) {
-                return Optional.ofNullable(GamemodeRegistry.REGISTRY.get(value)).map(mode -> mode.getName().getString()).orElse("Invalid!");
-            }
-
-            @Override
-            public void search(String word, IResultHandler<ResourceLocation> searchHandler) {
-                GamemodeRegistry.forEach(gamemode -> {
-                    if (gamemode.getRegistryID().toString().contains(word)) {
-                        searchHandler.accept(gamemode.getRegistryID());
-                    }
-                });
-            }
-        };
+    private Configurator gamemodeConfig(Supplier<ResourceLocation> getter, Consumer<ResourceLocation> setter) {
+        return new SelectorConfigurator<>("Gamemode", getter, setter, defaultGamemodeID(), true, GamemodeRegistry.REGISTRY.stream().map(ArenaGamemode::getRegistryID).toList(), ArenaGamemode::translationKey);
     }
 }

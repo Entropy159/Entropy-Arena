@@ -48,7 +48,7 @@ public class ArenaData extends SavedData {
     public HashMap<String, ItemList> itemLists = new HashMap<>();
     public final HashMap<UUID, String> mapVotes = new HashMap<>();
     public final HashMap<UUID, ArenaGameType> typeVotes = new HashMap<>();
-    public final ArrayList<String> votableMaps = new ArrayList<>();
+    public final HashMap<String, ResourceLocation> votableMaps = new HashMap<>();
     public final HashMap<UUID, Long> respawnTimes = new HashMap<>();
     public final HashMap<UUID, Long> spawnProtection = new HashMap<>();
     public final HashMap<UUID, Long> teamSwitchTimes = new HashMap<>();

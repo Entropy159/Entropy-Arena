@@ -5,6 +5,7 @@ import dev.entropy159.arena.api.events.GiveLoadoutEvent;
 import dev.entropy159.arena.api.events.MatchEndEvent;
 import dev.entropy159.arena.api.events.MatchStartEvent;
 import dev.entropy159.arena.api.events.TeleportToLobbyEvent;
+import dev.entropy159.arena.api.gamemode.GamemodeRegistry;
 import dev.entropy159.arena.api.loadout.Loadout;
 import dev.entropy159.arena.api.loadout.LoadoutSerializerRegistry;
 import dev.entropy159.arena.api.map.ArenaMap;
@@ -19,6 +20,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -165,7 +167,8 @@ public class ArenaLogic {
             int mapIndex = new Random().nextInt(maps.size());
             ArenaMap map = maps.get(mapIndex);
             maps.remove(map);
-            data.votableMaps.add(map.getName());
+            ResourceLocation gamemode = map.getRandomGamemode();
+            data.votableMaps.put(map.getName(), gamemode);
         }
         sendMapVotes(true);
     }
@@ -174,6 +177,8 @@ public class ArenaLogic {
         NeoForge.EVENT_BUS.post(new MatchStartEvent.Pre(server));
         data.gameType = getVotedGameType();
         data.currentMap = getVotedMap();
+        var gamemodeID = data.votableMaps.get(data.currentMap.getName());
+        data.currentGamemode = GamemodeRegistry.getNew(gamemodeID);
         data.mapVotes.clear();
         data.typeVotes.clear();
         data.votableMaps.clear();
@@ -183,9 +188,8 @@ public class ArenaLogic {
             disable();
             return;
         }
-        data.currentGamemode = data.currentMap.getNewGamemode();
         if (data.currentGamemode == null) {
-            Notification.toAll(Component.translatable("error.arena.no_gamemode", data.currentMap.getGamemodeID().toString()).withStyle(ChatFormatting.RED));
+            Notification.toAll(Component.translatable("error.arena.no_gamemode", gamemodeID.toString()).withStyle(ChatFormatting.RED));
             disable();
             return;
         }

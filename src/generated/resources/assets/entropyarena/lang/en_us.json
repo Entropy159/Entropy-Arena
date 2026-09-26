@@ -120,6 +120,7 @@
   "error.arena.no_config": "No config found with key %s and mod ID %s",
   "error.arena.no_enemy_spawns": "No enemy spawns found",
   "error.arena.no_gamemode": "Gamemode %s not found",
+  "error.arena.no_gamemodes": "No gamemodes found",
   "error.arena.no_inventory_at_pos": "No block with inventory at %s",
   "error.arena.no_level": "No level found with dimension %s",
   "error.arena.no_loadouts": "No loadouts found",

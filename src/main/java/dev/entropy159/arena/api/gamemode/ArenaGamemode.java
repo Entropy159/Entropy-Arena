@@ -66,7 +66,11 @@ public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<Are
     }
 
     public Component getName() {
-        return Component.translatable("arena.gamemode." + registryID.toLanguageKey());
+        return Component.translatable(translationKey(getRegistryID()));
+    }
+
+    public static String translationKey(ResourceLocation id) {
+        return "arena.gamemode." + id.toLanguageKey();
     }
 
     public void onLevelTick(ServerLevel level) {

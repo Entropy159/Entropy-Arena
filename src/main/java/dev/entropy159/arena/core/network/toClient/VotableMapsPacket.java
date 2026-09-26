@@ -36,7 +36,7 @@ public record VotableMapsPacket(List<ArenaMapInfo> maps,
 
     public static VotableMapsPacket fromData(ArenaData data, boolean force) {
         List<ArenaMapInfo> votableMaps = new ArrayList<>();
-        data.votableMaps.forEach(name -> votableMaps.add(data.mapList.getMap(name).getInfo((int) data.mapVotes.values().stream().filter(name::equals).count())));
+        data.votableMaps.forEach((name, gamemode) -> votableMaps.add(data.mapList.getMap(name).getInfo(gamemode, (int) data.mapVotes.values().stream().filter(name::equals).count())));
         Map<ArenaGameType, Integer> typeVotes = new HashMap<>();
         data.typeVotes.values().forEach(type -> typeVotes.put(type, typeVotes.getOrDefault(type, 0) + 1));
         return new VotableMapsPacket(votableMaps, typeVotes, force);

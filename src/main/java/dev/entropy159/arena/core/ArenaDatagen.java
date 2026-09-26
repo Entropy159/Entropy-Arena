@@ -227,6 +227,7 @@ public class ArenaDatagen {
         REGISTRATE.addRawLang("error.arena.no_lobby", "No lobby position found");
         REGISTRATE.addRawLang("error.arena.no_maps", "No maps found");
         REGISTRATE.addRawLang("error.arena.no_gamemode", "Gamemode %s not found");
+        REGISTRATE.addRawLang("error.arena.no_gamemodes", "No gamemodes found");
         REGISTRATE.addRawLang("error.arena.map_already_exists", "Map %s already exists");
         REGISTRATE.addRawLang("error.arena.map_not_found", "No map found with name %s");
         REGISTRATE.addRawLang("error.arena.no_spawns", "No valid spawns found");

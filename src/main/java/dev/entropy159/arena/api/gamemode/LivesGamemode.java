@@ -29,7 +29,7 @@ public abstract class LivesGamemode extends FFAGamemode {
     @Override
     public void onDeath(ServerPlayer player, DamageSource source) {
         super.onDeath(player, source);
-        setScore(player, -1);
+        incrementScore(player, -1);
     }
 
     @Override

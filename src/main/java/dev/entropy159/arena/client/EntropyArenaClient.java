@@ -1,16 +1,18 @@
 package dev.entropy159.arena.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.entropy159.arena.api.client.MusicControls;
+import dev.entropy159.arena.api.client.ClientData;
 import dev.entropy159.arena.api.map.MapScreenshot;
 import dev.entropy159.arena.api.util.Notification;
 import dev.entropy159.arena.core.EntropyArena;
+import dev.entropy159.arena.core.config.ClientConfig;
 import dev.entropy159.arena.core.config.ServerConfig;
 import dev.entropy159.arena.core.network.toServer.AdminMenuPacket;
 import dev.entropy159.arena.core.network.toServer.OpenLoadoutsPacket;
 import dev.entropy159.arena.core.network.toServer.OpenVotingPacket;
 import dev.entropy159.arena.core.network.toServer.ScreenshotPacket;
 import dev.entropy159.arena.core.registry.ArenaDataComponents;
+import dev.entropy159.arena.core.registry.ArenaSounds;
 import dev.entropy159.entropylib.client.util.RenderingUtils;
 import dev.entropy159.entropylib.client.util.ScreenAnchorPoint;
 import net.minecraft.ChatFormatting;
@@ -20,6 +22,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.sounds.Music;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -107,7 +110,17 @@ public class EntropyArenaClient {
 
     @SubscribeEvent
     public static void customMusic(SelectMusicEvent event) {
-        event.overrideMusic(MusicControls.getMusic());
+        event.overrideMusic(getMusic());
+    }
+
+    public static Music getMusic() {
+        if (ClientConfig.CONTINUOUS_MUSIC.get()) {
+            return ArenaSounds.ARENA_MUSIC;
+        }
+        if (ClientData.inLobby || !ClientData.running) {
+            return ArenaSounds.LOBBY_MUSIC;
+        }
+        return ArenaSounds.ARENA_MUSIC;
     }
 
     @SubscribeEvent

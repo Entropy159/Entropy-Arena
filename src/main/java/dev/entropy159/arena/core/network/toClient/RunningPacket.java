@@ -1,7 +1,6 @@
 package dev.entropy159.arena.core.network.toClient;
 
 import dev.entropy159.arena.api.client.ClientData;
-import dev.entropy159.arena.api.client.MusicControls;
 import dev.entropy159.arena.api.data.ArenaData;
 import dev.entropy159.arena.api.util.ArenaGameType;
 import dev.entropy159.arena.core.EntropyArena;
@@ -24,9 +23,6 @@ public record RunningPacket(boolean running, boolean lobby, int targetScore,
     }
 
     public void handle(IPayloadContext ctx) {
-        if (ClientData.inLobby != lobby || ClientData.running != running) {
-            MusicControls.tryNextMusic();
-        }
         ClientData.running = running;
         ClientData.inLobby = lobby;
         ClientData.gameType = gameType;

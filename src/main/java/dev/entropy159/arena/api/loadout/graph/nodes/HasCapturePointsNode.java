@@ -10,7 +10,7 @@ import dev.entropy159.arena.api.gamemode.HasCapturePoints;
 import dev.entropy159.arena.api.loadout.graph.LoadoutTagGraph;
 import net.minecraft.resources.ResourceLocation;
 
-@NodeAttribute(name = "Has Teams", group = "Arena", graphTypes = {LoadoutTagGraph.class})
+@NodeAttribute(name = "Has Capture Points", group = "Arena", graphTypes = {LoadoutTagGraph.class})
 public class HasCapturePointsNode extends AnnotatedNode {
     @InputPort
     ResourceLocation gamemode;

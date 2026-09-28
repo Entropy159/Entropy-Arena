@@ -2,6 +2,7 @@ package dev.entropy159.arena.api.map;
 
 import dev.entropy159.entropylib.util.Utils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -16,12 +17,12 @@ import java.util.function.Consumer;
 public class MapList {
     private List<ArenaMap> maps = new ArrayList<>();
 
-    public ListTag saveToTag() {
-        return Utils.listToTag(maps, ArenaMap::toTag);
+    public ListTag saveToTag(HolderLookup.Provider registries) {
+        return Utils.listToTag(maps, map -> map.toTag(registries));
     }
 
-    public void loadFromTag(ListTag tag) {
-        maps = Utils.tagToArrayList(tag, t -> ArenaMap.fromTag((CompoundTag) t));
+    public void loadFromTag(ListTag tag, HolderLookup.Provider registries) {
+        maps = Utils.tagToArrayList(tag, t -> ArenaMap.fromTag((CompoundTag) t, registries));
     }
 
     public boolean mapListIsEmpty() {

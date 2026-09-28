@@ -17,11 +17,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class ItemListInfoUI extends PlayerUIWithData.DataUIHolder {
     private static final ResourceLocation ID = EntropyArena.id("item_list_info");
 
     private final String name;
-    private final ItemList itemList;
+    private ItemList itemList;
 
     public ItemListInfoUI(Player player, RegistryFriendlyByteBuf buf) {
         super(Component.literal("Loadout Info"));
@@ -34,25 +36,34 @@ public class ItemListInfoUI extends PlayerUIWithData.DataUIHolder {
         return BaseUI.defaultScroll(player, root -> {
             root.layout(layout -> layout.minWidth(100));
 
+            if (player instanceof ServerPlayer serverPlayer) {
+                itemList = ArenaData.get(serverPlayer.getServer()).itemLists.get(name);
+            }
+
             if (itemList.isTag()) {
                 root.addChildren(new Label().setText("Tag: " + itemList.getTag().toString()));
             } else {
                 root.addChild(new Button().setText("Edit ->").setOnServerClick(e -> ItemListEditorUI.open(player, itemList)).style(style -> style.color(0xFF00FF00)));
             }
 
+            var selector = new Selector<ItemList.Mode>();
+            selector.setCandidates(List.of(ItemList.Mode.values()));
+            selector.setValue(itemList.getMode(), true);
+            selector.bind(DataBindingBuilder.enumVal(ItemList.Mode.class, itemList::getMode, itemList::setMode).build());
+
             root.addChildren(
-                    new Selector<ItemList.Mode>().bind(DataBindingBuilder.enumVal(ItemList.Mode.class, itemList::getMode, itemList::setMode).build()),
-                    new Button().setText("Give Item").setOnClick(e -> e.currentElement.sendMessage("give")).onMessage("give", tag -> {
+                    selector,
+                    new Button().setText("Give Item").setOnServerClick(e -> {
                         if (player instanceof ServerPlayer serverPlayer) {
                             serverPlayer.addItem(itemList.getItem());
                         }
                     }),
-                    new Button().setText("Delete").setOnClick(e -> e.currentElement.sendMessage("delete")).style(style -> style.color(0xFFFF0000)).onMessage("delete", tag -> {
+                    new Button().setText("Delete").setOnServerClick(e -> {
                         if (player instanceof ServerPlayer serverPlayer) {
                             player.closeContainer();
                             ArenaData.get(serverPlayer.getServer()).itemLists.remove(name);
                         }
-                    })
+                    }).style(style -> style.color(0xFFFF0000))
             );
         });
     }

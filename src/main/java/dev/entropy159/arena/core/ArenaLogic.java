@@ -386,7 +386,7 @@ public class ArenaLogic {
     }
 
     public Map<String, Loadout> getValidLoadouts(ServerPlayer player) {
-        return data.loadouts.entrySet().stream().filter(entry -> entry.getValue().isEnabled() && data.currentMap.isValidLoadout(entry.getValue()) && data.currentGamemode.isValidLoadout(player, entry.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return data.loadouts.entrySet().stream().filter(entry -> entry.getValue().isEnabled() && data.currentMap.isValidLoadout(entry.getValue(), data.currentGamemode.getRegistryID()) && data.currentGamemode.isValidLoadout(player, entry.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public void onJoin(ServerPlayer player) {

@@ -124,6 +124,7 @@ dependencies {
     implementation "dev.entropy159:entropylib:${entropylib_version}-+"
     implementation "com.tterrag.registrate:Registrate:${registrate_version}"
     implementation "com.lowdragmc.ldlib2:ldlib2-neoforge-${minecraft_version}:${ldlib_version}:all"
+    implementation "maven.modrinth:kilagraph:mc1.21.1-${kilagraph_version}-neoforge"
 
     compileOnly "top.theillusivec4.curios:curios-neoforge:9.5.1+1.21.1"
     compileOnly "maven.modrinth:ping-wheel:${ping_wheel_version}"
@@ -145,6 +146,7 @@ tasks.withType(ProcessResources).configureEach {
             mod_license            : mod_license,
             mod_version            : mod_version,
             entropylib_version     : entropylib_version,
+            kilagraph_version      : kilagraph_version,
     ]
     inputs.properties replaceProperties
 

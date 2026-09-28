@@ -38,11 +38,10 @@ public class MapInfoUI extends PlayerUIWithData.DataUIHolder {
         }
         return BaseUI.defaultScroll(player, root -> {
             var inspector = new Inspector();
-            root.addChild(inspector);
-            inspector.inspect(map, configurator -> inspector.sendMessage("update", TagBuilder.compound().add("map", map.toTag()).build()));
+            inspector.inspect(map, configurator -> inspector.sendMessage("update", TagBuilder.compound().add("map", map.toTag(player.level().registryAccess())).build()));
             inspector.onMessage("update", tag -> {
                 if (player instanceof ServerPlayer serverPlayer) {
-                    ArenaLogic.get(serverPlayer.getServer()).updateMap(ArenaMap.fromTag(tag.getCompound("map")));
+                    ArenaLogic.get(serverPlayer.getServer()).updateMap(ArenaMap.fromTag(tag.getCompound("map"), player.level().registryAccess()));
                 }
             });
 
@@ -51,6 +50,12 @@ public class MapInfoUI extends PlayerUIWithData.DataUIHolder {
             assert map != null;
 
             root.addChildren(
+                    inspector,
+                    new Button().setText("Loadout Graph").setOnServerClick(e -> {
+                        if (player instanceof ServerPlayer serverPlayer) {
+                            MapLoadoutGraphUI.open(serverPlayer, map);
+                        }
+                    }),
                     new Button().setText("Update").setOnServerClick(e -> {
                         if (player instanceof ServerPlayer serverPlayer) {
                             player.closeContainer();

@@ -6,15 +6,25 @@ import com.electronwill.nightconfig.core.utils.StringUtils;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.electronwill.nightconfig.toml.TomlParser;
 import com.electronwill.nightconfig.toml.TomlWriter;
+import com.lowdragmc.kilagraph.blueprint.nodes.list.ListContainsNode;
+import com.lowdragmc.kilagraph.graph.exec.EvaluationEnvironment;
+import com.lowdragmc.kilagraph.graph.exec.GraphExecutor;
 import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
 import com.lowdragmc.lowdraglib2.configurator.ui.Configurator;
 import com.lowdragmc.lowdraglib2.configurator.ui.SelectorConfigurator;
+import com.lowdragmc.lowdraglib2.nodegraphtookit.api.type.TypeHandles;
+import com.lowdragmc.lowdraglib2.nodegraphtookit.api.variable.VariableKind;
+import com.lowdragmc.lowdraglib2.nodegraphtookit.model.SpawnFlags;
+import com.lowdragmc.lowdraglib2.nodegraphtookit.model.node.ConstantNodeModel;
+import com.lowdragmc.lowdraglib2.nodegraphtookit.model.variable.VariableDeclarationModel;
 import dev.entropy159.arena.api.data.ArenaData;
 import dev.entropy159.arena.api.gamemode.ArenaGamemode;
 import dev.entropy159.arena.api.gamemode.GamemodeRegistry;
 import dev.entropy159.arena.api.loadout.Loadout;
+import dev.entropy159.arena.api.loadout.graph.LoadoutTagGraph;
+import dev.entropy159.arena.api.loadout.graph.nodes.GetTagsNode;
 import dev.entropy159.arena.api.util.ArenaTeam;
 import dev.entropy159.arena.core.EntropyArena;
 import dev.entropy159.arena.core.blocks.SpawnpointBlock;
@@ -24,6 +34,7 @@ import dev.entropy159.arena.core.network.toClient.TakeScreenshotPacket;
 import dev.entropy159.entropylib.util.Utils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
@@ -48,6 +59,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2f;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -55,6 +67,13 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ArenaMap implements IConfigurable {
+    public static final StreamCodec<RegistryFriendlyByteBuf, LoadoutTagGraph> LOADOUT_GRAPH_STREAM_CODEC = StreamCodec.of((buf, val) -> {
+        ByteBufCodecs.COMPOUND_TAG.encode(buf, val.graphModel.serializeNBT(buf.registryAccess()));
+    }, buf -> {
+        var graph = new LoadoutTagGraph();
+        graph.graphModel.deserializeNBT(buf.registryAccess(), ByteBufCodecs.COMPOUND_TAG.decode(buf));
+        return graph;
+    });
     public static final StreamCodec<RegistryFriendlyByteBuf, ArenaMap> STREAM_CODEC = StreamCodec.of((buf, map) -> {
         buf.writeUtf(map.name);
         buf.writeBoolean(map.enabled);
@@ -66,9 +85,7 @@ public class ArenaMap implements IConfigurable {
         buf.writeBoolean(map.raining);
         buf.writeBoolean(map.thundering);
         MapScreenshot.STREAM_CODEC.encode(buf, map.screenshot);
-        ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()).encode(buf, map.loadoutTagWhitelist);
-        ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()).encode(buf, map.loadoutTagBlacklist);
-        buf.writeUtf(map.loadoutTagMode.name());
+        LOADOUT_GRAPH_STREAM_CODEC.encode(buf, map.loadoutTagGraph);
         ConfigOverridesPacket.CONFIG_MAP_STREAM_CODEC.encode(buf, map.configOverrides);
         buf.writeInt(map.timer);
         buf.writeInt(map.targetScore);
@@ -84,14 +101,12 @@ public class ArenaMap implements IConfigurable {
         boolean raining = buf.readBoolean();
         boolean thundering = buf.readBoolean();
         MapScreenshot screenshot = MapScreenshot.STREAM_CODEC.decode(buf);
-        List<String> loadoutTagWhitelist = ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()).decode(buf);
-        List<String> loadoutTagBlacklist = ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()).decode(buf);
-        Loadout.TagMode loadoutTagMode = Loadout.TagMode.valueOf(buf.readUtf());
+        LoadoutTagGraph loadoutTagGraph = LOADOUT_GRAPH_STREAM_CODEC.decode(buf);
         Map<String, CommentedConfig> configOverrides = ConfigOverridesPacket.CONFIG_MAP_STREAM_CODEC.decode(buf);
         int timer = buf.readInt();
         int targetScore = buf.readInt();
         boolean allowBlocks = buf.readBoolean();
-        return new ArenaMap(name, enabled, dimension, gamemodes, corner1, corner2, time, raining, thundering, screenshot, configOverrides, loadoutTagWhitelist, loadoutTagBlacklist, loadoutTagMode, timer, targetScore, allowBlocks);
+        return new ArenaMap(name, enabled, dimension, gamemodes, corner1, corner2, time, raining, thundering, screenshot, configOverrides, loadoutTagGraph, timer, targetScore, allowBlocks);
     });
 
     private final String name;
@@ -111,12 +126,7 @@ public class ArenaMap implements IConfigurable {
     private boolean raining;
     @Configurable(name = "Thundering")
     private boolean thundering;
-    @Configurable(name = "Loadout Tag Whitelist")
-    private List<String> loadoutTagWhitelist;
-    @Configurable(name = "Loadout Tag Blacklist")
-    private List<String> loadoutTagBlacklist;
-    @Configurable(name = "Loadout Tag Match")
-    private Loadout.TagMode loadoutTagMode;
+    private LoadoutTagGraph loadoutTagGraph;
     @Configurable(name = "Timer")
     private int timer;
     @Configurable(name = "Target Score")
@@ -128,10 +138,10 @@ public class ArenaMap implements IConfigurable {
     private final Map<String, CommentedConfig> configOverrides;
 
     public ArenaMap(ServerLevel level, String name, List<ResourceLocation> gamemodeIDs, BlockPos corner1, BlockPos corner2) {
-        this(name, true, level.dimension(), gamemodeIDs, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), new HashMap<>(), List.of("global"), List.of(), Loadout.TagMode.ANY, -1, -1, true);
+        this(name, true, level.dimension(), gamemodeIDs, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), new HashMap<>(), defaultLoadoutGraph(), -1, -1, true);
     }
 
-    public ArenaMap(String name, boolean enabled, ResourceKey<Level> dimension, List<ResourceLocation> gamemodeIDs, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, Map<String, CommentedConfig> configOverrides, List<String> tagWhitelist, List<String> tagBlacklist, Loadout.TagMode tagMode, int timer, int targetScore, boolean allowBlocks) {
+    public ArenaMap(String name, boolean enabled, ResourceKey<Level> dimension, List<ResourceLocation> gamemodeIDs, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, Map<String, CommentedConfig> configOverrides, LoadoutTagGraph loadoutTagGraph, int timer, int targetScore, boolean allowBlocks) {
         this.name = name;
         this.enabled = enabled;
         this.dimension = dimension;
@@ -143,9 +153,7 @@ public class ArenaMap implements IConfigurable {
         this.thundering = thundering;
         this.screenshot = screenshot;
         this.configOverrides = configOverrides;
-        loadoutTagWhitelist = tagWhitelist;
-        loadoutTagBlacklist = tagBlacklist;
-        loadoutTagMode = tagMode;
+        this.loadoutTagGraph = loadoutTagGraph;
         this.timer = timer;
         this.targetScore = targetScore;
         this.allowBlocks = allowBlocks;
@@ -284,7 +292,7 @@ public class ArenaMap implements IConfigurable {
         PacketDistributor.sendToPlayersInDimension(level, new ConfigOverridesPacket(configOverrides));
     }
 
-    public CompoundTag toTag() {
+    public CompoundTag toTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
         tag.putString("name", name);
         tag.putBoolean("enabled", enabled);
@@ -302,16 +310,14 @@ public class ArenaMap implements IConfigurable {
             configs.putString(modID, configString);
         });
         tag.put("configOverrides", configs);
-        tag.putString("loadoutTagMode", loadoutTagMode.name().toLowerCase());
-        tag.put("loadoutTagWhitelist", Utils.listToTag(loadoutTagWhitelist, StringTag::valueOf));
-        tag.put("loadoutTagBlacklist", Utils.listToTag(loadoutTagBlacklist, StringTag::valueOf));
+        tag.put("loadoutTagGraph", loadoutTagGraph.graphModel.serializeNBT(registries));
         tag.putInt("timer", timer);
         tag.putInt("targetScore", targetScore);
         tag.putBoolean("allowBlocks", allowBlocks);
         return tag;
     }
 
-    public static ArenaMap fromTag(CompoundTag tag) {
+    public static ArenaMap fromTag(CompoundTag tag, HolderLookup.Provider registries) {
         String name = tag.getString("name");
         boolean enabled = !tag.contains("enabled") || tag.getBoolean("enabled");
         ResourceKey<Level> dimension = Level.OVERWORLD;
@@ -335,18 +341,14 @@ public class ArenaMap implements IConfigurable {
                 configOverrides.put(key, new TomlParser().parse(configs.getString(key)));
             }
         }
-        List<String> tagWhitelist = Utils.tagToArrayList(tag.getList("loadoutTagWhitelist", CompoundTag.TAG_STRING), Tag::getAsString);
-        List<String> tagBlacklist = Utils.tagToArrayList(tag.getList("loadoutTagBlacklist", CompoundTag.TAG_STRING), Tag::getAsString);
-        Loadout.TagMode tagMode = Loadout.TagMode.ANY;
-        try {
-            tagMode = Loadout.TagMode.valueOf(tag.getString("loadoutTagMode").toUpperCase());
-        } catch (IllegalArgumentException e) {
-            EntropyArena.LOGGER.error("Found invalid loadout tag mode loading map {}", name);
+        LoadoutTagGraph loadoutTagGraph = defaultLoadoutGraph();
+        if (tag.contains("loadoutTagGraph")) {
+            loadoutTagGraph.graphModel.deserializeNBT(registries, tag.getCompound("loadoutTagGraph"));
         }
         int timer = tag.getInt("timer");
         int targetScore = tag.getInt("targetScore");
         boolean allowblocks = tag.getBoolean("allowBlocks");
-        return new ArenaMap(name, enabled, dimension, gamemodes, corner1, corner2, time, raining, thundering, screenshot, configOverrides, tagWhitelist, tagBlacklist, tagMode, timer, targetScore, allowblocks);
+        return new ArenaMap(name, enabled, dimension, gamemodes, corner1, corner2, time, raining, thundering, screenshot, configOverrides, loadoutTagGraph, timer, targetScore, allowblocks);
     }
 
     public String getName() {
@@ -411,15 +413,44 @@ public class ArenaMap implements IConfigurable {
         return dimension;
     }
 
-    public boolean validLoadoutTag(String tag) {
-        return loadoutTagWhitelist.contains(tag.toLowerCase()) && !loadoutTagBlacklist.contains(tag.toLowerCase());
+    public boolean isValidLoadout(Loadout loadout, ResourceLocation gamemode) {
+        var graph = getLoadoutTagGraph();
+        var env = EvaluationEnvironment.with(Map.of("loadout", loadout, "gamemode", gamemode));
+        var executor = new GraphExecutor(graph, env);
+        var outputs = executor.runOutputs();
+        return outputs.get("valid") instanceof Boolean bool && bool;
     }
 
-    public boolean isValidLoadout(Loadout value) {
-        return switch (loadoutTagMode) {
-            case ANY -> value.getTags().stream().anyMatch(this::validLoadoutTag);
-            case ALL -> value.getTags().stream().allMatch(this::validLoadoutTag);
-        };
+    public LoadoutTagGraph getLoadoutTagGraph() {
+        if (loadoutTagGraph == null) {
+            loadoutTagGraph = defaultLoadoutGraph();
+        }
+        return loadoutTagGraph;
+    }
+
+    public void updateLoadoutGraph(CompoundTag tag, HolderLookup.Provider registries) {
+        loadoutTagGraph.graphModel.deserializeNBT(registries, tag);
+    }
+
+    private static LoadoutTagGraph defaultLoadoutGraph() {
+        var graph = new LoadoutTagGraph();
+
+        var valid = (VariableDeclarationModel) graph.graphModel.createVariable("valid", Boolean.class, false, VariableKind.OUTPUT);
+        var loadout = (VariableDeclarationModel) graph.graphModel.createVariable("loadout", Loadout.class, null, VariableKind.INPUT);
+        var gamemode = (VariableDeclarationModel) graph.graphModel.createVariable("gamemode", ResourceLocation.class, GamemodeRegistry.NONE_ID, VariableKind.INPUT);
+
+        var loadoutNode = graph.graphModel.createVariableNode(loadout, new Vector2f(0, 0), null, SpawnFlags.DEFAULT);
+        var tagConstantNode = (ConstantNodeModel) graph.graphModel.createConstantNode("tag", new Vector2f(0, 50), TypeHandles.STRING, "global");
+        var getTagsNode = graph.graphModel.createNodeModel(new GetTagsNode(), new Vector2f(75, 0));
+        var containsTagNode = graph.graphModel.createNodeModel(new ListContainsNode(), new Vector2f(150, 0));
+        var setValid = graph.graphModel.createVariableNode(valid, new Vector2f(225, 0), null, SpawnFlags.DEFAULT);
+
+        graph.graphModel.createWire(loadoutNode.getOutputPort(), getTagsNode.getInputsById().get("loadout"));
+        graph.graphModel.createWire(getTagsNode.getOutputsById().get("tags"), containsTagNode.getInputsById().get("list"));
+        graph.graphModel.createWire(tagConstantNode.getOutputPort(), containsTagNode.getInputsById().get("value"));
+        graph.graphModel.createWire(containsTagNode.getOutputsById().get("out"), setValid.getInputPort());
+
+        return graph;
     }
 
     public int getTimer() {

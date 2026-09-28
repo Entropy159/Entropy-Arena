@@ -68,7 +68,7 @@ public class ArenaData extends SavedData {
         } else {
             data.backupState = ArenaMapBackup.BackupState.NO_BACKUP;
         }
-        data.mapList.loadFromTag(tag.getList("mapList", Tag.TAG_COMPOUND));
+        data.mapList.loadFromTag(tag.getList("mapList", Tag.TAG_COMPOUND), provider);
         data.loadouts = Utils.tagToHashMap(tag.getCompound("loadouts"), s -> s, t -> new Loadout((CompoundTag) t));
         data.itemLists = tagToHashMap(tag.getCompound("itemLists"), s -> s, (s, t) -> new ItemList(s, (CompoundTag) t, provider));
         if (tag.contains("lobbyPos", CompoundTag.TAG_COMPOUND)) {
@@ -92,7 +92,7 @@ public class ArenaData extends SavedData {
     @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         tag.putString("backupState", backupState.name());
-        tag.put("mapList", mapList.saveToTag());
+        tag.put("mapList", mapList.saveToTag(registries));
         tag.put("loadouts", Utils.mapToTag(loadouts, s -> s, Loadout::toTag));
         tag.put("itemLists", Utils.mapToTag(itemLists, s -> s, itemList -> itemList.toTag(registries)));
         if (lobbyPos != null) {

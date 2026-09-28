@@ -55,3 +55,10 @@ type = "required"
 versionRange = "[${entropylib_version},)"
 ordering = "NONE"
 side = "BOTH"
+
+[[dependencies.${ mod_id }]]
+modId = "kilagraph"
+type = "required"
+versionRange = "[${kilagraph_version},)"
+ordering = "NONE"
+side = "BOTH"

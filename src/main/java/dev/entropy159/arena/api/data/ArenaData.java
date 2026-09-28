@@ -129,7 +129,11 @@ public class ArenaData extends SavedData {
     }
 
     public List<ArenaMapInfo> getVoteInfos() {
-        return votableMaps.entrySet().stream().map(entry -> mapList.getMap(entry.getKey()).getInfo(entry.getValue(), mapVotes.values().stream().filter(entry.getKey()::equals).toList().size())).toList();
+        return votableMaps.entrySet().stream().map(entry -> mapList.getMap(entry.getKey()).getInfo(entry.getValue())).toList();
+    }
+
+    public int getMapVotes(String map) {
+        return mapVotes.values().stream().filter(map::equals).toList().size();
     }
 
     public HashMap<ArenaGameType, Integer> getTypeVotes() {

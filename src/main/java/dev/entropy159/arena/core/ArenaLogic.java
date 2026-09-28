@@ -252,14 +252,12 @@ public class ArenaLogic {
         data.mapVotes.put(player.getUUID(), mapName);
         Notification.toPlayer(Component.translatable("message.arena.voted_for_map", mapName).withStyle(ChatFormatting.GREEN), player);
         Utils.playSoundForPlayer(player, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.AMBIENT);
-        sendMapVotes();
     }
 
     public void voteForType(ServerPlayer player, ArenaGameType type) {
         data.typeVotes.put(player.getUUID(), type);
         Notification.toPlayer(type.getVotedComponent().withStyle(ChatFormatting.GREEN), player);
         Utils.playSoundForPlayer(player, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.AMBIENT);
-        sendMapVotes();
     }
 
     private void sendMapVotes() {

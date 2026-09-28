@@ -367,8 +367,8 @@ public class ArenaMap implements IConfigurable {
                 .append(Component.translatable("arena." + (enabled ? "enabled" : "disabled")).withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED));
     }
 
-    public ArenaMapInfo getInfo(ResourceLocation gamemode, int votes) {
-        return new ArenaMapInfo(name, screenshot, gamemode, getSize(), votes);
+    public ArenaMapInfo getInfo(ResourceLocation gamemode) {
+        return new ArenaMapInfo(name, screenshot, gamemode);
     }
 
     public Vec3i getSize() {

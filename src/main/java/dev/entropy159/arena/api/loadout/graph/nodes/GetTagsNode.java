@@ -19,6 +19,6 @@ public class GetTagsNode extends AnnotatedNode {
 
     @Override
     public void evaluate(EvalContext ctx) {
-        ctx.setOutput("tags", ctx.getInput("tags", Loadout.class).getTags());
+        ctx.setOutput("tags", ctx.getInput("loadout", Loadout.class).getTags());
     }
 }

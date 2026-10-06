@@ -124,12 +124,13 @@ public class ArenaEvents {
             if (event.getHeldItem().getItem() instanceof BlockItem bi && bi.getBlock() instanceof TeamBlock) {
                 boolean isValid = !event.getState().is(ArenaTags.TEAM_BLOCK_INVALID);
                 if (event.getPlayer() instanceof ServerPlayer serverPlayer) {
-                    var map = ArenaData.get(serverPlayer.server).currentMap;
-                    if (map != null && map.allowBlocks()) {
+                    var data = ArenaData.get(serverPlayer.server);
+                    var map = data.currentMap;
+                    if (map != null && map.allowBlocks(data.currentGamemode.getRegistryID())) {
                         event.setBypass(isValid);
                     }
                 } else {
-                    event.setBypass(isValid && ClientData.currentMap != null && ClientData.currentMap.allowBlocks());
+                    event.setBypass(isValid && ClientData.currentMap != null && ClientData.currentMap.allowBlocks(ClientData.currentGamemode.getRegistryID()));
                 }
             }
             if (event.getHeldItem().getItem() instanceof DisguiseItem) {

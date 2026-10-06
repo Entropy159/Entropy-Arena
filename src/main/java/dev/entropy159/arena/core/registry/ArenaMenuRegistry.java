@@ -12,6 +12,7 @@ import dev.entropy159.arena.core.ui.loadout.NewLoadoutUI;
 import dev.entropy159.arena.core.ui.map.MapInfoUI;
 import dev.entropy159.arena.core.ui.map.MapListUI;
 import dev.entropy159.arena.core.ui.map.MapLoadoutGraphUI;
+import dev.entropy159.arena.core.ui.map.MapSettingsGraphUI;
 import dev.entropy159.arena.core.ui.randomizer.ItemRandomizerListUI;
 import dev.entropy159.arena.core.ui.randomizer.ItemRandomizerUI;
 import dev.entropy159.arena.core.ui.voting.MapVotingUI;
@@ -33,5 +34,6 @@ public class ArenaMenuRegistry {
         LoadoutSelectionUI.register();
         MapVotingUI.register();
         MapLoadoutGraphUI.register();
+        MapSettingsGraphUI.register();
     }
 }

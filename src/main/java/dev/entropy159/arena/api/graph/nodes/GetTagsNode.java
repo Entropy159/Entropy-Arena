@@ -1,4 +1,4 @@
-package dev.entropy159.arena.api.loadout.graph.nodes;
+package dev.entropy159.arena.api.graph.nodes;
 
 import com.lowdragmc.kilagraph.graph.core.AnnotatedNode;
 import com.lowdragmc.kilagraph.graph.core.InputPort;
@@ -6,7 +6,7 @@ import com.lowdragmc.kilagraph.graph.core.OutputPort;
 import com.lowdragmc.kilagraph.graph.exec.EvalContext;
 import com.lowdragmc.lowdraglib2.nodegraphtookit.api.node.NodeAttribute;
 import dev.entropy159.arena.api.loadout.Loadout;
-import dev.entropy159.arena.api.loadout.graph.LoadoutTagGraph;
+import dev.entropy159.arena.api.graph.LoadoutTagGraph;
 
 import java.util.List;
 

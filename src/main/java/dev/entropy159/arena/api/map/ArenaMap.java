@@ -16,16 +16,16 @@ import com.lowdragmc.lowdraglib2.configurator.ui.Configurator;
 import com.lowdragmc.lowdraglib2.configurator.ui.SelectorConfigurator;
 import com.lowdragmc.lowdraglib2.nodegraphtookit.api.type.TypeHandles;
 import com.lowdragmc.lowdraglib2.nodegraphtookit.api.variable.VariableKind;
-import com.lowdragmc.lowdraglib2.nodegraphtookit.model.SpawnFlags;
 import com.lowdragmc.lowdraglib2.nodegraphtookit.model.node.ConstantNodeModel;
-import com.lowdragmc.lowdraglib2.nodegraphtookit.model.variable.VariableDeclarationModel;
 import dev.entropy159.arena.api.data.ArenaData;
 import dev.entropy159.arena.api.gamemode.ArenaGamemode;
 import dev.entropy159.arena.api.gamemode.GamemodeRegistry;
 import dev.entropy159.arena.api.loadout.Loadout;
-import dev.entropy159.arena.api.loadout.graph.LoadoutTagGraph;
-import dev.entropy159.arena.api.loadout.graph.nodes.GetTagsNode;
+import dev.entropy159.arena.api.graph.LoadoutTagGraph;
+import dev.entropy159.arena.api.graph.nodes.GetTagsNode;
+import dev.entropy159.arena.api.graph.MapSettingsGraph;
 import dev.entropy159.arena.api.util.ArenaTeam;
+import dev.entropy159.arena.api.util.GraphHelper;
 import dev.entropy159.arena.core.EntropyArena;
 import dev.entropy159.arena.core.blocks.SpawnpointBlock;
 import dev.entropy159.arena.core.config.ServerConfig;
@@ -67,13 +67,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ArenaMap implements IConfigurable {
-    public static final StreamCodec<RegistryFriendlyByteBuf, LoadoutTagGraph> LOADOUT_GRAPH_STREAM_CODEC = StreamCodec.of((buf, val) -> {
-        ByteBufCodecs.COMPOUND_TAG.encode(buf, val.graphModel.serializeNBT(buf.registryAccess()));
-    }, buf -> {
-        var graph = new LoadoutTagGraph();
-        graph.graphModel.deserializeNBT(buf.registryAccess(), ByteBufCodecs.COMPOUND_TAG.decode(buf));
-        return graph;
-    });
     public static final StreamCodec<RegistryFriendlyByteBuf, ArenaMap> STREAM_CODEC = StreamCodec.of((buf, map) -> {
         buf.writeUtf(map.name);
         buf.writeBoolean(map.enabled);
@@ -85,11 +78,9 @@ public class ArenaMap implements IConfigurable {
         buf.writeBoolean(map.raining);
         buf.writeBoolean(map.thundering);
         MapScreenshot.STREAM_CODEC.encode(buf, map.screenshot);
-        LOADOUT_GRAPH_STREAM_CODEC.encode(buf, map.loadoutTagGraph);
+        LoadoutTagGraph.STREAM_CODEC.encode(buf, map.getLoadoutTagGraph());
+        MapSettingsGraph.STREAM_CODEC.encode(buf, map.getSettingsGraph());
         ConfigOverridesPacket.CONFIG_MAP_STREAM_CODEC.encode(buf, map.configOverrides);
-        buf.writeInt(map.timer);
-        buf.writeInt(map.targetScore);
-        buf.writeBoolean(map.allowBlocks);
     }, buf -> {
         String name = buf.readUtf();
         boolean enabled = buf.readBoolean();
@@ -101,12 +92,10 @@ public class ArenaMap implements IConfigurable {
         boolean raining = buf.readBoolean();
         boolean thundering = buf.readBoolean();
         MapScreenshot screenshot = MapScreenshot.STREAM_CODEC.decode(buf);
-        LoadoutTagGraph loadoutTagGraph = LOADOUT_GRAPH_STREAM_CODEC.decode(buf);
+        var loadoutTagGraph = LoadoutTagGraph.STREAM_CODEC.decode(buf);
+        var settingsGraph = MapSettingsGraph.STREAM_CODEC.decode(buf);
         Map<String, CommentedConfig> configOverrides = ConfigOverridesPacket.CONFIG_MAP_STREAM_CODEC.decode(buf);
-        int timer = buf.readInt();
-        int targetScore = buf.readInt();
-        boolean allowBlocks = buf.readBoolean();
-        return new ArenaMap(name, enabled, dimension, gamemodes, corner1, corner2, time, raining, thundering, screenshot, configOverrides, loadoutTagGraph, timer, targetScore, allowBlocks);
+        return new ArenaMap(name, enabled, dimension, gamemodes, corner1, corner2, time, raining, thundering, screenshot, configOverrides, loadoutTagGraph, settingsGraph);
     });
 
     private final String name;
@@ -127,21 +116,16 @@ public class ArenaMap implements IConfigurable {
     @Configurable(name = "Thundering")
     private boolean thundering;
     private LoadoutTagGraph loadoutTagGraph;
-    @Configurable(name = "Timer")
-    private int timer;
-    @Configurable(name = "Target Score")
-    private int targetScore;
-    @Configurable(name = "Allow Blocks")
-    private boolean allowBlocks;
+    private MapSettingsGraph settingsGraph;
     private MapScreenshot screenshot;
     protected final HashMap<Property<?>, HashMap<Object, ArrayList<BlockPos>>> blockPropertyMap = new HashMap<>();
     private final Map<String, CommentedConfig> configOverrides;
 
     public ArenaMap(ServerLevel level, String name, List<ResourceLocation> gamemodeIDs, BlockPos corner1, BlockPos corner2) {
-        this(name, true, level.dimension(), gamemodeIDs, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), new HashMap<>(), defaultLoadoutGraph(), -1, -1, true);
+        this(name, true, level.dimension(), gamemodeIDs, BlockPos.min(corner1, corner2), BlockPos.max(corner1, corner2), level.getDayTime(), level.isRaining(), level.isThundering(), new MapScreenshot(name), new HashMap<>(), defaultLoadoutGraph(), defaultSettingsGraph());
     }
 
-    public ArenaMap(String name, boolean enabled, ResourceKey<Level> dimension, List<ResourceLocation> gamemodeIDs, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, Map<String, CommentedConfig> configOverrides, LoadoutTagGraph loadoutTagGraph, int timer, int targetScore, boolean allowBlocks) {
+    public ArenaMap(String name, boolean enabled, ResourceKey<Level> dimension, List<ResourceLocation> gamemodeIDs, BlockPos corner1, BlockPos corner2, long time, boolean raining, boolean thundering, MapScreenshot screenshot, Map<String, CommentedConfig> configOverrides, LoadoutTagGraph loadoutTagGraph, MapSettingsGraph settingsGraph) {
         this.name = name;
         this.enabled = enabled;
         this.dimension = dimension;
@@ -154,9 +138,7 @@ public class ArenaMap implements IConfigurable {
         this.screenshot = screenshot;
         this.configOverrides = configOverrides;
         this.loadoutTagGraph = loadoutTagGraph;
-        this.timer = timer;
-        this.targetScore = targetScore;
-        this.allowBlocks = allowBlocks;
+        this.settingsGraph = settingsGraph;
     }
 
     public @Nullable ServerLevel getLevel() {
@@ -310,10 +292,8 @@ public class ArenaMap implements IConfigurable {
             configs.putString(modID, configString);
         });
         tag.put("configOverrides", configs);
-        tag.put("loadoutTagGraph", loadoutTagGraph.graphModel.serializeNBT(registries));
-        tag.putInt("timer", timer);
-        tag.putInt("targetScore", targetScore);
-        tag.putBoolean("allowBlocks", allowBlocks);
+        tag.put("loadoutTagGraph", getLoadoutTagGraph().graphModel.serializeNBT(registries));
+        tag.put("settingsGraph", getSettingsGraph().graphModel.serializeNBT(registries));
         return tag;
     }
 
@@ -345,10 +325,11 @@ public class ArenaMap implements IConfigurable {
         if (tag.contains("loadoutTagGraph")) {
             loadoutTagGraph.graphModel.deserializeNBT(registries, tag.getCompound("loadoutTagGraph"));
         }
-        int timer = tag.getInt("timer");
-        int targetScore = tag.getInt("targetScore");
-        boolean allowblocks = tag.getBoolean("allowBlocks");
-        return new ArenaMap(name, enabled, dimension, gamemodes, corner1, corner2, time, raining, thundering, screenshot, configOverrides, loadoutTagGraph, timer, targetScore, allowblocks);
+        MapSettingsGraph settingsGraph = defaultSettingsGraph();
+        if (tag.contains("settingsGraph")) {
+            settingsGraph.graphModel.deserializeNBT(registries, tag.getCompound("settingsGraph"));
+        }
+        return new ArenaMap(name, enabled, dimension, gamemodes, corner1, corner2, time, raining, thundering, screenshot, configOverrides, loadoutTagGraph, settingsGraph);
     }
 
     public String getName() {
@@ -414,9 +395,8 @@ public class ArenaMap implements IConfigurable {
     }
 
     public boolean isValidLoadout(Loadout loadout, ResourceLocation gamemode) {
-        var graph = getLoadoutTagGraph();
         var env = EvaluationEnvironment.with(Map.of("loadout", loadout, "gamemode", gamemode));
-        var executor = new GraphExecutor(graph, env);
+        var executor = new GraphExecutor(getLoadoutTagGraph(), env);
         var outputs = executor.runOutputs();
         return outputs.get("valid") instanceof Boolean bool && bool;
     }
@@ -429,21 +409,21 @@ public class ArenaMap implements IConfigurable {
     }
 
     public void updateLoadoutGraph(CompoundTag tag, HolderLookup.Provider registries) {
-        loadoutTagGraph.graphModel.deserializeNBT(registries, tag);
+        getLoadoutTagGraph().graphModel.deserializeNBT(registries, tag);
     }
 
     private static LoadoutTagGraph defaultLoadoutGraph() {
         var graph = new LoadoutTagGraph();
 
-        var valid = (VariableDeclarationModel) graph.graphModel.createVariable("valid", Boolean.class, false, VariableKind.OUTPUT);
-        var loadout = (VariableDeclarationModel) graph.graphModel.createVariable("loadout", Loadout.class, null, VariableKind.INPUT);
-        var gamemode = (VariableDeclarationModel) graph.graphModel.createVariable("gamemode", ResourceLocation.class, GamemodeRegistry.NONE_ID, VariableKind.INPUT);
+        var valid = GraphHelper.createVariable(graph, "valid", Boolean.class, false, VariableKind.OUTPUT);
+        var loadout = GraphHelper.createVariable(graph, "loadout", Loadout.class, null, VariableKind.INPUT);
+        var gamemode = GraphHelper.createVariable(graph, "gamemode", ResourceLocation.class, GamemodeRegistry.NONE_ID, VariableKind.INPUT);
 
-        var loadoutNode = graph.graphModel.createVariableNode(loadout, new Vector2f(0, 0), null, SpawnFlags.DEFAULT);
+        var loadoutNode = GraphHelper.createVariableNode(graph, loadout, new Vector2f(0, 0));
         var tagConstantNode = (ConstantNodeModel) graph.graphModel.createConstantNode("tag", new Vector2f(0, 50), TypeHandles.STRING, "global");
-        var getTagsNode = graph.graphModel.createNodeModel(new GetTagsNode(), new Vector2f(75, 0));
-        var containsTagNode = graph.graphModel.createNodeModel(new ListContainsNode(), new Vector2f(150, 0));
-        var setValid = graph.graphModel.createVariableNode(valid, new Vector2f(225, 0), null, SpawnFlags.DEFAULT);
+        var getTagsNode = graph.graphModel.createNodeModel(new GetTagsNode(), new Vector2f(150, 0));
+        var containsTagNode = graph.graphModel.createNodeModel(new ListContainsNode(), new Vector2f(300, 0));
+        var setValid = GraphHelper.createVariableNode(graph, valid, new Vector2f(450, 0));
 
         graph.graphModel.createWire(loadoutNode.getOutputPort(), getTagsNode.getInputsById().get("loadout"));
         graph.graphModel.createWire(getTagsNode.getOutputsById().get("tags"), containsTagNode.getInputsById().get("list"));
@@ -453,16 +433,57 @@ public class ArenaMap implements IConfigurable {
         return graph;
     }
 
-    public int getTimer() {
-        return timer < 0 ? ServerConfig.DEFAULT_ROUND_SECONDS.get() : timer;
+    public MapSettingsGraph getSettingsGraph() {
+        if (settingsGraph == null) {
+            settingsGraph = defaultSettingsGraph();
+        }
+        return settingsGraph;
     }
 
-    public int getTargetScore() {
-        return targetScore < 0 ? ServerConfig.DEFAULT_TARGET_SCORE.get() : targetScore;
+    public void updateSettingsGraph(CompoundTag tag, HolderLookup.Provider registries) {
+        getSettingsGraph().graphModel.deserializeNBT(registries, tag);
     }
 
-    public boolean allowBlocks() {
-        return allowBlocks;
+    private static MapSettingsGraph defaultSettingsGraph() {
+        var graph = new MapSettingsGraph();
+
+        var gamemode = GraphHelper.createVariable(graph, "gamemode", ResourceLocation.class, GamemodeRegistry.NONE_ID, VariableKind.INPUT);
+        var defaultTimer = GraphHelper.createVariable(graph, "defaultTimer", Integer.class, ServerConfig.DEFAULT_ROUND_SECONDS.get(), VariableKind.INPUT);
+        var defaultScore = GraphHelper.createVariable(graph, "defaultScore", Integer.class, ServerConfig.DEFAULT_TARGET_SCORE.get(), VariableKind.INPUT);
+        var timer = GraphHelper.createVariable(graph, "timer", Integer.class, defaultTimer.getDefaultValue(), VariableKind.OUTPUT);
+        var score = GraphHelper.createVariable(graph, "score", Integer.class, defaultScore.getDefaultValue(), VariableKind.OUTPUT);
+        var allowBlocks = GraphHelper.createVariable(graph, "allowBlocks", Boolean.class, true, VariableKind.OUTPUT);
+
+        var defaultTimerNode = GraphHelper.createVariableNode(graph, defaultTimer, new Vector2f(0, 0));
+        var defaultScoreNode = GraphHelper.createVariableNode(graph, defaultScore, new Vector2f(0, 50));
+        var timerNode = GraphHelper.createVariableNode(graph, timer, new Vector2f(100, 0));
+        var scoreNode = GraphHelper.createVariableNode(graph, score, new Vector2f(100, 50));
+
+        graph.graphModel.createWire(defaultTimerNode.getOutputPort(), timerNode.getInputPort());
+        graph.graphModel.createWire(defaultScoreNode.getOutputPort(), scoreNode.getInputPort());
+
+        return graph;
+    }
+
+    public int getTimer(ResourceLocation gamemode) {
+        return evaluateSettings(gamemode).get("timer") instanceof Integer val ? val : ServerConfig.DEFAULT_ROUND_SECONDS.get();
+    }
+
+    public int getTargetScore(ResourceLocation gamemode) {
+        return evaluateSettings(gamemode).get("score") instanceof Integer val ? val : ServerConfig.DEFAULT_TARGET_SCORE.get();
+    }
+
+    public boolean allowBlocks(ResourceLocation gamemode) {
+        if (evaluateSettings(gamemode).get("allowBlocks") instanceof Boolean bool) {
+            return bool;
+        }
+        return false;
+    }
+
+    private Map<String, Object> evaluateSettings(ResourceLocation gamemode) {
+        var env = EvaluationEnvironment.with(Map.of("gamemode", gamemode, "defaultTimer", ServerConfig.DEFAULT_ROUND_SECONDS.get(), "defaultScore", ServerConfig.DEFAULT_TARGET_SCORE.get()));
+        var executor = new GraphExecutor(getSettingsGraph(), env);
+        return executor.runOutputs();
     }
 
     private ResourceLocation defaultGamemodeID() {

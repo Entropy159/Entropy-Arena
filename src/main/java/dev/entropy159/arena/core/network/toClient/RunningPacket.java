@@ -31,6 +31,6 @@ public record RunningPacket(boolean running, boolean lobby, int targetScore,
 
     public static RunningPacket fromData(MinecraftServer server) {
         ArenaData data = ArenaData.get(server);
-        return new RunningPacket(data.running, data.lobby, data.currentMap == null ? 0 : data.currentMap.getTargetScore(), data.gameType);
+        return new RunningPacket(data.running, data.lobby, data.currentMap == null ? 0 : data.currentMap.getTargetScore(data.currentGamemode.getRegistryID()), data.gameType);
     }
 }

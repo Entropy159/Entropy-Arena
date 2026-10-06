@@ -15,7 +15,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class TeamCapturePoint extends CapturePoint {
     public static final StreamCodec<ByteBuf, TeamCapturePoint> STREAM_CODEC = StreamCodec.of((buffer, point) -> point.encodeData(buffer), TeamCapturePoint::decodeData);
@@ -47,11 +48,14 @@ public class TeamCapturePoint extends CapturePoint {
     @Override
     public void onLevelTick(ServerLevel level) {
         super.onLevelTick(level);
-        List<ArenaTeam> contestants = getPlayersInRadius(level).stream().map(player -> ArenaTeam.fromTeam(player.getTeam())).distinct().toList();
+        var contestants = getPlayersInRadius(level).stream().map(player -> ArenaTeam.fromTeam(player.getTeam())).collect(Collectors.toSet());
         if (contestants.isEmpty()) {
             resetCaptureProgress();
         } else if (contestants.size() == 1) {
-            ArenaTeam team = contestants.getFirst();
+            ArenaTeam team = new ArrayList<>(contestants).getFirst();
+            if (getTeam() == team) {
+                return;
+            }
             takingTeam = team;
             if (tryIncrementCapture(level)) {
                 if (setTeam(team)) {

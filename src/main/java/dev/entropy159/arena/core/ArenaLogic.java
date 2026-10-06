@@ -214,7 +214,7 @@ public class ArenaLogic {
         }
         Notification.toAll(Component.translatable("message.arena.map_info", data.currentMap.getName()).withStyle(ChatFormatting.YELLOW).append(data.currentGamemode.getName()));
         if (data.gameType == ArenaGameType.TIMED) {
-            data.timer = data.currentMap.getTimer();
+            data.timer = data.currentMap.getTimer(data.currentGamemode.getRegistryID());
         }
         PacketDistributor.sendToAllPlayers(GameInfoPacket.fromData(data));
         data.currentGamemode.onMatchStart(currentLevel);
@@ -292,7 +292,7 @@ public class ArenaLogic {
         }
         if (data.inGame()) {
             data.currentGamemode.onLevelTick(currentLevel);
-            if (data.currentGamemode.shouldWin(currentLevel, data.gameType, data.timer, data.currentMap.getTargetScore())) {
+            if (data.currentGamemode.shouldWin(currentLevel, data.gameType, data.timer, data.currentMap.getTargetScore(data.currentGamemode.getRegistryID()))) {
                 EntropyArena.LOGGER.info("Ending game!");
                 endMatch();
             }

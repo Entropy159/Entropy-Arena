@@ -71,8 +71,12 @@ public class KOTHCapturePoint extends CapturePoint {
                 Utils.playSoundForEveryone(level.getServer(), SoundEvents.BEACON_DEACTIVATE, SoundSource.AMBIENT);
             }
         } else if (contestants.size() == 1) {
+            var newKing = contestants.getFirst().getUUID();
+            if (getKing() == newKing) {
+                return;
+            }
             if (tryIncrementCapture(level)) {
-                if (setKing(contestants.getFirst().getUUID())) {
+                if (setKing(newKing)) {
                     Notification.toAll(Component.translatable("message.arena.koth.new_king", contestants.getFirst().getDisplayName()).withStyle(ChatFormatting.GREEN));
                     Utils.playSoundForEveryone(level.getServer(), SoundEvents.BEACON_ACTIVATE, SoundSource.AMBIENT);
                 }

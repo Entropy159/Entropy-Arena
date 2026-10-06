@@ -56,6 +56,11 @@ public class MapInfoUI extends PlayerUIWithData.DataUIHolder {
                             MapLoadoutGraphUI.open(serverPlayer, map);
                         }
                     }),
+                    new Button().setText("Settings Graph").setOnServerClick(e -> {
+                        if (player instanceof ServerPlayer serverPlayer) {
+                            MapSettingsGraphUI.open(serverPlayer, map);
+                        }
+                    }),
                     new Button().setText("Update").setOnServerClick(e -> {
                         if (player instanceof ServerPlayer serverPlayer) {
                             player.closeContainer();

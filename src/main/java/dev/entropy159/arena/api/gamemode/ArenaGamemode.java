@@ -130,7 +130,8 @@ public abstract class ArenaGamemode implements CustomPacketPayload, Supplier<Are
     }
 
     public void onGiveLoadout(ServerPlayer player, Loadout loadout) {
-        boolean blocksAllowed = ArenaData.get(player.server).currentMap.allowBlocks();
+        var data = ArenaData.get(player.server);
+        boolean blocksAllowed = data.currentMap.allowBlocks(data.currentGamemode.getRegistryID());
         LoadoutSerializerRegistry.forEachStack(player, (serializer, slot, stack) -> {
             if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof TeamBlock) {
                 serializer.setStack(player, slot, blocksAllowed ? TeamBlock.getStack(getTeamForBlock(player)) : ItemStack.EMPTY);
